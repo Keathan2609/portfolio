@@ -1,0 +1,120 @@
+/* The band needs scroll length for its mechanic to play out — a transition
+   that resolves in 200px reads as a glitch rather than a passage. It also
+   must not become a long stretch of nothing, so the length is a token that
+   reduced motion shortens (see tokens.css). */
+.band {
+  min-height: var(--band-length);
+  padding-block: 0;
+}
+
+/* A column, not a divider. The mark runs WITH the scroll rather than across
+   it: the thread descends the full band and the label hangs off it near the
+   midpoint, where the mechanic behind peaks. */
+.marker {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-5);
+  min-height: var(--band-length);
+  padding-block: var(--s-8);
+}
+
+/* The hairline. Transform-origin top so it draws downward as the visitor
+   scrolls — the DOM half of the same statement the WebGL layer is making. */
+.thread {
+  flex: 0 0 auto;
+  width: 1px;
+  align-self: stretch;
+  transform-origin: 50% 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--c-line-strong) 12%,
+    color-mix(in oklab, var(--c-accent) 55%, var(--c-line-strong)) 60%,
+    transparent
+  );
+}
+
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  /* Sits at the midpoint of the band, where the mechanic peaks. */
+  margin-top: calc(var(--band-length) / 2 - 4rem);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+.pair {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--c-text-muted);
+}
+
+/* Down, not right. The journey moves in one direction and the mark should
+   agree with it. */
+.arrow {
+  color: var(--c-accent);
+}
+
+.mechanic {
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  color: var(--c-text-faint);
+}
+
+/* Mobile intentionally simplifies: the band shortens hard, because a long
+   atmospheric passage on a phone is just a long scroll with nothing in it,
+   and the mechanic line is dropped so only the world pair remains. */
+@media (max-width: 63.9375rem) {
+  .band {
+    --band-length: 55dvh;
+  }
+
+  .marker {
+    padding-block: var(--s-6);
+  }
+
+  .mechanic {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Reduced motion shortens these passages — the scene is scroll-driven but
+   time-frozen at this setting, so the extra scroll length buys nothing but
+   distance.
+
+   tokens.css also re-points --band-length for both reduced-motion paths,
+   which is the tidier expression. These rules set the heights DIRECTLY as
+   well, and that redundancy is deliberate: the value then does not depend on
+   a custom property being re-substituted into an already computed property
+   when `data-motion` flips after hydration. One less thing that has to go
+   right for a preference the visitor actively asked for.
+   ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .band,
+  :root:not([data-motion="full"]) .marker {
+    min-height: 60dvh;
+  }
+
+  :root:not([data-motion="full"]) .note {
+    margin-top: calc(30dvh - 4rem);
+  }
+}
+
+/* The in-page toggle path — the common case, since most visitors have no
+   OS preference set and the toggle is the only way they express one. */
+:root[data-motion="reduced"] .band,
+:root[data-motion="reduced"] .marker {
+  min-height: 60dvh;
+}
+
+:root[data-motion="reduced"] .note {
+  margin-top: calc(30dvh - 4rem);
+}

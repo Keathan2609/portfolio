@@ -1,0 +1,93 @@
+/* =========================================================================
+   LAYOUT
+
+   The composable `.l-*` primitives (l-container, l-grid, l-stack, l-row,
+   l-bleed, l-rule) were removed — nothing used them. Sections lay
+   themselves out in their own modules, and the Stage component owns the
+   shared container. What remains below is live in three places.
+   ========================================================================= */
+
+/* Screen-reader-only, still focusable. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================================
+   NO-JS / FAILED-INIT SAFETY
+   Entrance animations set their initial hidden state from JS (gsap.set),
+   never from CSS. This class is the belt-and-braces: if the app shell
+   never hydrates, nothing can remain stuck at opacity 0.
+   ========================================================================= */
+:root:not(.js-ready) [data-animate] {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+/* =========================================================================
+   REDUCED MOTION — CONTENT VISIBILITY GUARANTEE
+
+   The same belt-and-braces, for the other way this can fail.
+
+   The motion preference is read from an external store whose server snapshot
+   is "system", so the first client pass runs as though motion were full: the
+   headings split, and their entrance tween sets each line to yPercent 115 —
+   parked below its own overflow:hidden mask, waiting for a ScrollTrigger.
+   When the preference then resolves to "reduced", that tween is exactly what
+   stops being created, and the lines have nothing left to bring them back.
+
+   Measured under prefers-reduced-motion, every RevealText heading on the site
+   sat at translateY(110.5px) inside its mask — invisible, while still
+   reporting opacity 1 and a full bounding box, which is why nothing caught it.
+
+   The components now restore themselves as well (see components/ui/Reveal),
+   but a JS fix for a JS race is not a guarantee. This one cannot lose the
+   race, applies before first paint, and needs no hydration:
+
+     [data-animate]        the block reveals
+     [class*="line-mask"]  SplitText's own wrappers — matched by substring
+                           because GSAP derives the mask class from the CSS
+                           module's hashed line class at runtime
+
+   Both branches exist for the same reason as in tokens.css: the media query
+   is the pre-hydration default, and the data attribute is the in-page toggle.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) [data-animate],
+  :root:not([data-motion="full"]) [class*="line-mask"] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+
+:root[data-motion="reduced"] [data-animate],
+:root[data-motion="reduced"] [class*="line-mask"] > * {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+/* =========================================================================
+   CUSTOM CURSOR
+   The class is added at runtime by <Cursor>, never declared statically —
+   so a failed hydration can never leave a visitor with no pointer.
+   ========================================================================= */
+.cursor-custom,
+.cursor-custom * {
+  cursor: none;
+}
+
+/* Keyboard users and anyone who has hidden the custom cursor still get a
+   real pointer on genuinely interactive controls. */
+.cursor-custom :focus-visible {
+  cursor: auto;
+}

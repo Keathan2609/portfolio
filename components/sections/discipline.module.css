@@ -1,0 +1,231 @@
+.world {
+  min-height: 100dvh;
+}
+
+/* -------------------------------------------------------------------------
+   Opening — "in and out". Index, name, one line, honest level.
+   ------------------------------------------------------------------------- */
+
+.opening {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  min-height: 62vh;
+  justify-content: center;
+}
+
+
+
+
+
+/* The single introductory line, at heading scale. This is the whole of the
+   world's copy — no essay, no manifesto. */
+.intro {
+  max-width: 20ch;
+  font-size: var(--t-h1);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-7);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--c-line);
+}
+
+.metaKey {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+/* Experience level integrated as metadata. Never a badge, never oversized. */
+.level,
+.register {
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  color: var(--c-text-muted);
+}
+
+.level {
+  color: var(--c-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Process strip — the pipeline as data
+   ------------------------------------------------------------------------- */
+
+.process {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-5);
+  margin-top: var(--s-8);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--c-line);
+}
+
+.process li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+.process li + li::before {
+  content: "→";
+  margin-right: var(--s-3);
+  color: var(--c-line-strong);
+}
+
+.stepIndex {
+  color: var(--c-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Capabilities
+   ------------------------------------------------------------------------- */
+
+.capabilities {
+  margin-top: var(--s-7);
+}
+
+.capabilitiesTitle {
+  margin-bottom: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+.capabilities ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  max-width: 62rem;
+}
+
+.capabilities li {
+  font-size: var(--t-small);
+  color: var(--c-text-muted);
+}
+
+.capabilities li + li::before {
+  content: "·";
+  margin-right: var(--s-4);
+  color: var(--c-line-strong);
+}
+
+/* -------------------------------------------------------------------------
+   Project rail — the one sanctioned horizontal moment
+   ------------------------------------------------------------------------- */
+
+.rail {
+  position: relative;
+  padding-block: var(--s-9);
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+  padding-inline: var(--gutter);
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+/* Desktop: the track becomes a horizontal run driven by ScrollTrigger.
+   Mobile keeps the vertical stack — the section is re-laid, not shrunk. */
+.track[data-horizontal="true"] {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: clamp(2rem, 5vw, 5rem);
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: var(--gutter);
+  width: max-content;
+  will-change: transform;
+}
+
+.railHead {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-top: var(--s-2);
+}
+
+.track[data-horizontal="true"] .railHead {
+  width: 18rem;
+  padding-right: var(--s-6);
+  border-right: 1px solid var(--c-line);
+}
+
+.railTitle {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.railNote {
+  max-width: 28ch;
+  font-size: var(--t-small);
+  line-height: 1.5;
+  color: var(--c-text-faint);
+}
+
+.item {
+  flex-shrink: 0;
+}
+
+.track[data-horizontal="true"] .item {
+  width: clamp(22rem, 30vw, 34rem);
+}
+
+@media (min-width: 48rem) {
+  .track:not([data-horizontal="true"]) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    align-items: start;
+  }
+
+  .track:not([data-horizontal="true"]) .railHead {
+    grid-column: 1 / -1;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Signature tools
+
+   Three or four names, set as one quiet mono line under the world's metadata.
+   Deliberately NOT a chip row or a tag cloud: those read as UI, and this is
+   supposed to read as a caption. It releases on scroll (see DisciplineWorld)
+   because it orients the reader once and then has no further job.
+   ------------------------------------------------------------------------- */
+
+.signature {
+  margin-top: var(--s-5);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+.signatureSep {
+  color: var(--c-accent);
+}

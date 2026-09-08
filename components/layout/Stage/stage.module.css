@@ -1,0 +1,32 @@
+.stage {
+  position: relative;
+  padding-block: var(--section-pad-block);
+}
+
+/* Destination of every journey-rail link. Same reasoning as .main. */
+.stage:focus {
+  outline: none;
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: -4px;
+}
+
+.full {
+  display: flex;
+  align-items: center;
+  /* dvh, not vh: on mobile the URL bar makes vh taller than the visible
+     viewport, which clips the bottom of every full-height stage. */
+  min-height: 100dvh;
+}
+
+.content {
+  position: relative;
+  /* Above this stage's own WebGL region. */
+  z-index: 1;
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}

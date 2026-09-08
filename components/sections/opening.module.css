@@ -1,0 +1,115 @@
+.opening {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100dvh;
+  padding-block: var(--s-9) var(--s-7);
+}
+
+
+
+/* The hairline in the foot. Restored: extracting <Eyebrow> took this class
+   with it, which left Opening rendering a class-less zero-size span and a
+   GSAP tween targeting the literal selector ".undefined". */
+.rule {
+  display: block;
+  width: clamp(2rem, 8vw, 7rem);
+  height: 1px;
+  background: var(--c-line-strong);
+}
+
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  margin-block: auto;
+  padding-block: var(--s-8);
+}
+
+.line {
+  overflow: hidden;
+}
+
+.word,
+.resolve {
+  position: relative;
+  display: inline-block;
+  font-size: clamp(1.75rem, 5.2vw, 4.5rem);
+  font-weight: var(--fw-medium);
+  line-height: 1.05;
+  letter-spacing: var(--tr-display);
+  color: var(--c-text-muted);
+}
+
+/* The strike-through is drawn, not toggled — it has to read as an act. */
+.strike {
+  position: absolute;
+  left: 0;
+  top: 55%;
+  width: 100%;
+  height: 2px;
+  background: var(--c-text);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* Reduced motion shows the RESOLVED composition, not the initial one.
+   Skipping the animation must not mean skipping the argument the sequence
+   makes — the disciplines struck through, one word left standing. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .strike {
+    transform: scaleX(1);
+  }
+
+  :root:not([data-motion="full"]) .word[data-struck="true"] {
+    opacity: 0.22;
+  }
+}
+
+:root[data-motion="reduced"] .strike {
+  transform: scaleX(1);
+}
+
+:root[data-motion="reduced"] .word[data-struck="true"] {
+  opacity: 0.22;
+}
+
+.resolve {
+  color: var(--c-text);
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+}
+
+.name {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+.skip {
+  margin-left: auto;
+  min-height: 2.75rem;
+  padding-inline: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius-md);
+  transition:
+    color var(--d-fast) var(--e-out-quart),
+    border-color var(--d-fast) var(--e-out-quart);
+}
+
+.skip:hover,
+.skip:focus-visible {
+  color: var(--c-text);
+  border-color: var(--c-text);
+}

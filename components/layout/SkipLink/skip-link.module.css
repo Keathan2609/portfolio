@@ -1,0 +1,23 @@
+/* Off-screen until focused — never display:none, which removes it from the
+   tab order entirely and defeats the point. */
+.skip {
+  position: fixed;
+  top: var(--s-4);
+  left: var(--s-4);
+  z-index: var(--z-skip);
+  padding: var(--s-3) var(--s-5);
+  background: var(--c-text);
+  color: var(--c-void);
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  transform: translateY(calc(-100% - var(--s-6)));
+  transition: transform var(--d-fast) var(--e-out-expo);
+}
+
+.skip:focus,
+.skip:focus-visible {
+  transform: translateY(0);
+}

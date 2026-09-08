@@ -1,0 +1,107 @@
+.rail {
+  position: fixed;
+  top: 50%;
+  right: var(--gutter);
+  z-index: var(--z-header);
+  transform: translateY(-50%);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  align-items: flex-end;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  /* Desktop-gated, but 1024px+ touch devices reach it. */
+  min-height: 2.75rem;
+  padding-block: var(--s-1);
+  color: var(--c-text-faint);
+  transition: color var(--d-fast) var(--e-out-quart);
+}
+
+.index,
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+}
+
+.index {
+  opacity: 0;
+  transform: translateX(var(--s-2));
+  font-variant-numeric: tabular-nums;
+  transition:
+    opacity var(--d-fast) var(--e-out-quart),
+    transform var(--d-fast) var(--e-out-quart);
+}
+
+/* Unnumbered stages (start, intro, skills, CV, hire) carry a middot rather
+   than an em dash — a dash reads as a missing value, a dot reads as a stop
+   on the line. Dimmed so the five numbered worlds stay the spine. */
+.indexBlank {
+  color: var(--c-line-strong);
+}
+
+/* Labels stay hidden until hover/focus so the rail reads as a quiet
+   progress indicator rather than a menu — but they remain in the DOM and
+   are always available to assistive tech. */
+.label {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    max-width var(--d-base) var(--e-out-expo),
+    opacity var(--d-fast) var(--e-out-quart);
+}
+
+.tick {
+  display: block;
+  width: 1.5rem;
+  height: 1px;
+  background: currentColor;
+  transition:
+    width var(--d-base) var(--e-out-expo),
+    background-color var(--d-fast) var(--e-out-quart);
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--c-text);
+}
+
+.link:hover .label,
+.link:focus-visible .label {
+  max-width: 8rem;
+  opacity: 1;
+}
+
+.link:hover .index,
+.link:focus-visible .index {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.active {
+  color: var(--c-text);
+}
+
+.active .tick {
+  width: 2.75rem;
+  background: var(--c-accent);
+}
+
+/* Wayfinding by rail is a desktop affordance. On touch the journey is
+   linear and the rail would only compete with content for width. */
+@media (max-width: 63.9375rem) {
+  .rail {
+    display: none;
+  }
+}

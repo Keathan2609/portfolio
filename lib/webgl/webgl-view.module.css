@@ -1,0 +1,46 @@
+.view {
+  /* Sits behind the stage's own content — treatment, never content. */
+  z-index: 0;
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+}
+
+/**
+ * Holds the WHOLE viewport, always.
+ *
+ * Used by exactly one thing: the persistent journey environment, which is
+ * mounted once in the app shell and is on screen from the opening to the
+ * footer. It is not tracking a section, so a region scissored to some
+ * element's box would be meaningless — and a scissored box is precisely what
+ * produced the worst artefact of the previous architecture, where the
+ * outgoing world filled the top of the screen and the incoming one filled the
+ * bottom, meeting at a horizontal seam that slid through the composition.
+ *
+ * Safe to use `fixed` here specifically because the environment is mounted in
+ * the shell, outside any pinned subtree: a pin creates a transformed
+ * ancestor, and fixed positioning inside one resolves against the ancestor
+ * rather than the viewport. The project rail is pinned; it is nowhere near
+ * this element's ancestry.
+ *
+ * Stays at z-index 0, and is first in the shell's DOM order, so it paints
+ * beneath the hero's view and beneath all content.
+ */
+.viewport {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+}
+
+.inert {
+  pointer-events: none;
+}
+
+/* Only granted where a specific experience needs pointer input. */
+.interactive {
+  pointer-events: auto;
+  touch-action: pan-y;
+}

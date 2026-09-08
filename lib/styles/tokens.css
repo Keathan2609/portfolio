@@ -1,0 +1,250 @@
+/* =========================================================================
+   DESIGN TOKENS — Keathan Naidoo
+   Dark foundation. ~70% premium restraint / ~30% experimental.
+   Premium comes from: deep neutral ground, tight optical scale, generous
+   negative space, one accent at a time.
+   Experimental comes from: mono microtypography, off-axis accents,
+   motion + WebGL treatment — NOT from decorative UI chrome.
+   ========================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------
+     COLOUR — neutral ramp
+     A true dark foundation: near-black with a cool cast, never pure #000
+     (pure black clips on OLED and kills depth in WebGL compositing).
+     --------------------------------------------------------------------- */
+  --c-void: #060607;
+  --c-base: #0a0a0c;
+  --c-surface: #101014;
+  --c-surface-raised: #16161c;
+  --c-line: #22222b;
+  --c-line-strong: #33333f;
+
+  --c-text: #f2f2f4;
+  --c-text-muted: #9a9aa6;
+  /* Raised twice, both times for contrast, both times measured.
+     
+     #63636f gave 3.34:1 on --c-base and failed AA outright for the small text
+     it carries in ~33 places (every eyebrow, every metadata line, the motion
+     toggle readout, the "Placeholder" tags). #7c7c88 cleared it at 4.80:1 —
+     but only just, and 4.80 leaves 0.0035 of relative luminance before the
+     ratio drops under 4.5.
+
+     That margin is not enough to sit a lit environment behind. The WebGL
+     canvas composites UNDER the text, so any light the environment adds is
+     added to this token's background too; measured against the finished
+     environment, the Data Science and transition frames pushed it to 3.69:1
+     and 4.25:1. Rather than flatten the environment back toward the black
+     page it was, the token takes the headroom: #90909c reads as the same
+     faint tone in the same cool ramp and measures 6.27:1 on --c-base and
+     4.77:1 against the brightest region the environment ever produces. */
+  --c-text-faint: #90909c;
+
+  /* ---------------------------------------------------------------------
+     COLOUR — discipline accents
+     One accent is active at a time, promoted to --c-accent by the active
+     discipline section. Sections set --c-accent locally; nothing else
+     should hardcode a discipline colour.
+     --------------------------------------------------------------------- */
+  --c-accent-software: #4f7cff;
+  --c-accent-xr: #9d5cff;
+  --c-accent-ai: #00c2a8;
+  --c-accent-creative: #ff6b3d;
+  /* Cold steel rather than the cliché security green — or the alarm red
+     that would read as "breach" instead of "analysis". */
+  --c-accent-security: #5c86a8;
+
+  --c-accent: var(--c-text);
+  --c-accent-soft: color-mix(in oklab, var(--c-accent) 18%, transparent);
+  --c-accent-line: color-mix(in oklab, var(--c-accent) 40%, transparent);
+
+  --c-focus: #ffffff;
+
+  /* ---------------------------------------------------------------------
+     TYPOGRAPHY
+     Three families, no more. Sans carries the site; mono carries the
+     technical layer (indices, labels, metadata); serif is the editorial
+     accent used sparingly for emphasis.
+     --------------------------------------------------------------------- */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono",
+    monospace;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+  /* Fluid type scale.
+     Every step uses the `rem + vw` form rather than bare `vw`. With a bare
+     vw preferred value the clamp collapses to its minimum across most real
+     viewports — the old --t-body sat at exactly 16px until 1524px wide, so
+     headings scaled 1.5x while the text layer never moved and the hierarchy
+     drifted apart on large screens. The rem base keeps every step scaling
+     continuously from ~375px up, and the desktop sizes are preserved:
+     display and h1 land within a pixel of their previous values at 1440. */
+  --t-display: clamp(3.2rem, 1rem + 9.8vw, 12rem);
+  --t-h1: clamp(2.4rem, 0.9rem + 6.1vw, 6.5rem);
+  --t-h2: clamp(1.9rem, 0.7rem + 4.1vw, 4rem);
+  --t-h3: clamp(1.35rem, 1.05rem + 1.28vw, 2.25rem);
+  --t-lead: clamp(1.125rem, 1.02rem + 0.44vw, 1.5rem);
+  --t-body: clamp(1rem, 0.93rem + 0.19vw, 1.125rem);
+  --t-small: clamp(0.875rem, 0.83rem + 0.12vw, 1rem);
+  --t-micro: clamp(0.75rem, 0.72rem + 0.08vw, 0.8125rem);
+  /* The smallest step in the system. Was hardcoded as 0.6875rem in nine
+     places across six modules; it is a token now. */
+  --t-nano: clamp(0.6875rem, 0.66rem + 0.07vw, 0.75rem);
+
+  --lh-tight: 0.94;
+  --lh-snug: 1.12;
+  --lh-body: 1.6;
+
+  --tr-display: -0.045em;
+  --tr-heading: -0.03em;
+  --tr-body: -0.01em;
+  --tr-label: 0.16em;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* ---------------------------------------------------------------------
+     SPACING — 4px base, named by intent rather than t-shirt size
+     --------------------------------------------------------------------- */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+  --s-10: 8rem;
+  --s-11: 12rem;
+
+  /* Section rhythm — the vertical beat of the journey */
+  --section-pad-block: clamp(6rem, 14vh, 12rem);
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+  --measure: 62ch;
+  --content-max: 90rem;
+
+  /* ---------------------------------------------------------------------
+     LAYOUT
+     --------------------------------------------------------------------- */
+  /* Scroll length of a transition band.
+     
+     Measured across the whole journey, seventeen consecutive sections all
+     came out between 0.79 and 1.28 viewport-heights — worlds, bands and
+     project rails alike. Every beat the same length is why the page read as
+     sections stacked in order rather than a composition with pacing: a
+     metronome, not a rhythm. A band costing exactly as much scroll as a
+     world also mis-states what it is, because a band is connective tissue,
+     not a destination.
+
+     At 88dvh a band is now clearly the shorter beat between two longer ones.
+     Continuity is unaffected: adjacent stages overlap by a full viewport
+     regardless of this value (each span runs `top bottom` to `bottom top`),
+     so the handoff is governed by that overlap and not by the band's own
+     height — verified by simulating band lengths from 55dvh to 150dvh, all
+     of which hold peak presence at 1.00 through the seam. */
+  --band-length: 88dvh;
+
+  --grid-cols: 12;
+  --grid-gap: clamp(1rem, 1.6vw, 2rem);
+  --header-h: 4.5rem;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* ---------------------------------------------------------------------
+     MOTION — timing + easing
+     Durations are the vocabulary; components must not invent their own.
+     --------------------------------------------------------------------- */
+  --d-instant: 0.12s;
+  --d-fast: 0.24s;
+  --d-base: 0.44s;
+  --d-slow: 0.8s;
+  --d-slower: 1.2s;
+  --d-cinematic: 2s;
+
+  /* Easings. --e-out-expo is the house curve: fast commit, long settle. */
+  --e-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --e-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --e-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --e-out-back: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --e-linear: linear;
+
+  /* ---------------------------------------------------------------------
+     ELEVATION / DEPTH
+     Layer order is centralised so the WebGL plane never fights the DOM.
+     --------------------------------------------------------------------- */
+  --z-canvas: 0;
+  --z-content: 1;
+  --z-header: 50;
+  --z-overlay: 80;
+  --z-takeover: 90;
+  --z-cursor: 95;
+  --z-skip: 100;
+}
+
+/* =========================================================================
+   REDUCED MOTION
+
+   Two layers, in this order:
+
+   1. The OS preference, applied in pure CSS. This is the pre-hydration
+      default — it holds from the very first paint with no JavaScript, so
+      there is no inline boot script and no flash of full motion.
+      Scoped with :not([data-motion="full"]) so an explicit in-page
+      "full motion" choice can override it once React is running.
+
+   2. The in-page override, applied via data-motion on <html> by
+      MotionProvider. This is what lets the visible toggle work in BOTH
+      directions, including for someone whose OS preference is unset.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) {
+    /* The atmospheric passages are frozen at this setting, so their extra
+       scroll length buys nothing but distance. */
+    --band-length: 60dvh;
+
+    --d-instant: 0.01ms;
+    --d-fast: 0.01ms;
+    --d-base: 0.01ms;
+    --d-slow: 0.01ms;
+    --d-slower: 0.01ms;
+    --d-cinematic: 0.01ms;
+  }
+
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:root[data-motion="reduced"] {
+  /* The in-page toggle path. This was the gap: the shortening existed only
+     behind the OS media query, so a visitor whose system preference is unset
+     — the common case, and the reason the toggle exists — still got
+     full-length bands after asking for less motion. */
+  --band-length: 60dvh;
+
+  --d-instant: 0.01ms;
+  --d-fast: 0.01ms;
+  --d-base: 0.01ms;
+  --d-slow: 0.01ms;
+  --d-slower: 0.01ms;
+  --d-cinematic: 0.01ms;
+}
+
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+

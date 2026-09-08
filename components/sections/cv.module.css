@@ -1,0 +1,235 @@
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  margin-bottom: var(--s-8);
+}
+
+
+
+.title {
+  font-size: var(--t-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-8);
+}
+
+@media (min-width: 64rem) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-9) clamp(3rem, 6vw, 6rem);
+  }
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.blockTitle {
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--c-line);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+.summary {
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  color: var(--c-text);
+  max-width: var(--measure);
+}
+
+/* ------------------------------------------- professional development */
+
+.levels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.levelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-2);
+}
+
+.levelLabel {
+  font-size: var(--t-body);
+  color: var(--c-text);
+}
+
+.levelValue {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+  text-align: right;
+}
+
+/* A relative measure with no number attached. Stating "68%" would be a
+   fabricated precision about a person's capability. */
+.meter {
+  height: 1px;
+  background: var(--c-line);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  background: var(--c-accent);
+}
+
+.levelNote {
+  margin-top: var(--s-2);
+  font-size: var(--t-small);
+  color: var(--c-text-faint);
+}
+
+/* ------------------------------------------------------------ entries */
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.entryHead {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.entryHead h4 {
+  font-size: var(--t-h3);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-heading);
+  line-height: var(--lh-snug);
+}
+
+.tag,
+.tagLive {
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.15rem var(--s-2);
+  color: var(--c-text-faint);
+}
+
+.tagLive {
+  color: var(--c-accent);
+  border-color: var(--c-accent-line);
+}
+
+.entryMeta {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+.entryBody {
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  color: var(--c-text-muted);
+  max-width: 52ch;
+}
+
+.highlights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-top: var(--s-1);
+}
+
+.highlights li {
+  position: relative;
+  padding-left: var(--s-4);
+  font-size: var(--t-small);
+  color: var(--c-text-muted);
+}
+
+.highlights li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 1px;
+  background: var(--c-line-strong);
+}
+
+/* ----------------------------------------------------------- timeline */
+
+.timelineBlock {
+  margin-top: var(--s-9);
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--s-6);
+  margin-top: var(--s-6);
+}
+
+.timeline li {
+  position: relative;
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--c-line);
+}
+
+.timelineDot {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c-accent);
+}
+
+.timelinePeriod {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: var(--s-2);
+}
+
+.timelineTitle {
+  font-size: var(--t-body);
+  font-weight: var(--fw-medium);
+  margin-bottom: var(--s-1);
+}
+
+.timelineDetail {
+  font-size: var(--t-small);
+  line-height: 1.5;
+  color: var(--c-text-faint);
+}

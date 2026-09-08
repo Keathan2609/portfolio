@@ -1,0 +1,28 @@
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.rule {
+  display: block;
+  width: clamp(2rem, 8vw, 7rem);
+  height: 1px;
+  background: var(--c-line-strong);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}

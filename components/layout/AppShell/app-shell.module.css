@@ -1,0 +1,22 @@
+.shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+}
+
+.main {
+  position: relative;
+  /* Above the canvas plane. The DOM owns content; WebGL sits behind it. */
+  z-index: var(--z-content);
+}
+
+/* Programmatic focus target for the skip link. A full-width ring would be
+   ugly, but silence is worse — a keyboard user must see where they landed. */
+.main:focus {
+  outline: none;
+}
+
+.main:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: -4px;
+}

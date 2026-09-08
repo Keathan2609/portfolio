@@ -1,0 +1,16 @@
+/* The canvas plane sits behind all DOM content and never intercepts input.
+   Interaction is opted into per-view, never granted globally. */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-canvas);
+  pointer-events: none;
+  /* Isolates canvas compositing from the DOM stacking context above it. */
+  contain: strict;
+}
+
+.root canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

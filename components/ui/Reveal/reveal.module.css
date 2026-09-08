@@ -1,0 +1,10 @@
+.text {
+  /* SplitText's mask option creates the overflow wrapper itself; this keeps
+     descenders from being clipped by it on tight line-heights. */
+  padding-bottom: 0.08em;
+}
+
+.line {
+  /* Guards against a sub-pixel seam appearing between masked lines. */
+  will-change: transform;
+}

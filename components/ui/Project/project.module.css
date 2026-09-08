@@ -1,0 +1,143 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Keeps the stretched trigger from covering the focus ring of anything
+   that might later sit inside the card. */
+.card :focus-visible {
+  position: relative;
+  z-index: 2;
+}
+
+/* A quiet entry. No hover lift and no cue — it does not open anything, so
+   it should not behave as though it might. */
+.compact .media {
+  opacity: 0.92;
+}
+
+/* The case-study control.
+   A small, self-describing button that stretches its hit area across the
+   whole card via ::after — so the entire surface stays clickable without
+   the card itself having to be a button. */
+.trigger {
+  position: static;
+  align-self: flex-start;
+  margin-top: var(--s-1);
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.trigger::before {
+  content: "";
+  width: 1.5rem;
+  height: 1px;
+  background: currentColor;
+  transition: width var(--d-base) var(--e-out-expo);
+}
+
+/* The stretched hit area. Covers the card, sits above nothing else, and
+   leaves the heading and copy selectable. */
+.trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.expandable:hover .trigger::before,
+.trigger:focus-visible::before {
+  width: 3rem;
+}
+
+.media {
+  opacity: 0.92;
+}
+
+.trigger {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+  gap: 0;
+}
+
+.media {
+  transition: transform var(--d-slow) var(--e-out-expo);
+}
+
+.expandable:hover .media,
+.expandable:focus-within .media {
+  transform: scale(1.015);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-top: var(--s-4);
+}
+
+.headRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  color: var(--c-accent);
+}
+
+/* Placeholder marker. Quiet, but never absent — a visitor must not mistake
+   a format demonstration for finished work. */
+.tag {
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.15rem var(--s-2);
+}
+
+.title {
+  font-size: var(--t-h3);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-heading);
+  transition: color var(--d-fast) var(--e-out-quart);
+}
+
+.expandable:hover .title,
+.expandable:focus-within .title {
+  color: var(--c-accent);
+}
+
+.summary {
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  color: var(--c-text-muted);
+  max-width: 46ch;
+}
+
+.stack {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+

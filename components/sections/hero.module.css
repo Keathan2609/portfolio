@@ -1,0 +1,217 @@
+.stage {
+  /* The hero object sits behind the type. Nothing here competes. */
+  overflow: hidden;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc(100dvh - var(--header-h));
+  padding-block: var(--s-9) var(--s-7);
+}
+
+
+
+/* The name IS the hero. Display scale, optical left-align, nothing else
+   allowed to be this large anywhere on the site. */
+.name {
+  margin-top: auto;
+  margin-left: -0.055em;
+  font-size: var(--t-display);
+  font-weight: var(--fw-medium);
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  text-wrap: nowrap;
+}
+
+.statement {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--c-line);
+}
+
+.statementLine {
+  font-size: clamp(1.5rem, 3.4vw, 3rem);
+  font-weight: var(--fw-regular);
+  line-height: 1.06;
+  letter-spacing: var(--tr-heading);
+  color: var(--c-text-muted);
+}
+
+/* The second line carries the weight — "Absolutely anything."
+ *
+ * This is the one place the editorial serif is spent. The design system
+ * defined --font-serif as "the editorial accent used sparingly for emphasis"
+ * and then used it in exactly zero components: an italic face was being
+ * loaded on every page and never rendered, and the site's whole typographic
+ * voice was a single sans.
+ *
+ * It belongs here specifically. "I build." is the engineer's claim and stays
+ * in the geometric sans; "Absolutely anything." is the claim about range, and
+ * setting it in an italic serif is the tension the entire site argues for —
+ * two voices in one person — stated once, in two words, and never repeated.
+ *
+ * Instrument Serif ships italic-400 only, so the weight is not a choice. The
+ * tracking is: the sans carries -0.03em display tracking, which on a serif at
+ * this size closes the counters and turns it muddy. */
+.statementLine:last-child {
+  font-family: var(--font-serif);
+  /* Italic is not a stylistic flourish here, it is the only face that exists:
+     next/font registers this family with `style: "italic"` and nothing else.
+     Requesting it at `normal` silently renders the metric-adjusted FALLBACK
+     rather than Instrument Serif, which looks like it worked and is not the
+     typeface at all. Verified with document.fonts. */
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  letter-spacing: -0.005em;
+  color: var(--c-text);
+}
+
+.foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-7);
+  margin-top: var(--s-8);
+}
+
+/* The role. This is the answer to "what do they do", and it was set at
+   --t-body in --c-text-muted: 18px of grey, quieter than the eyebrow above
+   the name and barely above the 13px discipline index. A visitor scanning
+   for three seconds should not have to hunt for the job title. */
+.headline {
+  max-width: 34ch;
+  font-size: var(--t-lead);
+  line-height: 1.4;
+  letter-spacing: var(--tr-heading);
+  color: var(--c-text);
+}
+
+/* A quiet column of disciplines — the map of what follows, set as data. */
+.index {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  text-align: right;
+}
+
+.index li {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+/* Each index carries its own world's accent. Five colours appearing once
+   each, at the smallest possible scale — enough to say "these are five
+   different places" before the visitor has scrolled to any of them, without
+   turning the hero into a palette. */
+.indexNum {
+  color: var(--c-accent);
+}
+
+@media (max-width: 63.9375rem) {
+  .name {
+    text-wrap: balance;
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-5);
+  }
+
+  .index {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--s-4);
+    text-align: left;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Scroll indicator
+
+   A hairline with a travelling head, anchored to the bottom of the hero.
+   Not an animated chevron and not a mouse glyph: both are decoration
+   pretending to be instruction. This is the smallest mark that reads as
+   "there is more below" and it is the only UI on the screen.
+   ------------------------------------------------------------------------- */
+
+.scroll {
+  position: absolute;
+  right: 0;
+  bottom: var(--s-6);
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+  pointer-events: none;
+}
+
+.scrollTrack {
+  position: relative;
+  display: block;
+  width: 4.5rem;
+  height: 1px;
+  background: var(--c-line);
+  overflow: hidden;
+}
+
+.scrollHead {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 40%;
+  background: var(--c-text-muted);
+  animation: hero-scroll-head 2.6s var(--e-in-out-quart) infinite;
+}
+
+@keyframes hero-scroll-head {
+  0% {
+    transform: translateX(-100%);
+  }
+  55%,
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+/* The travel is the whole animation, so at this setting the head simply
+   rests at the start of the track — still a mark, no longer a movement.
+   The global rule in tokens.css collapses the duration; this stops it
+   resting at whatever frame that lands on. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .scrollHead {
+    animation: none;
+    transform: none;
+  }
+}
+
+:root[data-motion="reduced"] .scrollHead {
+  animation: none;
+  transform: none;
+}
+
+/* The hero is the tallest thing on the page and the indicator is anchored to
+   its bottom edge; on short viewports it would collide with the discipline
+   index, so it steps out of the corner and onto its own line. */
+@media (max-width: 63.9375rem) {
+  .scroll {
+    position: static;
+    margin-top: var(--s-6);
+  }
+}

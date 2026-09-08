@@ -1,0 +1,55 @@
+.frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--c-surface);
+  border-radius: var(--radius-sm);
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* -------------------------------------------------------------------------
+   Placeholder treatment.
+   Composed, not broken: a measured field with a hairline grid and a quiet
+   label. It reads as "this slot is reserved", never as a failed image and
+   never as a piece of finished work.
+   ------------------------------------------------------------------------- */
+.placeholder {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(
+      120% 90% at 50% 0%,
+      color-mix(in oklab, var(--c-accent) 9%, transparent) 0%,
+      transparent 70%
+    ),
+    var(--c-surface);
+  border: 1px solid var(--c-line);
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--c-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-line) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+  opacity: 0.42;
+  /* Fade the grid out toward the edges so it reads as depth, not a table. */
+  mask-image: radial-gradient(90% 70% at 50% 50%, #000 20%, transparent 100%);
+}
+
+.placeholderLabel {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}

@@ -1,0 +1,13 @@
+/* =========================================================================
+   TYPOGRAPHY
+
+   Intentionally empty.
+
+   The composable `.t-*` classes that used to live here (t-display, t-h1,
+   t-h2, t-h3, t-lead, t-body, t-label, t-mono, t-serif, t-muted, t-faint,
+   t-accent) were all dead: every section declares its own type rules in its
+   CSS module, against the scale tokens in tokens.css. Keeping unused global
+   classes around invites two sources of truth for the same decision.
+
+   The scale itself is in tokens.css. Sections consume it directly.
+   ========================================================================= */

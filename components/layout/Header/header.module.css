@@ -1,0 +1,50 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  height: var(--header-h);
+  padding-inline: var(--gutter);
+  /* No bar, no blur, no border. The header reads as text floating over the
+     journey rather than as chrome sitting on top of it.
+
+     `mix-blend-mode: difference` was removed: blending against the hero
+     object's lit surfaces made the contrast of the name and the motion
+     toggle impossible to predict — over a mid-tone backdrop the result
+     lands near 1:1. The colours are explicit now, so they are computable
+     from the tokens like everything else. */
+  pointer-events: none;
+}
+
+.header > * {
+  pointer-events: auto;
+}
+
+.identity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  /* The label is 22px of text; the target it presents was the smallest
+     interactive element on the site and fell below the 24px minimum. The
+     box grows, the type does not. */
+  min-height: 2.75rem;
+  padding-inline-end: var(--s-2);
+}
+
+.name {
+  font-size: var(--t-small);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tr-body);
+  color: var(--c-text);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}

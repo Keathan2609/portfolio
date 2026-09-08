@@ -1,0 +1,295 @@
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  margin-bottom: var(--s-6);
+}
+
+/* One step below the discipline worlds, deliberately.
+   Every section heading on this site used to be --t-h1 — four sections, one
+   size, which is a large part of why the page read as stacked blocks rather
+   than a composition. The journey (the intro and the five worlds) makes the
+   argument and keeps the top step; the record (this section and the CV)
+   supports it and sits one rung down. --t-h2 existed in the scale and was
+   used exactly once site-wide, in a dialog. */
+.title {
+  font-size: var(--t-h2);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+}
+
+.lead {
+  max-width: 44ch;
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  color: var(--c-text-muted);
+}
+
+/* ---------------------------------------------------------------- filters */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+}
+
+.filter {
+  min-height: 2.75rem;
+  padding-inline: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  transition:
+    color var(--d-fast) var(--e-out-quart),
+    border-color var(--d-fast) var(--e-out-quart);
+}
+
+.filter:hover,
+.filter:focus-visible {
+  color: var(--c-text);
+  border-color: var(--c-line-strong);
+}
+
+.filterOn {
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+/* A reserved line, so switching filters never shifts the index below it. */
+.readout {
+  min-height: 1.5rem;
+  margin-bottom: var(--s-6);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+/* ------------------------------------------------------------------ index */
+
+.index {
+  border-top: 1px solid var(--c-line);
+}
+
+.row {
+  border-bottom: 1px solid var(--c-line);
+  transition: opacity var(--d-base) var(--e-out-quart);
+}
+
+.row[data-dim="true"] {
+  opacity: 0.32;
+}
+
+/* The row header. A full-width control, because the whole line is the target
+   — a small chevron would be a worse hit area saying the same thing. */
+.rowHead {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: baseline;
+  gap: var(--s-4);
+  width: 100%;
+  min-height: 3.25rem;
+  padding-block: var(--s-4) var(--s-2);
+  text-align: left;
+}
+
+.rowHead:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+.rowIndex {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  color: var(--c-accent);
+}
+
+.rowLabel {
+  font-size: var(--t-h3);
+  font-weight: var(--fw-medium);
+  /* Was inheriting the 1.6 body leading, which is loose for a single-line
+     display label and was padding every row by ~20px of dead space. */
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-heading);
+  color: var(--c-text);
+  transition: color var(--d-fast) var(--e-out-quart);
+}
+
+.rowHead:hover .rowLabel {
+  color: var(--c-accent);
+}
+
+.rowCount {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--c-text-faint);
+}
+
+/* Plus becomes minus by hiding one stroke. Two pseudo-elements, no icon file
+   and no glyph that a font fallback could turn into something else. */
+.rowMark {
+  position: relative;
+  width: 0.75rem;
+  height: 0.75rem;
+  align-self: center;
+}
+
+.rowMark::before,
+.rowMark::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 1px;
+  background: var(--c-text-muted);
+  transition:
+    transform var(--d-base) var(--e-out-expo),
+    opacity var(--d-fast) var(--e-out-quart);
+}
+
+.rowMark::after {
+  transform: rotate(90deg);
+}
+
+.row[data-open="true"] .rowMark::after {
+  opacity: 0;
+  transform: rotate(0deg);
+}
+
+/* --------------------------------------------------------- inline skills */
+
+/* The whole point of the rework: every skill as a run of text on one line,
+   not a node in a field. Wraps naturally, costs a few lines of height. */
+.inline {
+  padding-bottom: var(--s-3);
+  font-size: var(--t-body);
+  line-height: 1.75;
+  color: var(--c-text-muted);
+  text-wrap: pretty;
+}
+
+/* The separator has to be quieter than the names and still legible — at
+   --c-line-strong it measured 1.59:1 against the page, which is invisible,
+   and a run of skills with invisible separators reads as one long string.
+   --c-text-faint is 4.80:1 and still sits below the names at 5.90:1, which
+   is the relationship this needs. */
+.sep {
+  color: var(--c-text-faint);
+}
+
+.skill {
+  transition:
+    color var(--d-fast) var(--e-out-quart),
+    opacity var(--d-base) var(--e-out-quart);
+}
+
+.skill:hover {
+  color: var(--c-text);
+}
+
+.skill[data-dim="true"] {
+  opacity: 0.3;
+}
+
+/* Reserved height. Previewing a skill must not move the page under the
+   pointer that is doing the previewing. */
+.preview {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  min-height: 1.5rem;
+  padding-bottom: var(--s-4);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+}
+
+.previewName {
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.previewNote {
+  color: var(--c-text-faint);
+}
+
+/* ------------------------------------------------------------------ notes */
+
+.notesWrap {
+  padding-bottom: var(--s-6);
+}
+
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: var(--s-4) var(--s-6);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--c-line);
+}
+
+.notes li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: opacity var(--d-base) var(--e-out-quart);
+}
+
+.notes li[data-dim="true"] {
+  opacity: 0.3;
+}
+
+.noteName {
+  font-size: var(--t-small);
+  color: var(--c-text);
+}
+
+/* Supporting tools sit back, so an expanded row still has a hierarchy. */
+.notes li[data-tier="supporting"] .noteName {
+  color: var(--c-text-muted);
+}
+
+.noteText {
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  color: var(--c-text-faint);
+}
+
+.noteWorlds {
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+  opacity: 0.75;
+}
+
+/* ------------------------------------------------------------- responsive */
+
+/* Below the desktop breakpoint the hover readout is dead weight — there is no
+   pointer to hover with — and the row header loses its count column so the
+   discipline name keeps the width it needs. */
+@media (max-width: 63.9375rem) {
+  .preview {
+    display: none;
+  }
+
+  .rowHead {
+    grid-template-columns: auto 1fr auto;
+    gap: var(--s-3);
+  }
+
+  .rowCount {
+    display: none;
+  }
+
+  .rowLabel {
+    font-size: var(--t-lead);
+  }
+}

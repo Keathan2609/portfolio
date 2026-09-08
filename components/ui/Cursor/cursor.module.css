@@ -1,0 +1,64 @@
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cursor);
+  display: grid;
+  place-items: center;
+  /* Never intercept input — the cursor is a visual, not a control. */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--d-fast) var(--e-out-quart);
+  will-change: transform;
+}
+
+.cursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.inner {
+  display: grid;
+  place-items: center;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--c-text);
+  color: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    width var(--d-base) var(--e-out-expo),
+    height var(--d-base) var(--e-out-expo),
+    padding var(--d-base) var(--e-out-expo),
+    background-color var(--d-fast) var(--e-out-quart),
+    color var(--d-fast) var(--e-out-quart);
+}
+
+/* Contextual state: the dot becomes a small label pill. Sized to its
+   content rather than a fixed width, so VIEW and EXPLORE are not padded to
+   the same box. Deliberately modest — an oversized cursor stops being a
+   pointer and starts being a mascot. */
+.cursor[data-label="true"] .inner {
+  width: auto;
+  height: 1.9rem;
+  padding-inline: var(--s-4);
+  background: var(--c-accent);
+  color: var(--c-void);
+}
+
+/* Click feedback. A press is the one moment the cursor should acknowledge
+   the visitor directly; it settles on the house curve rather than snapping
+   back, so it reads as weight rather than as a bounce. */
+.cursor {
+  transition:
+    opacity var(--d-fast) var(--e-out-quart),
+    scale var(--d-fast) var(--e-out-expo);
+}
+
+.cursor[data-pressed="true"] {
+  scale: 0.82;
+}

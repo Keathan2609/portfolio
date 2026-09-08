@@ -1,0 +1,49 @@
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  /* Meets the 44px touch target without drawing a 44px box. */
+  min-height: 2.75rem;
+  padding-inline: var(--s-2);
+  color: var(--c-text-muted);
+  transition: color var(--d-fast) var(--e-out-quart);
+}
+
+.toggle:hover,
+.toggle:focus-visible {
+  color: var(--c-text);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-text-faint);
+  transition: background-color var(--d-fast) var(--e-out-quart);
+}
+
+.dot[data-on="true"] {
+  background: var(--c-accent);
+}
+
+.label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+}
+
+.state {
+  color: var(--c-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 47.9375rem) {
+  /* Keep the control, drop the word — the dot plus state still reads. */
+  .label {
+    font-size: var(--t-nano);
+  }
+}
