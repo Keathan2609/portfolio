@@ -254,6 +254,10 @@ export function MediaField() {
         u.uLight.value.copy(env.light);
         u.uTint.value.copy(env.light);
 
+        /* Screen resolution, for the type-column guard. Written per frame
+           because the canvas can be resized at any point. */
+        u.uResolution.value.set(size.width, size.height);
+
         u.uTime.value = env.time;
         u.uDrift.value = env.ambient ? (item.drift ?? 0) : 0;
         u.uPointer.value.set(

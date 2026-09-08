@@ -88,8 +88,27 @@ export interface CompositionItem {
   opacity?: number;
   /** Corner radius in world units. 0 = sharp. */
   radius?: number;
-  /** Edge light strength. The thing that stops a plane reading as a rectangle. */
+  /** Edge light strength. Suppressed automatically as `feather` rises. */
   edge?: number;
+  /**
+   * Where this plane sits between "framed card" and "material".
+   *
+   * 0 (default) keeps the hard edge and lit rim — right for a deliberate
+   * editorial frame. 1 dissolves the boundary entirely so the image reads as a
+   * region of the scene rather than a rectangle in it. Anything oversized or
+   * bleeding off the frame should be feathered; a hard edge on a crop that
+   * leaves the viewport just draws attention to the rectangle.
+   */
+  feather?: number;
+  /**
+   * How much this plane yields to the left-hand type column, 0-1.
+   *
+   * Screen-space suppression toward the left edge, where every discipline's
+   * DOM text lives. Background washes should yield fully (1); a hero on the
+   * right barely needs it (0.2-0.4); a deliberate foreground accent that sits
+   * clear of the type can ignore it (0).
+   */
+  textGuard?: number;
   /** Pull the image toward the world hue. Used to push support planes back. */
   desaturate?: number;
   tint?: number;
@@ -134,68 +153,120 @@ const R16_9 = 16 / 9;
 const xr: Composition = {
   discipline: "xr",
   items: [
+    /* AGGRESSIVE PASS. The previous version of this chapter kept all seven
+       planes fully inside the frame, each with a rounded corner and a lit rim,
+       on a rule of |x| + w/2 <= 0.92 * halfWidth. Every plane was therefore a
+       complete, bordered rectangle — eight of them — and the result read as a
+       gallery wall rather than as a place. The frame was also 60% near-black,
+       because nothing was large enough to fill it.
+
+       Three rules changed:
+         1. The largest planes now BLEED off the viewport deliberately. Seeing
+            only part of the subject is what makes a frame cinematic; a fully
+            contained subject reads as a picture of a thing.
+         2. Anything oversized is FEATHERED, so a crop leaving the frame does
+            not announce a rectangle on its way out.
+         3. An oversized, heavily-feathered environment wash sits behind
+            everything at z=-12. Its only job is to make sure no part of the
+            viewport is black. It is the reason this chapter now has a floor. */
     {
-      id: "xr-glass",
-      kind: "glass",
-      x: 4.6,
-      y: 1.7,
-      z: -5.4,
-      w: 11,
-      h: 7.4,
-      rotY: -0.14,
-      glassAlpha: 0.4,
-      radius: 0.18,
-      edge: 0.5,
-      parallax: 0.1,
-      drift: 0.012,
+      /* THE WASH. 30 units wide against 18.4 of half-width — it bleeds off
+         both sides by design and is fully dissolved at its boundary, so it is
+         not a plane, it is the air having structure in it. Desaturated hard
+         toward violet: this is atmosphere that happens to be made of a real
+         render of a real corridor, which is why it reads as depth rather than
+         as wallpaper. */
+      id: "xr-wash",
+      textGuard: 1.0,
+      kind: "image",
+      asset: "/media/projects/orbital/environment",
+      aspect: R16_9,
+      x: 0,
+      y: 0.4,
+      z: -12,
+      w: 30,
+      opacity: 0.6,
+      desaturate: 0.62,
+      tint: 0.5,
+      feather: 1,
+      edge: 0,
+      radius: 0,
+      vignette: 0.55,
+      lift: 0.94,
+      parallax: 0.05,
+      drift: 0.008,
       reveal: "up",
       order: 0,
     },
     {
-      /* The hero. Reactor three-quarter, 42mm, the strongest single frame in
-         the render set.
-
-         SIZED DOWN FROM 10.8 AND MOVED INTO THE UPPER-RIGHT QUADRANT, which
-         is the correction that made this chapter work. At its first width it
-         ran off both edges of the frame and read as a background photograph
-         rather than as a plane standing in a room — the one thing a 2.5D
-         composition cannot afford, because the entire illusion is that these
-         are surfaces with edges at a distance. Seeing the plane end is what
-         sells it. It also sat straight through the capability list at
-         y≈570px, putting bright render behind 14px body text.
-
-         At 7.4 units, up at y=2.3 and held at x=4.6 (so the right edge lands
-         at 8.3 against 9.8 of available half-width), all four edges are
-         inside the frame, the type band below it is clear, and the tint pulls
-         the render's fairly neutral steel toward the discipline's violet so
-         the chapter still reads as XR rather than as a photo of a machine. */
+      /* THE SUBJECT, OVERSIZED AND OFF-FRAME. 15 units wide at z=-3.0 where
+         the half-width is 9.4, centred at x=6 — so it spans -1.5 to 13.5 and
+         runs off the right edge of the viewport by about a third of itself.
+         The reactor's gimbal ring lands centre-right at roughly twice the
+         apparent size of the previous pass. Feathered at 0.55 so the part
+         still inside the frame dissolves into the wash instead of stopping at
+         a border. */
       id: "xr-reactor-hero",
+      textGuard: 0.3,
       kind: "image",
       asset: "/media/projects/orbital/reactor-hero",
       aspect: R16_9,
-      x: 4.6,
-      y: 2.3,
-      z: -3.4,
-      w: 7.4,
-      rotY: -0.18,
-      rotZ: 0.008,
-      radius: 0.09,
-      edge: 0.5,
-      vignette: 0.6,
-      tint: 0.16,
-      lift: 1.04,
-      parallax: 0.26,
-      drift: 0.018,
-      reveal: "up",
+      x: 6.0,
+      y: 1.4,
+      z: -3.0,
+      w: 15,
+      rotY: -0.1,
+      crop: 1.22,
+      feather: 0.55,
+      edge: 0.3,
+      radius: 0,
+      vignette: 0.5,
+      tint: 0.14,
+      lift: 1.06,
+      parallax: 0.22,
+      drift: 0.014,
+      reveal: "left",
       order: 1,
     },
     {
-      /* The one moving element in the chapter. A turntable is the honest way
-         to show modelling work — it states the geometry is real and rotates
-         to prove it — and it earns the only video texture in the site.
-         Lower-right, in the gap between the capability list and the project
-         rail. */
+      /* MACRO FOREGROUND, bleeding off the bottom-left corner. At z=+2.2 the
+         half-extent is only 4.2 x 2.6, so a 6-unit plane cannot be contained
+         and is not meant to be: cropped 2.1x into the containment chamber, it
+         is a detail at a scale where the eye cannot tell it is a photograph
+         of a render rather than the thing itself. This is the plane doing the
+         most work for depth, because it is unambiguously on this side of the
+         space. */
+      id: "xr-macro",
+      textGuard: 0.9,
+      kind: "image",
+      asset: "/media/projects/orbital/reactor-detail",
+      aspect: R16_9,
+      x: -3.4,
+      y: -3.5,
+      z: 2.2,
+      w: 6,
+      rotY: 0.3,
+      rotZ: 0.04,
+      crop: 2.1,
+      feather: 0.8,
+      edge: 0.2,
+      radius: 0,
+      vignette: 0.55,
+      tint: 0.2,
+      lift: 0.78,
+      parallax: 0.8,
+      drift: 0.022,
+      reveal: "right",
+      order: 2,
+    },
+    {
+      /* THE ONE DELIBERATE FRAME IN THE CHAPTER. The turntable keeps a hard
+         edge and a bright rim, because it is playback — a screen showing a
+         rotating model — and a screen is supposed to have a boundary. Against
+         six feathered planes, the single hard-edged element becomes the
+         accent rather than the norm. */
       id: "xr-turntable",
+      textGuard: 0.0,
       kind: "video",
       video: {
         src: "/media/projects/orbital/reactor-turntable.mp4",
@@ -203,132 +274,99 @@ const xr: Composition = {
       },
       aspect: R16_9,
       x: 4.4,
-      y: -2.6,
-      z: -1.4,
-      w: 4.4,
-      rotY: -0.3,
-      rotZ: -0.02,
-      radius: 0.08,
-      edge: 0.55,
-      /* Vignette and exposure pushed harder than the hero's. The reactor
-         render has a bright studio pedestal in the lower third, and at this
-         plane's scale that pale area read as the brightest thing in the frame
-         — brighter than the hero it is meant to support. Trimming it is the
-         difference between a composition with one subject and two competing
-         images. */
-      vignette: 0.62,
-      lift: 0.86,
-      tint: 0.24,
+      y: -3.2,
+      z: -1.0,
+      w: 4.8,
+      rotY: -0.28,
+      rotZ: -0.018,
+      radius: 0.05,
+      feather: 0,
+      edge: 0.8,
+      vignette: 0.45,
+      tint: 0.2,
+      lift: 0.9,
       parallax: 0.46,
-      drift: 0.022,
-      reveal: "left",
-      order: 2,
-    },
-    {
-      /* A genuine foreground element at z=+1.4 — nearer than the camera's
-         convergence point, cropped hard into the containment gimbal. This is
-         the plane that creates the sense of depth, because it is the only one
-         the eye reads as being on this side of the space.
-
-         Moved to the lower LEFT: at upper-right it was clipped by the viewport
-         edge, and a foreground plane that leaves the frame stops being a
-         foreground plane and becomes a border. */
-      id: "xr-reactor-detail",
-      kind: "image",
-      asset: "/media/projects/orbital/reactor-detail",
-      aspect: R16_9,
-      x: -3.2,
-      y: -2.4,
-      z: 1.4,
-      w: 3.0,
-      rotY: 0.44,
-      rotZ: 0.03,
-      crop: 1.38,
-      radius: 0.06,
-      edge: 0.55,
-      vignette: 0.5,
-      tint: 0.18,
-      parallax: 0.74,
-      drift: 0.03,
-      reveal: "down",
+      drift: 0.02,
+      reveal: "up",
       order: 3,
-      minTier: "medium",
     },
     {
-      /* Deep background, heavily desaturated toward the violet so it reads as
-         atmosphere with structure in it rather than as a second photograph.
-         Opacity dropped to 0.42: this plane sits BEHIND the capability list
-         and the process strip, and at 0.6 it was lifting their background
-         enough to matter. It is depth, not content. */
-      id: "xr-environment",
+      /* The console hero — previously encoded and never used. Set left and
+         feathered, it fills the mid-left region that was the emptiest part of
+         the old frame. */
+      id: "xr-console",
+      textGuard: 1.0,
       kind: "image",
-      asset: "/media/projects/orbital/environment",
+      asset: "/media/projects/orbital/console-hero",
       aspect: R16_9,
-      x: -6.6,
-      y: -1.0,
-      z: -9.6,
-      w: 10.4,
-      rotY: 0.24,
-      opacity: 0.5,
-      desaturate: 0.68,
-      tint: 0.46,
-      radius: 0.1,
+      x: -6.4,
+      y: -0.8,
+      z: -5.4,
+      w: 9.5,
+      rotY: 0.22,
+      crop: 1.3,
+      feather: 0.85,
       edge: 0.2,
-      lift: 0.84,
-      parallax: 0.08,
-      drift: 0.01,
+      radius: 0,
+      opacity: 0.48,
+      desaturate: 0.55,
+      tint: 0.4,
+      vignette: 0.55,
+      lift: 0.76,
+      parallax: 0.14,
+      drift: 0.012,
       reveal: "up",
       order: 4,
       minTier: "medium",
     },
     {
-      /* The technical pass. Wireframe over the same reactor — it says the
-         thing was built, not sourced. Pushed almost to a diagram so it reads
-         as annotation on the world rather than a competing image. Sits in the
-         band between the heading and the level row. */
+      /* The technical pass, upper-left, dissolved almost to annotation. It
+         says the thing was built rather than sourced. */
       id: "xr-wireframe",
+      textGuard: 0.95,
       kind: "image",
       asset: "/media/projects/orbital/wireframe",
       aspect: R16_9,
-      x: -0.4,
-      y: 4.8,
-      z: -7.4,
-      w: 4.4,
-      rotY: 0.14,
-      rotZ: -0.02,
-      opacity: 0.34,
-      desaturate: 0.88,
-      tint: 0.5,
-      radius: 0.06,
-      edge: 0.32,
+      x: -5.0,
+      y: 4.4,
+      z: -6.5,
+      w: 8,
+      rotY: 0.16,
+      opacity: 0.4,
+      desaturate: 0.86,
+      tint: 0.45,
+      feather: 0.8,
+      edge: 0.18,
+      radius: 0,
       parallax: 0.12,
-      drift: 0.014,
+      drift: 0.012,
       reveal: "right",
       order: 5,
       minTier: "high",
     },
     {
-      /* The modular kit breakdown, pushed deep and dim. It is the plane that
-         states the work is a SYSTEM rather than one object, which is worth
-         having in the frame even at 0.3 — but only as depth. */
+      /* The modular kit, deep and wide across the bottom, fully dissolved.
+         States that the work is a system rather than one object, and keeps
+         the lower third of the frame from going black. */
       id: "xr-modular-kit",
+      textGuard: 1.0,
       kind: "image",
       asset: "/media/projects/orbital/modular-kit",
       aspect: R16_9,
-      x: 3.0,
-      y: -6.0,
-      z: -8.4,
-      w: 6.4,
+      x: 1.5,
+      y: -6.6,
+      z: -8.6,
+      w: 14,
       rotX: 0.1,
-      rotY: -0.08,
-      opacity: 0.3,
-      desaturate: 0.7,
-      tint: 0.45,
-      radius: 0.08,
-      edge: 0.22,
-      lift: 0.86,
-      parallax: 0.1,
-      drift: 0.012,
+      opacity: 0.4,
+      desaturate: 0.6,
+      tint: 0.44,
+      feather: 0.95,
+      edge: 0,
+      radius: 0,
+      lift: 0.9,
+      parallax: 0.08,
+      drift: 0.01,
       reveal: "up",
       order: 6,
       minTier: "high",
@@ -353,176 +391,190 @@ const xr: Composition = {
 const creative: Composition = {
   discipline: "creative",
   items: [
-    /* THE FIRST PASS OF THIS CHAPTER WAS THE WORST FRAME IN THE BUILD, and
-       the reason is worth recording because it is a trap specific to a long
-       lens. Creative's camera sits furthest back (z=10.6) on the narrowest
-       lens in the set (34°), which means the visible frame is only about
-       ±5.5 x ±3.4 world units — barely half XR's. The plane widths carried
-       over from XR were therefore roughly DOUBLE what the frame could hold:
-       eight boards at those sizes covered the viewport edge to edge, ran off
-       all four sides, buried the heading under a typography board, and turned
-       the entire frame orange because every warm brand board was stacked at
-       full saturation.
+    /* SECOND AGGRESSIVE PASS. The previous version solved the density problem
+       by removing density: one board at readable size, everything else pushed
+       to near-invisibility. It was legible and safe and it looked like a dark
+       page with a photograph on it.
 
-       The rebuild inverts the strategy. There is exactly ONE board at
-       readable size, held in the lower-right quadrant where the DOM has no
-       content, one small colour crop upper-right, and the remaining boards
-       are pushed deep and heavily desaturated so they read as textured depth
-       rather than as competing images. Negative space came back, the heading
-       is clear, and the chapter still shows four real identity systems.
+       Creative's 34° lens is the constraint — the visible frame is only about
+       +/-5.9 x +/-3.7 units — but the answer is not smaller planes, it is
+       planes that EXCEED the frame. An oversized board that bleeds off two
+       edges reads as being in a room full of work; the same board scaled to
+       fit reads as a slide. Same asset, opposite impression.
 
-       Screen-space budget for this lens, at 1440x900:
-         DOM occupies x < ~1020px and the bands y 220-340, 390-410, 500-530,
-         570-660. The genuinely free regions are the right column (x > 1020)
-         and the lower band (y > 680). Every bright plane below lands in one
-         of those two. */
+       All four identity systems are present again, but now as: one wash that
+       fills the frame, one oversized hero bleeding right, one hard-edged
+       colour block as the single deliberate frame, one macro type crop
+       bleeding off the bottom-left corner, and two dissolved boards carrying
+       the mid-depth. */
     {
-      id: "cr-glass",
-      kind: "glass",
-      x: 2.4,
-      y: -0.6,
-      z: -2.2,
-      w: 6.0,
-      h: 4.2,
-      rotY: -0.1,
-      glassAlpha: 0.34,
-      radius: 0.12,
-      edge: 0.5,
-      parallax: 0.1,
-      drift: 0.01,
+      /* THE WASH. FORM's application board — dense product mockups — at 22
+         units against 9.1 of half-width. Fully dissolved, desaturated toward
+         the warm accent. It exists so that no part of this chapter is black,
+         which was the single biggest failure of the previous pass. */
+      id: "cr-wash",
+      textGuard: 1,
+      kind: "image",
+      asset: "/media/projects/brand/form/applications",
+      aspect: 1024 / 683,
+      x: 0.6,
+      y: -0.4,
+      z: -8,
+      w: 22,
+      opacity: 0.5,
+      desaturate: 0.58,
+      tint: 0.5,
+      feather: 1,
+      edge: 0,
+      radius: 0,
+      vignette: 0.5,
+      lift: 0.92,
+      parallax: 0.05,
+      drift: 0.008,
       reveal: "up",
       order: 0,
     },
     {
-      /* THE ONE BOARD AT FULL STRENGTH. EMBER's final showcase — the single
-         board that states an entire identity system in one frame. Held in the
-         lower right, the largest genuinely empty region at this lens, and
-         left almost untinted: the whole point of showing brand work is that
-         its own colour is the content, so this is the one plane the world hue
-         is not allowed to recolour. */
-      id: "cr-ember-showcase",
+      /* THE HERO, OVERSIZED AND OFF-FRAME RIGHT. EMBER's showcase board at 11
+         units where the half-width is 5.9 — so roughly a third of it is
+         outside the viewport. Left almost untinted: on brand work the board's
+         own colour IS the content, and this is the one plane the world hue is
+         not allowed to recolour. */
+      id: "cr-ember-hero",
+      textGuard: 0.32,
       kind: "image",
       asset: "/media/projects/brand/ember/showcase",
       aspect: 1200 / 718,
-      x: 3.4,
-      y: -1.9,
-      z: -0.9,
-      w: 3.5,
-      rotY: -0.13,
-      rotZ: 0.01,
-      radius: 0.05,
-      edge: 0.5,
-      vignette: 0.3,
+      x: 3.2,
+      y: 0.2,
+      z: -1.5,
+      w: 11,
+      rotY: -0.11,
+      rotZ: 0.008,
+      crop: 1.12,
+      feather: 0.5,
+      edge: 0.3,
+      radius: 0,
+      vignette: 0.45,
       tint: 0.04,
       lift: 1.12,
-      parallax: 0.28,
-      drift: 0.016,
-      reveal: "up",
+      parallax: 0.24,
+      drift: 0.014,
+      reveal: "left",
       order: 1,
     },
     {
-      /* KAERA's palette, cropped to a colour strip and set upper-right. Pure
-         hue, no image content — it is what keeps the chapter from reading as
-         a stack of rectangles, and it is the most honest possible statement
-         of what a brand system actually is. */
+      /* THE ONE DELIBERATE FRAME. KAERA's palette cropped to a colour block,
+         hard-edged with a bright rim. Pure hue, no image content — against
+         five dissolved planes this reads as a specimen card pinned to the
+         wall, which is exactly what a palette is. */
       id: "cr-kaera-palette",
+      textGuard: 0,
       kind: "image",
       asset: "/media/projects/brand/kaera/palette",
       aspect: 1024 / 683,
-      x: 4.3,
-      y: 1.4,
-      z: -1.5,
-      w: 1.9,
-      rotY: -0.28,
-      rotZ: 0.016,
-      crop: 1.7,
-      radius: 0.04,
-      edge: 0.6,
-      vignette: 0.14,
-      tint: 0.05,
-      lift: 1.14,
-      parallax: 0.4,
+      /* Held at x=4.9 so its left edge clears the heading's longest line
+         (which ends at ~1130px) and it bleeds very slightly off the right.
+         At its first position, x=4.1/y=1.9, it sat directly under the second
+         and third heading lines — a bright specimen card behind 102px display
+         type, which is the one collision this chapter cannot afford. */
+      x: 4.9,
+      y: 2.4,
+      z: -1.0,
+      w: 2.2,
+      rotY: -0.3,
+      rotZ: 0.02,
+      crop: 1.8,
+      feather: 0,
+      radius: 0.03,
+      edge: 0.75,
+      vignette: 0.12,
+      tint: 0.04,
+      lift: 1.16,
+      parallax: 0.42,
       drift: 0.02,
       reveal: "right",
       order: 2,
     },
     {
-      /* A hard crop into FORM's typography board, genuinely in front of the
-         camera at z=+1.6 and placed LOW-left, under the capability list.
-         Cropped type at foreground scale is the most characteristic image a
-         design practice can show. Small — 1.8 units at this depth is already
-         a fifth of the frame width. */
-      id: "cr-form-type",
+      /* MACRO TYPE, bleeding off the bottom-left corner. FORM's typography
+         board cropped 2.4x — at this scale the letterforms are the subject and
+         the board is irrelevant. Cropped type at foreground scale is the most
+         characteristic image a design practice can show, because it is the
+         craft at the size the craft is judged at. Yields to the type column,
+         because the capability list runs across it. */
+      id: "cr-form-macro",
+      textGuard: 0.9,
       kind: "image",
       asset: "/media/projects/brand/form/typography",
       aspect: 1024 / 683,
-      x: 2.8,
-      y: -2.0,
-      z: 1.6,
-      w: 1.7,
-      rotY: -0.34,
+      x: -2.6,
+      y: -2.5,
+      z: 2.0,
+      w: 5,
+      rotY: 0.26,
       rotZ: -0.03,
-      crop: 2.1,
-      radius: 0.03,
-      edge: 0.55,
-      vignette: 0.22,
-      tint: 0.07,
-      lift: 1.08,
-      parallax: 0.75,
+      crop: 2.4,
+      feather: 0.78,
+      edge: 0.2,
+      radius: 0,
+      vignette: 0.5,
+      tint: 0.1,
+      lift: 0.84,
+      parallax: 0.78,
       drift: 0.026,
       reveal: "down",
       order: 3,
       minTier: "medium",
     },
     {
-      /* VANTA, set back and turned away — present as a second system, clearly
-         subordinate, and desaturated enough that it does not fight EMBER for
-         the eye. */
-      id: "cr-vanta-showcase",
+      /* VANTA, dissolved into the mid-left depth. Present as the second
+         system; not competing. */
+      id: "cr-vanta",
+      textGuard: 1,
       kind: "image",
       asset: "/media/projects/brand/vanta/showcase",
       aspect: 1200 / 675,
-      x: -3.2,
-      y: 1.5,
-      z: -4.4,
-      w: 3.4,
+      x: -4.6,
+      y: 1.4,
+      z: -5.0,
+      w: 9,
       rotY: 0.24,
-      rotZ: -0.012,
-      opacity: 0.66,
-      desaturate: 0.34,
-      tint: 0.2,
-      radius: 0.05,
-      edge: 0.4,
-      vignette: 0.32,
-      lift: 1.0,
+      opacity: 0.46,
+      desaturate: 0.5,
+      tint: 0.36,
+      feather: 0.85,
+      edge: 0.18,
+      radius: 0,
+      vignette: 0.45,
+      lift: 0.86,
       parallax: 0.12,
       drift: 0.012,
-      reveal: "left",
+      reveal: "up",
       order: 4,
       minTier: "medium",
     },
     {
-      /* Deep texture. Three boards from three systems, pushed far back and
-         desaturated hard toward the world hue. At these opacities they are
-         not readable as designs and are not meant to be — they are what makes
-         the depth behind the focal board feel like a studio wall rather than
-         empty fog. */
-      id: "cr-form-applications",
+      /* EMBER's logo board, deep right, dissolved. Fills the depth behind the
+         hero so the right side of the frame has layers rather than one plane
+         against fog. */
+      id: "cr-ember-logo",
+      textGuard: 0.4,
       kind: "image",
-      asset: "/media/projects/brand/form/applications",
+      asset: "/media/projects/brand/ember/logo",
       aspect: 1024 / 683,
-      x: 1.2,
+      x: 4.6,
       y: -2.2,
-      z: -6.2,
-      w: 4.4,
-      rotX: 0.05,
-      rotY: 0.06,
-      opacity: 0.4,
+      z: -6.4,
+      w: 8,
+      rotY: -0.22,
+      opacity: 0.34,
       desaturate: 0.55,
-      tint: 0.3,
-      radius: 0.05,
-      edge: 0.26,
-      lift: 0.94,
+      tint: 0.4,
+      feather: 0.92,
+      edge: 0.14,
+      radius: 0,
+      lift: 0.86,
       parallax: 0.08,
       drift: 0.01,
       reveal: "up",
@@ -530,47 +582,28 @@ const creative: Composition = {
       minTier: "high",
     },
     {
-      id: "cr-ember-logo",
+      /* KAERA's website board, deep upper-left, almost pure texture. */
+      id: "cr-kaera-web",
+      textGuard: 1,
       kind: "image",
-      asset: "/media/projects/brand/ember/logo",
+      asset: "/media/projects/brand/kaera/website",
       aspect: 1024 / 683,
-      x: -4.8,
-      y: -0.4,
-      z: -6.8,
-      w: 3.4,
-      rotY: 0.3,
-      opacity: 0.36,
-      desaturate: 0.58,
-      tint: 0.32,
-      radius: 0.04,
-      edge: 0.26,
-      lift: 0.94,
+      x: -2.0,
+      y: 3.4,
+      z: -7.2,
+      w: 9,
+      rotY: 0.14,
+      opacity: 0.3,
+      desaturate: 0.62,
+      tint: 0.44,
+      feather: 0.95,
+      edge: 0,
+      radius: 0,
+      lift: 0.86,
       parallax: 0.07,
-      drift: 0.01,
-      reveal: "up",
-      order: 6,
-      minTier: "high",
-    },
-    {
-      id: "cr-vanta-social",
-      kind: "image",
-      asset: "/media/projects/brand/vanta/social",
-      aspect: 1024 / 768,
-      x: 5.0,
-      y: 0.2,
-      z: -7.6,
-      w: 3.0,
-      rotY: -0.3,
-      opacity: 0.34,
-      desaturate: 0.6,
-      tint: 0.34,
-      radius: 0.04,
-      edge: 0.24,
-      lift: 0.94,
-      parallax: 0.06,
       drift: 0.008,
       reveal: "up",
-      order: 7,
+      order: 6,
       minTier: "high",
     },
   ],

@@ -106,6 +106,8 @@ uniform float uOpacity;
 uniform float uReveal;
 uniform float uRevealDir;
 uniform float uRadius;
+/** 0 = hard edge with a lit rim (a frame). 1 = fully dissolved (material). */
+uniform float uFeather;
 uniform vec2  uSize;
 uniform vec3  uDeep;
 uniform vec3  uLight;
@@ -116,6 +118,9 @@ uniform float uGlassAlpha;
 uniform float uVignette;
 uniform float uDesaturate;
 uniform float uLift;
+uniform vec2  uResolution;
+/** How much this plane yields to the type column. 0 = ignores it entirely. */
+uniform float uTextGuard;
 
 varying vec2  vUv;
 varying float vDepth;
@@ -167,19 +172,49 @@ void main() {
   float vig = 1.0 - uVignette * dot(vc, vc) * 0.34;
   colour *= clamp(vig, 0.0, 1.0);
 
-  /* ---- rounded mask, in world units ---------------------------------- */
+  /* ---- BOUNDARY: CARD OR MATERIAL ------------------------------------
+     THE SINGLE MOST IMPORTANT CHANGE IN THIS PASS.
+
+     The previous version gave every plane a rounded corner and a lit hairline
+     along its boundary, on the reasoning that "seeing a plane end is what
+     sells it as a surface in space". That reasoning produced, precisely,
+     framed cards floating in front of a background — the thing the direction
+     explicitly rejects. Every plane terminated in a visible border, so the
+     eye read eight rectangles rather than one composition.
+
+     uFeather now selects where a plane sits between those two readings:
+
+       0.0  a hard edge with a lit rim. Still correct for a deliberate
+            editorial frame — a palette strip, a technical annotation.
+       0.5  the boundary softens; the image starts belonging to the air.
+       1.0  no boundary at all. The image dissolves over most of its own
+            radius and reads as a region of the scene that happens to carry
+            photographic information.
+
+     At high feather the edge light is suppressed in proportion, because a rim
+     on a dissolving plane is the worst of both — a glowing outline around
+     nothing. Feathered planes are how an oversized crop can bleed off the
+     frame without announcing a rectangle, which is what makes a crop read as
+     cinematic rather than as a cropped picture. */
   vec2 half_ = uSize * 0.5;
   vec2 p = (vUv - 0.5) * uSize;
   float d = roundedBoxSDF(p, half_, min(uRadius, min(half_.x, half_.y)));
-  /* One-pixel-ish feather derived from the plane's own scale rather than
-     fwidth: fwidth on a steeply angled plane produces a visibly thicker
-     edge on the receding side. */
-  float feather = max(uSize.x, uSize.y) * 0.0022;
-  float mask = 1.0 - smoothstep(-feather, feather, d);
+
+  /* Distance INSIDE the boundary. Positive within the plane, 0 at its edge. */
+  float inset = -d;
+  /* One-pixel-ish minimum, derived from the plane's own scale rather than
+     fwidth: fwidth on a steeply angled plane produces a visibly thicker edge
+     on the receding side. */
+  float hairline = max(uSize.x, uSize.y) * 0.0022;
+  float fw = mix(hairline, min(half_.x, half_.y) * 0.92, uFeather);
+  float mask = smoothstep(0.0, max(fw, hairline), inset);
+  /* Eased so a fully-feathered plane falls off like haze rather than like a
+     linear ramp, which reads as a gradient overlay. */
+  mask = mix(mask, mask * mask * (3.0 - 2.0 * mask), uFeather);
 
   /* ---- edge light ----------------------------------------------------- */
   float edgeBand = 1.0 - smoothstep(0.0, max(uSize.x, uSize.y) * 0.012, abs(d));
-  colour += uLight * edgeBand * uEdge;
+  colour += uLight * edgeBand * uEdge * (1.0 - uFeather);
 
   /* ---- reveal wipe ----------------------------------------------------
      uRevealDir selects the axis and sign: 0 up, 1 down, 2 left, 3 right.
@@ -195,7 +230,36 @@ void main() {
   float fog = fogAmount(vDepth);
   colour = mix(colour, uDeep, fog);
 
-  float alpha = mask * wipe * uOpacity * mix(1.0, uGlassAlpha, uMode);
+  /* ---- THE TYPE COLUMN GUARD -----------------------------------------
+     Screen-space, and the same idea the atmosphere shader already applies to
+     its key: hold the visual energy away from where the words are.
+
+     Every discipline's DOM is left-aligned — the section index, the heading,
+     the level/register pair, the tool row, the process strip and the
+     capability list all start at the same left gutter and none of them
+     extends past about 72% of the viewport. Once the media planes became
+     oversized enough to fill the frame, they also filled that column, and
+     small 12-13px tokens in --c-text-faint have very little contrast headroom
+     to give away.
+
+     So media fades toward the left edge, weighted per plane by uTextGuard.
+     This is simultaneously the contrast fix and the composition rule the
+     chapter already wanted — the frame stays weighted right, asymmetric, with
+     the type reading against quieter material. Background washes yield the
+     most (they carry no subject); the hero yields least, because it lives on
+     the right where there is no type to protect.
+
+     Deliberately a smooth ramp rather than a masked rectangle: a hard-edged
+     protected box would read as a panel behind the text, which is the
+     'generic frosted card' failure arriving by another route. */
+  float screenX = gl_FragCoord.x / max(uResolution.x, 1.0);
+  float guard = smoothstep(0.04, 0.66, screenX);
+  /* Never fully removes the plane — 0.28 keeps material behind the type so the
+     column is quieter, not empty. Emptiness behind the words is what made the
+     old frames read as text on black. */
+  guard = mix(1.0, mix(0.28, 1.0, guard), uTextGuard);
+
+  float alpha = mask * wipe * uOpacity * mix(1.0, uGlassAlpha, uMode) * guard;
   if (uHasMap < 0.5 && uMode < 0.5) alpha = 0.0;
   /* Fogged-out planes are fully absorbed rather than lingering as faint
      rectangles at the back of the frame. */
