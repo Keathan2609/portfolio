@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, type RefObject } from "react";
-import { Canvas, advance } from "@react-three/fiber";
+import * as THREE from "three";
+import { Canvas, advance, useThree } from "@react-three/fiber";
 import { AdaptiveDpr, PerformanceMonitor, Preload, View } from "@react-three/drei";
 import { onFrame } from "@/lib/animation/frame";
+import { textureCacheStats } from "@/lib/webgl/media/texture-cache";
 import { useQuality } from "@/lib/performance/QualityProvider";
 import styles from "./global-canvas.module.css";
 
@@ -28,6 +30,57 @@ import styles from "./global-canvas.module.css";
 interface GlobalCanvasProps {
   /** The DOM element R3F listens on. Keeps pointer events with the DOM. */
   eventSource: RefObject<HTMLElement | null>;
+}
+
+/**
+ * Development-only renderer bridge.
+ *
+ * `renderer.info` is the ground truth for draw calls, triangle count and
+ * resident texture/geometry counts, and there is otherwise no way to read it
+ * from outside the reconciler — which makes the media layer's texture budget
+ * unauditable exactly when it started to matter. Mirrors the `__knp` and
+ * `__knpQuality` conventions and is stripped from production by the NODE_ENV
+ * check. Nothing in the app reads this.
+ */
+function RendererBridge() {
+  const { gl, scene } = useThree();
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const w = window as unknown as Record<string, unknown>;
+    w.__knpGL = {
+      info: () => ({
+        calls: gl.info.render.calls,
+        triangles: gl.info.render.triangles,
+        points: gl.info.render.points,
+        lines: gl.info.render.lines,
+        geometries: gl.info.memory.geometries,
+        textures: gl.info.memory.textures,
+        programs: gl.info.programs?.length ?? 0,
+      }),
+      /** Resident media textures, by URL — the media layer's own budget. */
+      mediaTextures: () => textureCacheStats(),
+      /** Live mesh/material census, for spotting a material zoo. */
+      census: () => {
+        let meshes = 0;
+        const materials = new Set<string>();
+        scene.traverse((o) => {
+          const m = o as THREE.Mesh;
+          if (!m.isMesh) return;
+          meshes += 1;
+          const mat = m.material;
+          if (Array.isArray(mat)) mat.forEach((x) => materials.add(x.uuid));
+          else if (mat) materials.add(mat.uuid);
+        });
+        return { meshes, materials: materials.size };
+      },
+    };
+    return () => {
+      delete w.__knpGL;
+    };
+  }, [gl, scene]);
+
+  return null;
 }
 
 export default function GlobalCanvas({ eventSource }: GlobalCanvasProps) {
@@ -76,6 +129,8 @@ export default function GlobalCanvas({ eventSource }: GlobalCanvasProps) {
         <View.Port />
 
         <Preload all />
+
+        <RendererBridge />
       </Canvas>
     </div>
   );

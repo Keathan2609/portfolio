@@ -48,6 +48,8 @@ import {
   WorldGround,
   type WorldGroundHandle,
 } from "@/lib/webgl/environment/WorldGround";
+import { resolvedEnvironment } from "@/lib/webgl/environment/resolved-state";
+import { MediaField } from "@/lib/webgl/media/MediaField";
 
 /**
  * THE JOURNEY ENVIRONMENT
@@ -132,13 +134,29 @@ function budgets(density: number, coarse: boolean) {
      four thousand additive sprites cost real fill rate and bought texture,
      while forty opaque boxes cost almost nothing and buy a place. Per unit of
      budget, architecture is by far the better purchase. */
+  /* THE BUDGET MOVED AGAIN — THIS TIME FROM ARCHITECTURE TO MEDIA.
+
+     The previous pass moved spend from particles to architecture, and it was
+     right at the time: forty opaque boxes bought a place where four thousand
+     sprites bought only texture. But the visual direction has resolved, and
+     the answer is no longer "an architectural world" — it is real work,
+     presented. Measured against that target, the mass layer was not supplying
+     depth so much as competing for the frame: the XR chapter read as large
+     type over floating boxes, which is precisely the anti-pattern the brief
+     names.
+
+     So the counts here are roughly 40% of what they were. The layer still
+     does the job it is now for — occlusion, silhouette and something for the
+     fog to describe behind the media planes — and it has stopped being the
+     subject. The reclaimed budget goes to textures, which is where the
+     subject actually lives now. */
   if (density <= 0.3) {
-    return { mass: 22, points: 420, structures: 26, near: 6, octaves: 2, groundSegments: 1 };
+    return { mass: 10, points: 300, structures: 14, near: 5, octaves: 2, groundSegments: 1 };
   }
   if (density <= 0.65 || coarse) {
-    return { mass: 44, points: 700, structures: 48, near: 6, octaves: 3, groundSegments: 2 };
+    return { mass: 20, points: 480, structures: 24, near: 6, octaves: 3, groundSegments: 2 };
   }
-  return { mass: 88, points: 1500, structures: 92, near: 10, octaves: 4, groundSegments: 4 };
+  return { mass: 36, points: 900, structures: 42, near: 8, octaves: 4, groundSegments: 4 };
 }
 
 export function JourneyEnvironment() {
@@ -583,8 +601,13 @@ export function JourneyEnvironment() {
     // quantising into a topology — so the structural layer is what gets the
     // presence, rather than raising everything and turning the band into a
     // flare.
+    /* Demoted to 0.5 of its previous strength. The structural layer was
+       carrying the crossing when there was nothing else to carry it; the media
+       compositions now recompose across a transition, which is a far stronger
+       statement than a lattice becoming shells. The lift on `cross` is kept —
+       a band is still the dimmest moment in the journey and still needs it. */
     su.uOpacity.value =
-      fs.structure * complexity * v.intensity * 0.92 * (1 + cross * 0.5);
+      fs.structure * complexity * v.intensity * 0.46 * (1 + cross * 0.5);
     su.uLight.value.copy(scratch.light);
     su.uDeep.value.copy(scratch.deep);
 
@@ -670,7 +693,13 @@ export function JourneyEnvironment() {
        lower — so presence is expressed by the architecture receding toward its
        vanishing point through the quiet sections, which is the honest reading
        of a world getting further away. */
-    mu.uPresence.value = 0.55 + complexity * 0.45 * v.intensity;
+    /* Pushed back toward its vanishing point. `uPresence` scales this layer
+       rather than fading it (it is opaque — there is no alpha to lower), so a
+       lower value means the architecture stands further off. That is exactly
+       the right demotion: the boxes are still there giving the fog something
+       to describe and the media planes something to occlude, but they have
+       receded out of the foreground they used to occupy. */
+    mu.uPresence.value = 0.3 + complexity * 0.26 * v.intensity;
 
     /* ---------------------------------------------------------------------
        The ground. Same state, same light, same fog family — so the floor, the
@@ -690,6 +719,33 @@ export function JourneyEnvironment() {
        the glow in the air rather than somewhere unrelated. The plane's local
        axes are X and -Z, hence the sign. */
     gu.uKeyWorld.value.set((keyX - 0.5) * 46, -((keyY - 0.5) * 46) + 60);
+
+    /* ---------------------------------------------------------------------
+       PUBLISH THE RESOLVED STATE.
+
+       Written last, once everything above has settled, so the media layer
+       reads the same damped position, the same crossing-corrected colours and
+       the same smoothed pointer the atmosphere and the camera just used.
+       There is one integrator and this is its output — see
+       lib/webgl/environment/resolved-state.ts for why the media layer must
+       not run a second one.
+       --------------------------------------------------------------------- */
+    const rs = resolvedEnvironment;
+    rs.position = v.position;
+    rs.from = from;
+    rs.to = to;
+    rs.blend = blend;
+    rs.cross = cross;
+    rs.intensity = v.intensity;
+    rs.arc = v.arc;
+    rs.quiet = v.quiet;
+    rs.pointerX = v.px;
+    rs.pointerY = v.py;
+    rs.time = v.clock;
+    rs.velocity = v.velocity;
+    rs.deep.copy(scratch.deep);
+    rs.light.copy(scratch.light);
+    rs.ambient = animateAmbient;
 
     const du = drift.uniforms;
     du.uTime.value = v.clock;
@@ -724,6 +780,16 @@ export function JourneyEnvironment() {
       <DepthStructures ref={structures} count={budget.structures} />
       <PointField ref={points} count={budget.points} />
       <NearDrift ref={near} count={budget.near} />
+
+      {/*
+        THE MEDIA COMPOSITIONS.
+
+        Last in the group and drawn after everything above it, because it is
+        the subject and they are the space it sits in. This is the inversion
+        the visual pivot turns on: the procedural layers used to BE the
+        picture, and they are now the room the real work hangs in.
+      */}
+      <MediaField />
     </group>
   );
 }
