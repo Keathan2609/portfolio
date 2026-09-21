@@ -152,7 +152,24 @@ export function DisciplineWorld({ discipline }: { discipline: Discipline }) {
         ariaLabelledBy={titleId}
         className={styles.world}
       >
-        <div ref={opening} className={styles.opening}>
+        {/*
+          THE SCENE. One full viewport, and deliberately almost empty.
+
+          THIS IS THE STRUCTURAL FIX. Every reference frame supplied — a jar on
+          a red field, a corn plant under "CORN. REVOLUTIONIZED.", a glowing
+          ring under "ISN'T JUST A COASTER." — is ONE headline and ONE subject
+          on a full screen. This section previously rendered EIGHT text blocks
+          into a single viewport: eyebrow, heading, level, register, signature
+          tools, a five-step process strip, a capability list and a project
+          rail. No amount of art direction behind that makes it read like the
+          references, because the references do not have a capability list.
+          Three passes of shader and composition work failed for that reason.
+
+          So the metadata moves down into its own screen, and this one carries
+          the index, the statement, and nothing else. The WebGL composition
+          behind it gets the whole frame to itself for the first time.
+        */}
+        <div ref={opening} className={styles.scene}>
           <Eyebrow
             index={String(discipline.index).padStart(2, "0")}
             label={discipline.name}
@@ -164,7 +181,17 @@ export function DisciplineWorld({ discipline }: { discipline: Discipline }) {
             text={discipline.intro}
             className={styles.intro}
           />
+        </div>
 
+        {/*
+          THE DETAIL. Everything the scene deliberately dropped, on its own
+          screen beneath it. Nothing is removed from the document — the level,
+          register, signature tools, process and capabilities are all still
+          here, in the same order, still semantic DOM, still reachable by
+          keyboard and findable with ctrl-F. They have simply stopped competing
+          with the statement for the same viewport.
+        */}
+        <div className={styles.detail}>
           <div className={styles.meta}>
             <p className={styles.level}>
               <span className={styles.metaKey}>Level</span>
@@ -194,26 +221,29 @@ export function DisciplineWorld({ discipline }: { discipline: Discipline }) {
               ))}
             </p>
           )}
-        </div>
 
-        <ol className={styles.process} aria-label={`${discipline.name} process`}>
-          {discipline.process.map((step, i) => (
-            <li key={step}>
-              <span className={styles.stepIndex} aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              {step}
-            </li>
-          ))}
-        </ol>
-
-        <div className={styles.capabilities}>
-          <h3 className={styles.capabilitiesTitle}>Capabilities</h3>
-          <ul>
-            {discipline.capabilities.map((capability) => (
-              <li key={capability}>{capability}</li>
+          <ol
+            className={styles.process}
+            aria-label={`${discipline.name} process`}
+          >
+            {discipline.process.map((step, i) => (
+              <li key={step}>
+                <span className={styles.stepIndex} aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {step}
+              </li>
             ))}
-          </ul>
+          </ol>
+
+          <div className={styles.capabilities}>
+            <h3 className={styles.capabilitiesTitle}>Capabilities</h3>
+            <ul>
+              {discipline.capabilities.map((capability) => (
+                <li key={capability}>{capability}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </Stage>
 

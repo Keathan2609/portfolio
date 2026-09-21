@@ -6,12 +6,40 @@
    Opening — "in and out". Index, name, one line, honest level.
    ------------------------------------------------------------------------- */
 
-.opening {
+/* THE SCENE — one full viewport carrying the index and the statement only.
+
+   Replaces `.opening`, which packed the heading, the level/register pair and
+   the signature tools into 62vh and then had the process strip and capability
+   list stacked underneath it in the same screen. That density is why the
+   chapter read as a CV page with a picture behind it rather than as a frame.
+
+   `justify-content: flex-end` puts the statement on the lower third, which is
+   where every supplied reference places its headline — it leaves the upper
+   frame to the subject instead of splitting attention down the middle. */
+.scene {
   display: flex;
   flex-direction: column;
-  gap: var(--s-6);
-  min-height: 62vh;
+  gap: var(--s-5);
+  /* The scene must be a TRUE full viewport, and the section it lives in has
+     --section-pad-block of block padding (14vh = 126px at 900). Measured, that
+     pushed the scene's 100dvh down by 126px and overflowed the bottom by
+     exactly the same amount, clipping the last line of every statement. The
+     negative start margin cancels the section's top padding so the scene
+     begins at the real section boundary; the bottom padding is its own. */
+  margin-block-start: calc(var(--section-pad-block) * -1);
+  min-height: 100dvh;
+  justify-content: flex-end;
+  padding-block-end: clamp(4rem, 12vh, 9rem);
+}
+
+/* THE DETAIL — the metadata, on its own screen beneath the scene. */
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+  min-height: 82dvh;
   justify-content: center;
+  padding-block: var(--s-8) var(--s-7);
 }
 
 
@@ -20,12 +48,44 @@
 
 /* The single introductory line, at heading scale. This is the whole of the
    world's copy — no essay, no manifesto. */
+/* The statement is now the largest thing in the chapter, because it is the
+   only thing in its screen. Display scale rather than h1 scale, and a wider
+   measure so it breaks across three or four lines like a title card rather
+   than a paragraph. */
 .intro {
-  max-width: 20ch;
-  font-size: var(--t-h1);
+  /* SIZED FOR THE SENTENCE, NOT FOR THE TOKEN.
+
+     --t-display tops out at 12rem, which is right for the hero's two-word
+     statement ("I build.") and wrong here: these intros run 70-90 characters,
+     so at display scale and a 17ch measure the XR line broke to FIVE lines and
+     ran straight off the bottom of the viewport. A scene screen that does not
+     fit in one screen is not a scene.
+
+     This clamp lands near 5rem at 1440 and, with a 22ch measure, holds every
+     one of the five discipline intros to three or four lines inside 100dvh —
+     still by far the largest type in the chapter, which is the point. */
+  max-width: 22ch;
+  font-size: clamp(2.4rem, 0.9rem + 4.5vw, 5.4rem);
   font-weight: var(--fw-medium);
   line-height: var(--lh-tight);
   letter-spacing: var(--tr-display);
+  text-wrap: balance;
+}
+
+@media (max-width: 48rem) {
+  .intro {
+    max-width: 16ch;
+    font-size: clamp(2rem, 1rem + 5.4vw, 3rem);
+  }
+
+  .scene {
+    justify-content: flex-end;
+    padding-block-end: clamp(3rem, 10vh, 6rem);
+  }
+
+  .detail {
+    min-height: auto;
+  }
 }
 
 .meta {

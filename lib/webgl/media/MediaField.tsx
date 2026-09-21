@@ -7,6 +7,8 @@ import { useQuality } from "@/lib/performance/QualityProvider";
 import { useReducedMotion } from "@/lib/animation/MotionProvider";
 import { prefersLightPayload } from "@/lib/performance/quality";
 import { resolvedEnvironment } from "@/lib/webgl/environment/resolved-state";
+import { getStageProgress } from "@/lib/scroll/stage-progress";
+import { disciplines } from "@/lib/data/disciplines";
 import { MediaPlane, type MediaPlaneHandle } from "./MediaPlane";
 import { compositionByIndex, itemAllowed } from "./compositions";
 import { configureTextureCache } from "./texture-cache";
@@ -55,6 +57,32 @@ function clamp01(v: number) {
 function smooth(t: number) {
   const c = clamp01(t);
   return c * c * (3 - 2 * c);
+}
+
+/**
+ * Journey-order index -> the DOM id of that discipline's section.
+ *
+ * Needed because each discipline is now TWO screens inside one section — a
+ * full-viewport cinematic scene, then the metadata beneath it — and the media
+ * layer has to know which of the two the visitor is actually looking at.
+ */
+const SLUG_BY_INDEX = disciplines.map((d) => d.slug);
+
+/**
+ * How much of the frame the composition is entitled to, from stage progress.
+ *
+ * 1 through the scene, where the screen carries only an index and a statement
+ * and the media IS the content. Falls to a floor through the detail screen,
+ * where the metadata needs the frame back. This is the whole point of the
+ * scene/detail split: the composition finally gets a screen of its own to be
+ * cinematic in, and stops fighting a capability list for the same pixels.
+ */
+function sceneWeight(slug: string): number {
+  const progress = getStageProgress(slug).progress;
+  /* The scene is the first ~45% of the section span (100dvh of scene against
+     82dvh of detail plus the project rail). Eased rather than switched, so the
+     composition recedes as the metadata arrives instead of snapping. */
+  return 1 - smooth((progress - 0.42) / 0.2);
 }
 
 /** How far from a state's centre a composition still has any presence. */
@@ -224,6 +252,11 @@ export function MediaField() {
     /* ---- write every plane -------------------------------------------- */
     for (const [index, group] of handles.current) {
       const p = presence.current.get(index) ?? 0;
+      /* Composition strength is presence (where am I on the journey) times
+         scene weight (am I in the cinematic screen or the metadata screen). */
+      const slug = SLUG_BY_INDEX[index];
+      const scene = slug ? sceneWeight(slug) : 1;
+      const frame = 0.42 + scene * 0.58;
       const compItems = items.get(index);
       if (!compItems) continue;
 
@@ -245,7 +278,8 @@ export function MediaField() {
         const gate = item.kind === "glass" || handle.loaded() ? 1 : 0;
 
         u.uReveal.value = local * gate;
-        u.uOpacity.value = (item.opacity ?? 1) * local * gate * env.intensity;
+        u.uOpacity.value =
+          (item.opacity ?? 1) * local * gate * env.intensity * frame;
 
         /* Colour comes from the resolved environment, so glass panels and
            tinted support planes are always the hue of the world they are in
