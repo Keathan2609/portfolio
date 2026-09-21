@@ -206,7 +206,21 @@ void main() {
      fwidth: fwidth on a steeply angled plane produces a visibly thicker edge
      on the receding side. */
   float hairline = max(uSize.x, uSize.y) * 0.0022;
-  float fw = mix(hairline, min(half_.x, half_.y) * 0.92, uFeather);
+  /* FEATHER DISTANCE IS CAPPED IN ABSOLUTE WORLD UNITS, and this is the fix
+     that makes a full-bleed backdrop possible at all.
+
+     Scaling the feather to 92% of the plane's own half-size is right for a
+     small plane, but a backdrop 30 units wide has a half-height of 8.4 — so
+     the softening ran over 7.7 units and ate the entire visible frame. The
+     wash was therefore dimmest exactly where it needed to be solid: the top
+     and bottom of the screen. That is why the previous XR frame still read as
+     dark at its edges despite a 30-unit plane behind it.
+
+     Capping at 3 world units means a big plane stays SOLID through the middle
+     and only dissolves in a band near its true edges — which, for a backdrop
+     sized past the viewport, are off-screen anyway. Small planes are
+     unaffected: min() picks their own half-size long before the cap. */
+  float fw = mix(hairline, min(min(half_.x, half_.y) * 0.92, 3.0), uFeather);
   float mask = smoothstep(0.0, max(fw, hairline), inset);
   /* Eased so a fully-feathered plane falls off like haze rather than like a
      linear ramp, which reads as a gradient overlay. */
@@ -257,7 +271,11 @@ void main() {
   /* Never fully removes the plane — 0.28 keeps material behind the type so the
      column is quieter, not empty. Emptiness behind the words is what made the
      old frames read as text on black. */
-  guard = mix(1.0, mix(0.28, 1.0, guard), uTextGuard);
+  /* Floor raised 0.28 -> 0.45. At 0.28 a committed backdrop lost most of its
+     presence across the whole left half of the frame, which reintroduced the
+     black column the backdrop exists to remove. 0.45 still measurably quietens
+     the type column while leaving real material behind the words. */
+  guard = mix(1.0, mix(0.45, 1.0, guard), uTextGuard);
 
   float alpha = mask * wipe * uOpacity * mix(1.0, uGlassAlpha, uMode) * guard;
   if (uHasMap < 0.5 && uMode < 0.5) alpha = 0.0;

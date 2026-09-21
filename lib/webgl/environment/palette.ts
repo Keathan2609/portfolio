@@ -95,13 +95,13 @@ const AUTHORED: Array<Omit<EnvironmentState, "index">> = [
      the coolest neutral in the set; the key is tight and high, so the lattice
      reads as architecture catching a single hard light rather than glowing. */
   {
-    deep: new THREE.Color("#070910"),
+    deep: new THREE.Color("#0b1020"),
     light: new THREE.Color("#5b84ff"),
     floor: new THREE.Color("#0d1220"),
     // Cold cyan-steel under an electric blue key: the range an engineered
     // interior actually has, rather than one blue at two brightnesses.
     shadow: new THREE.Color("#0d2b38"),
-    lift: 0.92,
+    lift: 1.04,
     fog: 0.52,
     keyX: 0.72,
     keyY: 0.74,
@@ -135,13 +135,13 @@ const AUTHORED: Array<Omit<EnvironmentState, "index">> = [
      tight key, low fog, so the state reads graphic and edge-lit — closer to
      a printed spread under a lamp than to a volume. */
   {
-    deep: new THREE.Color("#100a09"),
+    deep: new THREE.Color("#1d0f0a"),
     light: new THREE.Color("#ff7a48"),
     floor: new THREE.Color("#1a0f0a"),
     // Warm key against a plum shadow — the editorial pairing, and the reason
     // this state can stay warm without reading as an orange section.
     shadow: new THREE.Color("#2b1230"),
-    lift: 0.88,
+    lift: 1.14,
     fog: 0.34,
     keyX: 0.24,
     keyY: 0.7,
@@ -154,7 +154,7 @@ const AUTHORED: Array<Omit<EnvironmentState, "index">> = [
      fog is high and the key sits low and far, giving the trajectories
      something to recede into. */
   {
-    deep: new THREE.Color("#050e18"),
+    deep: new THREE.Color("#0c1e2b"),
     light: new THREE.Color("#2fd4c0"),
     floor: new THREE.Color("#071a24"),
     // Teal signal over deep navy. The brief names both; this is where the
@@ -164,7 +164,7 @@ const AUTHORED: Array<Omit<EnvironmentState, "index">> = [
     // the luminance curve, so the same lift buys far more measured brightness
     // here than it does for the violet or the steel. Pulled back so the set
     // reads evenly lit rather than with one state shouting.
-    lift: 0.95,
+    lift: 1.26,
     fog: 0.72,
     keyX: 0.62,
     keyY: 0.3,
@@ -179,13 +179,13 @@ const AUTHORED: Array<Omit<EnvironmentState, "index">> = [
      red anomaly is NOT in this palette — it is applied by the scan, at one
      node at a time, so it stays an event rather than a colour scheme. */
   {
-    deep: new THREE.Color("#06090d"),
+    deep: new THREE.Color("#0c141c"),
     light: new THREE.Color("#7aa6cc"),
     floor: new THREE.Color("#0a1016"),
     // The narrowest spread in the set. Steel against graphite, almost but not
     // quite neutral — an airless room, which is the point.
     shadow: new THREE.Color("#12181c"),
-    lift: 0.8,
+    lift: 1.0,
     fog: 0.44,
     keyX: 0.5,
     keyY: 0.86,
