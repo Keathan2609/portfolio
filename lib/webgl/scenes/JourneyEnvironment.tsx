@@ -11,45 +11,16 @@ import { normalisedVelocity } from "@/lib/scroll/scroll-state";
 import {
   ENVIRONMENT_STATES,
   NEUTRAL,
-  ANOMALY,
   type EnvironmentState,
 } from "@/lib/webgl/environment/palette";
 import {
-  FIELD_STATES,
   NEUTRAL_CAMERA,
-  NEUTRAL_FIELD,
-  blendField,
   sampleCameraPath,
   sampleCameraLens,
   type CameraState,
-  type FieldState,
 } from "@/lib/webgl/environment/states";
-import {
-  AtmosphereField,
-  type AtmosphereHandle,
-} from "@/lib/webgl/environment/AtmosphereField";
-import {
-  DepthStructures,
-  type StructureHandle,
-} from "@/lib/webgl/environment/DepthStructures";
-import {
-  PointField,
-  type PointFieldHandle,
-} from "@/lib/webgl/environment/PointField";
-import {
-  NearDrift,
-  type NearDriftHandle,
-} from "@/lib/webgl/environment/NearDrift";
-import {
-  WorldMass,
-  type WorldMassHandle,
-} from "@/lib/webgl/environment/WorldMass";
-import {
-  WorldGround,
-  type WorldGroundHandle,
-} from "@/lib/webgl/environment/WorldGround";
 import { resolvedEnvironment } from "@/lib/webgl/environment/resolved-state";
-import { MediaField } from "@/lib/webgl/media/MediaField";
+import { FlowField, type FlowFieldHandle } from "@/lib/webgl/environment/FlowField";
 
 /**
  * THE JOURNEY ENVIRONMENT
@@ -161,15 +132,10 @@ function budgets(density: number, coarse: boolean) {
 
 export function JourneyEnvironment() {
   const camera = useRef<THREE.PerspectiveCamera>(null);
-  const atmosphere = useRef<AtmosphereHandle>(null);
-  const structures = useRef<StructureHandle>(null);
-  const points = useRef<PointFieldHandle>(null);
-  const near = useRef<NearDriftHandle>(null);
-  const mass = useRef<WorldMassHandle>(null);
-  const ground = useRef<WorldGroundHandle>(null);
+  const field = useRef<FlowFieldHandle>(null);
 
   const { density, animateAmbient } = useQuality();
-  const { size, viewport } = useThree();
+  const { size } = useThree();
 
   // A coarse pointer means a phone or tablet: fewer forms, and no cursor
   // response at all — a touch "move" is a drag, and letting it steer the
@@ -219,7 +185,6 @@ export function JourneyEnvironment() {
   const scratchRef = useRef(
     ((): {
       cameraState: CameraState;
-      fieldState: FieldState;
       deep: THREE.Color;
       light: THREE.Color;
       floor: THREE.Color;
@@ -233,7 +198,6 @@ export function JourneyEnvironment() {
       target: THREE.Vector3;
     } => ({
       cameraState: { ...NEUTRAL_CAMERA } as CameraState,
-      fieldState: { ...NEUTRAL_FIELD } as FieldState,
       deep: new THREE.Color(),
       light: new THREE.Color(),
       floor: new THREE.Color(),
@@ -278,17 +242,10 @@ export function JourneyEnvironment() {
   const stateOf = (index: number): EnvironmentState =>
     index < 0 ? NEUTRAL : (ENVIRONMENT_STATES[index] ?? NEUTRAL);
 
-  const fieldOf = (index: number): FieldState =>
-    index < 0 ? NEUTRAL_FIELD : (FIELD_STATES[index] ?? NEUTRAL_FIELD);
 
   useFrame((_, delta) => {
-    const atmos = atmosphere.current?.material;
-    const struct = structures.current?.material;
-    const field = points.current?.material;
-    const drift = near.current?.material;
-    const solid = mass.current?.material;
-    const floor = ground.current?.material;
-    if (!atmos || !struct || !field || !drift || !solid || !floor) return;
+    const mat = field.current?.material;
+    if (!mat) return;
 
     const dt = Math.min(delta, 1 / 20);
     const journey = readJourneyState();
@@ -444,32 +401,34 @@ export function JourneyEnvironment() {
     // lift through the middle pays that back without turning the band into a
     // flare.
     const lift = (a.lift + (b.lift - a.lift) * blend) * (1 + cross * 0.34);
-    const fog = a.fog + (b.fog - a.fog) * blend;
     const keyX = a.keyX + (b.keyX - a.keyX) * blend;
     const keyY = a.keyY + (b.keyY - a.keyY) * blend;
     const keyR = a.keyRadius + (b.keyRadius - a.keyRadius) * blend;
 
     /* ---------------------------------------------------------------------
-       Atmosphere.
+       THE BACKGROUND. One material, one write.
+
+       This replaced six separate uniform blocks — atmosphere, structures,
+       point field, near drift, solid mass and ground — each of which had to be
+       kept in agreement with the others about colour, fog and presence. There
+       is one surface now, so there is nothing left to keep in agreement.
        --------------------------------------------------------------------- */
-    const au = atmos.uniforms;
-    au.uDeep.value.copy(scratch.deep);
-    au.uLight.value.copy(scratch.light);
-    au.uShadow.value.copy(scratch.shadow);
-    au.uFloor.value.copy(scratch.floor);
-    au.uSurge.value = v.surge;
-    au.uKey.value.set(keyX, keyY);
-    au.uKeyRadius.value = keyR;
-    au.uLift.value = lift;
-    au.uFog.value = fog;
-    au.uTime.value = v.clock;
-    au.uAspect.value = size.width / Math.max(size.height, 1);
-    au.uVelocity.value = v.velocity;
-    au.uPointer.value.set(v.px, v.py);
-    // The atmosphere holds a high floor even where the journey is quiet: this
-    // layer IS the ground, and letting it fall away would return the page to
-    // the flat black the whole exercise is about.
-    au.uIntensity.value = 0.66 + v.intensity * 0.34;
+    const u = mat.uniforms;
+    u.uDeep.value.copy(scratch.deep);
+    u.uLight.value.copy(scratch.light);
+    u.uShadow.value.copy(scratch.shadow);
+    u.uFloor.value.copy(scratch.floor);
+    u.uKey.value.set(keyX, keyY);
+    u.uKeyRadius.value = keyR;
+    u.uLift.value = lift;
+    u.uTime.value = v.clock;
+    u.uAspect.value = size.width / Math.max(size.height, 1);
+    u.uVelocity.value = v.velocity;
+    u.uSurge.value = v.surge;
+    u.uPointer.value.set(v.px, v.py);
+    /* Holds a high floor even where the journey is quiet: this layer IS the
+       background, and letting it fall away returns the page to flat black. */
+    u.uIntensity.value = 0.66 + v.intensity * 0.34;
 
     /* ---------------------------------------------------------------------
        Camera.
@@ -569,95 +528,11 @@ export function JourneyEnvironment() {
       }
     }
 
-    /* ---------------------------------------------------------------------
-       Layer presence.
-
-       `arc` drives complexity and `intensity` drives brightness, and they are
-       deliberately separate: the closing sections stay lit but stop being
-       busy. Collapsing them into one number is what previously made the
-       ending read as a fade rather than as an arrival.
-       --------------------------------------------------------------------- */
-    const fs = blendField(scratch.fieldState, fieldOf(from), fieldOf(to), blend);
-    const complexity = 0.35 + v.arc * 0.65;
-
-    const su = struct.uniforms;
-    su.uFrom.value = from;
-    su.uTo.value = to;
-    su.uBlend.value = blend;
-    su.uTime.value = v.clock;
-    su.uVelocity.value = v.velocity;
-    su.uPointer.value.set(v.px, v.py);
-    su.uPresence.value = 0.55 + complexity * 0.45;
-    // Structure carries the crossing.
-    //
-    // A transition band has almost no DOM in it by design — two lines of mono
-    // type — so unlike a discipline section there is no headline supplying
-    // most of the frame's light. Measured, that left every band the darkest
-    // frame in the journey at a mean luminance of 8 against the worlds' 24,
-    // which reads as a dip between two worlds rather than as the thing the
-    // whole architecture was rebuilt to make legible.
-    //
-    // The transformation IS structural — a lattice becoming shells, ribbons
-    // quantising into a topology — so the structural layer is what gets the
-    // presence, rather than raising everything and turning the band into a
-    // flare.
-    /* Demoted to 0.5 of its previous strength. The structural layer was
-       carrying the crossing when there was nothing else to carry it; the media
-       compositions now recompose across a transition, which is a far stronger
-       statement than a lattice becoming shells. The lift on `cross` is kept —
-       a band is still the dimmest moment in the journey and still needs it. */
-    su.uOpacity.value =
-      fs.structure * complexity * v.intensity * 0.46 * (1 + cross * 0.5);
-    su.uLight.value.copy(scratch.light);
-    su.uDeep.value.copy(scratch.deep);
-
-    /* ONE LIGHT, SHARED BY THE AIR AND THE GEOMETRY.
-
-       The atmosphere already places a key in screen space (uKey, in UV). The
-       structural layer now needs the same light as a world-space direction,
-       and it has to be derived from that same pair of numbers rather than
-       authored separately — two independent lights would put the bright side
-       of the panes on the opposite side of the frame from the glow in the
-       air, and nothing looks more obviously fake than a room lit from two
-       places that disagree.
-
-       Mapped from UV to a direction pointing from the key back into the
-       scene. The +Z bias keeps the light in front rather than raking exactly
-       across the frame, which at grazing incidence would leave every pane in
-       the field reading as a silhouette. */
-    scratch.lightDir
-      .set((keyX - 0.5) * 2, (keyY - 0.5) * 2, 0.85)
-      .normalize();
-    su.uLightDir.value.copy(scratch.lightDir);
-
-    const fu = field.uniforms;
-    fu.uFrom.value = from;
-    fu.uTo.value = to;
-    fu.uBlend.value = blend;
-    fu.uTime.value = v.clock;
-    fu.uVelocity.value = v.velocity;
-    fu.uPointer.value.set(v.px, v.py);
-    // Small and comparatively crisp beats large and soft: a point that
-    // resolves to two or three pixels reads as something far away, and the
-    // same point at eight pixels reads as a smudge nearby.
-    fu.uSize.value = 0.72 * fs.size;
-    fu.uPresence.value = 1;
-    // Deliberately the quietest layer. Points read as "particles" the instant
-    // they are legible as individual objects, and particles are the single
-    // most generic thing a WebGL background can do.
-    fu.uOpacity.value = fs.points * complexity * v.intensity * 0.075;
-    fu.uPixelRatio.value = Math.min(viewport.dpr, 2);
-    fu.uLight.value.copy(scratch.light);
-    fu.uAnomaly.value.copy(ANOMALY);
-
-    // The analysis sweep belongs to Cybersecurity alone — the last state. It
-    // is driven by presence in that state rather than switched on, so it
-    // arrives with the world instead of appearing at a boundary.
-    const last = ENVIRONMENT_STATES.length - 1;
-    const security = to === last ? blend : from === last ? 1 - blend : 0;
-    fu.uScanStrength.value = security;
-    fu.uScanY.value = security > 0.01 ? ((v.clock * 0.5) % 8) - 4 : -99;
-
+    /* Development-only state bridge. Lost when the six layer-uniform blocks
+       were removed — it sat between them — and restored here because the
+       environment is driven entirely by derived scroll state, so "what did
+       readJourneyState actually return at this position" is not answerable
+       from the source. Stripped from production by the NODE_ENV check. */
     if (process.env.NODE_ENV !== "production" && debug.current) {
       const d = debug.current;
       d.from = from;
@@ -673,52 +548,6 @@ export function JourneyEnvironment() {
       d.quiet = journey.quiet;
       d.focus = journey.focus;
     }
-
-    /* ---------------------------------------------------------------------
-       The solid world. Driven from exactly the same state as everything else,
-       so the architecture, the air and the light can never disagree about
-       which discipline the visitor is standing in.
-       --------------------------------------------------------------------- */
-    const mu = solid.uniforms;
-    mu.uFrom.value = from;
-    mu.uTo.value = to;
-    mu.uBlend.value = blend;
-    mu.uTime.value = v.clock;
-    mu.uVelocity.value = v.velocity;
-    mu.uPointer.value.set(v.px, v.py);
-    mu.uLight.value.copy(scratch.light);
-    mu.uDeep.value.copy(scratch.deep);
-    mu.uLightDir.value.copy(scratch.lightDir);
-    /* Scaled rather than faded. The layer is opaque — there is no alpha to
-       lower — so presence is expressed by the architecture receding toward its
-       vanishing point through the quiet sections, which is the honest reading
-       of a world getting further away. */
-    /* Pushed back toward its vanishing point. `uPresence` scales this layer
-       rather than fading it (it is opaque — there is no alpha to lower), so a
-       lower value means the architecture stands further off. That is exactly
-       the right demotion: the boxes are still there giving the fog something
-       to describe and the media planes something to occlude, but they have
-       receded out of the foreground they used to occupy. */
-    mu.uPresence.value = 0.3 + complexity * 0.26 * v.intensity;
-
-    /* ---------------------------------------------------------------------
-       The ground. Same state, same light, same fog family — so the floor, the
-       architecture standing on it and the air above it all agree about which
-       world this is and where its light is coming from.
-       --------------------------------------------------------------------- */
-    const gu = floor.uniforms;
-    gu.uFrom.value = from;
-    gu.uTo.value = to;
-    gu.uBlend.value = blend;
-    gu.uTime.value = v.clock;
-    gu.uDeep.value.copy(scratch.deep);
-    gu.uLight.value.copy(scratch.light);
-    gu.uPresence.value = 0.45 + complexity * 0.55 * v.intensity;
-    /* Where the key lands ON THE FLOOR. Projected from the same screen-space
-       key the atmosphere uses, so the pool of light on the ground sits under
-       the glow in the air rather than somewhere unrelated. The plane's local
-       axes are X and -Z, hence the sign. */
-    gu.uKeyWorld.value.set((keyX - 0.5) * 46, -((keyY - 0.5) * 46) + 60);
 
     /* ---------------------------------------------------------------------
        PUBLISH THE RESOLVED STATE.
@@ -747,20 +576,6 @@ export function JourneyEnvironment() {
     rs.light.copy(scratch.light);
     rs.ambient = animateAmbient;
 
-    const du = drift.uniforms;
-    du.uTime.value = v.clock;
-    du.uPointer.value.set(v.px, v.py);
-    du.uVelocity.value = v.velocity;
-    du.uPresence.value = 1;
-    // The near field is the first thing to go as the journey quietens: it is
-    // the loudest layer per pixel, and the close should feel like arriving in
-    // clear air rather than like the effects being turned down one by one.
-    // The near field is measured in world units, so it covers proportionally
-    // much more of a 390px viewport than of a 1440px one. Same layer, less of
-    // it, so a phone gets depth rather than blobs.
-    du.uOpacity.value =
-      fs.near * v.intensity * (1 - v.quiet * 0.75) * (coarse ? 0.0018 : 0.0032);
-    du.uLight.value.copy(scratch.light);
   });
 
   return (
@@ -774,22 +589,15 @@ export function JourneyEnvironment() {
         far={140}
       />
 
-      <AtmosphereField ref={atmosphere} octaves={budget.octaves} />
-      <WorldGround ref={ground} segments={budget.groundSegments} />
-      <WorldMass ref={mass} count={budget.mass} />
-      <DepthStructures ref={structures} count={budget.structures} />
-      <PointField ref={points} count={budget.points} />
-      <NearDrift ref={near} count={budget.near} />
-
       {/*
-        THE MEDIA COMPOSITIONS.
+        THE WHOLE BACKGROUND. One fullscreen shader.
 
-        Last in the group and drawn after everything above it, because it is
-        the subject and they are the space it sits in. This is the inversion
-        the visual pivot turns on: the procedural layers used to BE the
-        picture, and they are now the room the real work hangs in.
+        Six layers and a media field used to live here. They are gone: the
+        references this was rebuilt against are each a single cohesive animated
+        surface, and a stack of parts cannot be made to read as one no matter
+        how carefully the parts agree with each other.
       */}
-      <MediaField />
+      <FlowField ref={field} octaves={budget.octaves} />
     </group>
   );
 }
