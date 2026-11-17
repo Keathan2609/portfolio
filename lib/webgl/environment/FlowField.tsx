@@ -113,26 +113,50 @@ float orb(vec2 p, vec2 centre, float radius) {
 
    Time is cut into strike windows; a hash of the window index decides whether
    that window fires at all, how hard, and where. Most windows are duds, which
-   is the whole point. A flash on a predictable beat reads as a strobe, and
-   lightning is only dramatic because you cannot anticipate it.
+   is the point: a flash on a predictable beat reads as a strobe, and lightning
+   is only dramatic because you cannot anticipate it.
 
-   The envelope is a fast attack with a double flicker and a short decay,
-   which is the shape a real multi-stroke flash has. */
-float strike(float t, out vec2 origin) {
-  float window = floor(t * 0.17);
-  float phase = fract(t * 0.17);
+   The envelope is a near-instant attack with two further flickers on top. That
+   flicker is most of what makes a flash read as lightning rather than as a
+   fade, because a real flash is several strokes down the same channel. */
+float strike(float t, out vec2 origin, out float seed) {
+  float window = floor(t * 0.21);
+  float phase = fract(t * 0.21);
+  seed = window;
 
-  float fires = step(0.62, hash11(window * 1.7));
-  float power = 0.45 + hash11(window * 3.1) * 0.55;
+  float fires = step(0.52, hash11(window * 1.7));
+  float power = 0.55 + hash11(window * 3.1) * 0.45;
 
   origin = vec2(
-    (hash11(window * 5.3) - 0.5) * 1.6,
-    0.25 + hash11(window * 7.9) * 0.5
+    (hash11(window * 5.3) - 0.5) * 1.9,
+    0.30 + hash11(window * 7.9) * 0.55
   );
 
-  float a = exp(-phase * 34.0);
-  float b = exp(-max(phase - 0.055, 0.0) * 26.0) * 0.55;
-  return fires * power * max(a, b);
+  float a = exp(-phase * 46.0);
+  float b = exp(-max(phase - 0.030, 0.0) * 38.0) * 0.80;
+  float c = exp(-max(phase - 0.075, 0.0) * 30.0) * 0.50;
+  return fires * power * max(a, max(b, c));
+}
+
+/* THE CHANNEL ITSELF, not the glow around it.
+
+   This is what the first storm pass was missing. It only brightened the cloud,
+   and a brightening cloud reads as the sky getting lighter; the thin hot line
+   is the thing that makes it read as lightning.
+
+   Distance to a vertical line whose horizontal position is displaced by noise
+   keyed on the strike seed, so the channel kinks and wanders differently on
+   every strike instead of dropping a straight rod down the frame. */
+float bolt(vec2 p, vec2 origin, float seed) {
+  float y = p.y - origin.y;
+  float n = fbm(vec2(p.y * 2.4 + seed * 13.7, seed * 5.1), 3) - 0.5;
+  float x = p.x - origin.x - n * 1.25;
+
+  /* Only below the origin, and widening slightly as it descends. */
+  float below = smoothstep(0.05, -0.35, y);
+  float taper = mix(0.012, 0.055, clamp(-y * 0.55, 0.0, 1.0));
+  float core = 1.0 - smoothstep(0.0, taper, abs(x));
+  return core * below;
 }
 
 void main() {
@@ -143,14 +167,15 @@ void main() {
      orbs below read as volumes rather than as another noise layer. */
   vec2 p = (uv - 0.5) * vec2(uAspect, 1.0) * 1.55;
 
-  /* CALM, NOT FROZEN. The first attempt at "calmer" used 0.045, which works
-     out at roughly six minutes for one orb cycle and about 0.01 world units
-     per second of smoke drift — mathematically moving, visually a still
-     image. Calm weather still visibly moves.
-
-     At 0.16 an orb completes a circuit in about 100 seconds and the billows
-     drift perceptibly without ever reading as fast. */
-  float t = uTime * 0.16;
+  /* CALM, NOT FROZEN. 0.045 worked out at roughly six minutes per orb cycle
+     and 0.01 world units per second of drift: mathematically animated,
+     visually a still image. 0.16 fixed that; 0.30 is the asked-for step up
+     again - an orb circuit in about 55 seconds and billows that visibly roll.
+     The orb paths below scale this same t by 0.19-0.41, so the light sources
+     stay slower than the cloud: the smoke moves ACROSS them rather than
+     everything sliding in lockstep, which is what keeps it reading as weather
+     rather than as a panning texture. */
+  float t = uTime * 0.30;
 
   p += uPointer * 0.05;
   p.y -= uVelocity * 0.035;
@@ -161,8 +186,8 @@ void main() {
     w = warp(w * 0.92, t + float(i) * 2.3);
   }
 
-  float a = fbm(w * 0.8 + vec2(0.0, -t * 0.22), OCTAVES);
-  float b = fbm(w * 1.15 + vec2(3.1, 7.7) - vec2(0.0, t * 0.15), OCTAVES);
+  float a = fbm(w * 0.8 + vec2(t * 0.06, -t * 0.40), OCTAVES);
+  float b = fbm(w * 1.15 + vec2(3.1, 7.7) - vec2(t * 0.04, t * 0.28), OCTAVES);
 
   /* Softer windows than the turbulent pass: the point now is billow, not
      contrast. */
@@ -218,16 +243,25 @@ void main() {
      DOM column lives on the lower left and a 13px token does not survive an
      unannounced highlight behind it. */
   vec2 origin;
-  float flash = strike(uTime, origin) * uStorm;
+  float seed;
+  float flash = strike(uTime, origin, seed) * uStorm;
   if (flash > 0.001) {
-    float reach = 1.0 - smoothstep(0.0, 1.9, length(p - origin));
-    float lit = flash * reach * (0.35 + body * 1.15);
-    lit *= smoothstep(-0.15, 0.55, uv.y);
-    lit *= mix(0.35, 1.0, smoothstep(0.05, 0.6, uv.x));
-    /* Toward the key hue rather than white. A white flash would read as a page
-       error, and would blow the one saturated colour out of the frame at
-       exactly the moment the frame is most visible. */
-    colour += mix(uLight, vec3(1.0), 0.35) * lit * 0.55;
+    /* THE SHEET: the cloud lit from inside. Smoke density at each fragment
+       gates how much of the strike reaches the eye, so dense billows glow and
+       thin air stays dark - that is why it reads as a cloud being lit rather
+       than as a white overlay. Considerably stronger than the first pass,
+       which was too polite to notice. */
+    float reach = 1.0 - smoothstep(0.0, 2.3, length(p - origin));
+    float sheet = flash * reach * (0.45 + body * 1.35);
+    sheet *= smoothstep(-0.25, 0.50, uv.y);
+    sheet *= mix(0.30, 1.0, smoothstep(0.05, 0.6, uv.x));
+    colour += mix(uLight, vec3(1.0), 0.45) * sheet * 1.35;
+
+    /* THE CHANNEL. The one place in the whole frame allowed near white, and
+       only for the handful of frames a strike lasts. */
+    float channel = bolt(p, origin, seed) * flash;
+    channel *= mix(0.25, 1.0, smoothstep(0.08, 0.55, uv.x));
+    colour += mix(uLight, vec3(1.0), 0.85) * channel * 2.2;
   }
 
   /* A crossing between two worlds briefly lifts the whole field. */

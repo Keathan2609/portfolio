@@ -5,6 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { useQuality } from "@/lib/performance/QualityProvider";
+import { useReducedMotion } from "@/lib/animation/MotionProvider";
 import { readJourneyState } from "@/lib/webgl/journey-state";
 import { pointerState, trackPointer } from "@/lib/webgl/pointer-state";
 import { normalisedVelocity } from "@/lib/scroll/scroll-state";
@@ -135,6 +136,21 @@ export function JourneyEnvironment() {
   const field = useRef<FlowFieldHandle>(null);
 
   const { density, animateAmbient } = useQuality();
+  /* THE BACKGROUND'S OWN MOTION GATE.
+
+     `animateAmbient` is false on the LOW tier, which froze this layer
+     solid — and PerformanceMonitor drops to LOW readily, so in practice
+     the field often rendered as a still gradient with no storm at all.
+     That gating was correct when the environment was six layers plus a
+     media plane field; it is one fullscreen quad now, the cheapest thing
+     on the page, and freezing it buys nothing worth having.
+
+     So the field follows the visitor's MOTION PREFERENCE, which is an
+     accessibility promise, rather than the TIER, which is a performance
+     budget that no longer applies to it. Camera travel, velocity response
+     and the surge all still follow the tier exactly as before. */
+  const reducedMotion = useReducedMotion();
+  const fieldAnimates = !reducedMotion;
   const { size } = useThree();
 
   // A coarse pointer means a phone or tablet: fewer forms, and no cursor
@@ -377,7 +393,7 @@ export function JourneyEnvironment() {
     // the position scalar was introduced to remove, arriving by another door.
     v.rate = ease(v.rate, (1 - calm * 0.72) * (1 + cross * 1.6), 1.8, dt);
     clockRate = v.rate;
-    if (animateAmbient) v.clock += dt * clockRate;
+    if (fieldAnimates) v.clock += dt * clockRate;
 
     // Eased so the surge arrives and leaves with weight rather than tracking
     // the crossing curve exactly.
@@ -433,7 +449,7 @@ export function JourneyEnvironment() {
        uTime still would otherwise leave a strike paused mid-flash on screen
        forever for anyone who asked for reduced motion, which is worse than no
        lightning at all. At 0 the branch never fires. */
-    u.uStorm.value = animateAmbient ? 1 : 0;
+    u.uStorm.value = fieldAnimates ? 1 : 0;
 
     /* ---------------------------------------------------------------------
        Camera.
@@ -548,6 +564,12 @@ export function JourneyEnvironment() {
       d.camZ = cam ? cam.position.z : 0;
       d.camY = cam ? cam.position.y : 0;
       d.rate = v.rate;
+      /* The field's own clock, which is what the background shader receives as
+         uTime. Exposed because the storm is driven entirely by it: without the
+         clock a test can only screenshot at random and hope to land inside the
+         ~0.3s a strike lasts, which is not a verification. With it, a test can
+         compute exactly when the next strike fires and capture that frame. */
+      d.clock = v.clock;
       d.intensity = journey.intensity;
       d.arc = journey.arc;
       d.quiet = journey.quiet;
