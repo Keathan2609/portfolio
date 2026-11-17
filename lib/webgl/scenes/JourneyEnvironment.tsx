@@ -429,6 +429,11 @@ export function JourneyEnvironment() {
     /* Holds a high floor even where the journey is quiet: this layer IS the
        background, and letting it fall away returns the page to flat black. */
     u.uIntensity.value = 0.66 + v.intensity * 0.34;
+    /* The storm is gated on ambient motion, not merely frozen by it. Holding
+       uTime still would otherwise leave a strike paused mid-flash on screen
+       forever for anyone who asked for reduced motion, which is worse than no
+       lightning at all. At 0 the branch never fires. */
+    u.uStorm.value = animateAmbient ? 1 : 0;
 
     /* ---------------------------------------------------------------------
        Camera.
