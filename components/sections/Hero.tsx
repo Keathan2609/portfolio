@@ -3,6 +3,7 @@
 import { Stage } from "@/components/layout/Stage";
 import { RevealText } from "@/components/ui/Reveal";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { NameWeb } from "@/components/ui/NameWeb";
 import { sceneForHero } from "@/lib/webgl/scenes/registry";
 import { profile } from "@/lib/data/profile";
 import { disciplines } from "@/lib/data/disciplines";
@@ -34,6 +35,7 @@ export function Hero() {
         <Eyebrow label="Portfolio — 001" />
 
         <h1 id="hero-title" className={styles.name}>
+          <NameWeb />
           {profile.name}
         </h1>
 

@@ -298,7 +298,12 @@ export const FlowField = forwardRef<FlowFieldHandle, { octaves: number }>(
        uniform: a warp costs a full extra fbm evaluation per fragment across the
        whole viewport, and a branch a uniform controls is still compiled and
        still costs register pressure on the tiers that skip it. */
-    const warpPasses = octaves >= 4 ? 2 : 1;
+    /* Threshold lowered from 4 to 3. The warp is what turns noise into
+       billow — a single pass folds the field roughly in place, and the
+       second is most of what makes it read as smoke rather than as marble.
+       Tying it to the top octave count meant the cheaper tiers lost the
+       character of the background rather than some of its detail. */
+    const warpPasses = octaves >= 3 ? 2 : 1;
 
     const material = useMemo(
       () =>

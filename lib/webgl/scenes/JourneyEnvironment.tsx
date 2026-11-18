@@ -122,11 +122,31 @@ function budgets(density: number, coarse: boolean) {
      fog to describe behind the media planes — and it has stopped being the
      subject. The reclaimed budget goes to textures, which is where the
      subject actually lives now. */
+  /* THE OCTAVE FLOOR WENT UP, and it is the only number here that still does
+     anything.
+
+     `mass`, `points`, `structures`, `near` and `groundSegments` all budget
+     layers that no longer exist — six of them plus a media field, deleted
+     when this became one fullscreen quad. `octaves` is the lone survivor,
+     and it was still being scaled by a density figure designed for four
+     thousand additive sprites and forty opaque boxes.
+
+     The cost of that: on the LOW tier the field dropped to two fbm octaves,
+     and because warp passes are tied to the octave count it also lost a
+     domain-warp pass. Two octaves with one warp is not a thinner version of
+     this background, it is a different one — smooth gradient instead of
+     billow, which reads as the smoke having gone. PerformanceMonitor drops
+     to LOW readily and never climbs back, so that is what a visitor whose
+     machine was briefly busy sees for the rest of the session.
+
+     This is the same correction the storm pass already made for the clock:
+     a budget written for six layers, still being applied to the cheapest
+     thing on the page. */
   if (density <= 0.3) {
-    return { mass: 10, points: 300, structures: 14, near: 5, octaves: 2, groundSegments: 1 };
+    return { mass: 10, points: 300, structures: 14, near: 5, octaves: 3, groundSegments: 1 };
   }
   if (density <= 0.65 || coarse) {
-    return { mass: 20, points: 480, structures: 24, near: 6, octaves: 3, groundSegments: 2 };
+    return { mass: 20, points: 480, structures: 24, near: 6, octaves: 4, groundSegments: 2 };
   }
   return { mass: 36, points: 900, structures: 42, near: 8, octaves: 4, groundSegments: 4 };
 }

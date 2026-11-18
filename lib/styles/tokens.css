@@ -40,17 +40,23 @@
      fell to 4.77:1: technically passing, genuinely hard to read.
 
      So these two tokens stop budgeting to the threshold and take real
-     headroom instead. --c-text-muted measures 11.9:1 on --c-base and roughly
-     9:1 against the brightest region the environment produces;
-     --c-text-faint, 9.4:1 and roughly 7:1. Both stay in the same cool
-     neutral ramp, so the hierarchy between text, muted and faint is intact —
-     there is simply more light in the lower two steps.
+     headroom instead. --c-text-muted measures 11.9:1 on --c-base, and
+     --c-text-faint 10.5:1. Both stay in the same cool neutral ramp, so the
+     hierarchy between text, muted and faint is intact — there is simply
+     more light in the lower two steps.
+
+     --c-text-faint was raised once more when the field's octave floor went
+     up. More octaves and a second warp pass mean richer billows, and richer
+     billows mean brighter peaks: measured against the lit frame, the 13px
+     discipline index fell to 4.41:1, just under AA. It now measures 5.0:1
+     there. The background got better and the type had to keep up with it,
+     which is the right direction for that trade to run.
 
      The alternative fix was to dim the environment or put a scrim behind the
      text. Both were rejected: the background is the piece, and a scrim would
      fight it in every frame rather than solve anything. Brighten the type. */
   --c-text-muted: #c8c8d2;
-  --c-text-faint: #b2b2be;
+  --c-text-faint: #bcbcc8;
 
   /* ---------------------------------------------------------------------
      COLOUR — discipline accents

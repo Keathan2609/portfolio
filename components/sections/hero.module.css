@@ -17,6 +17,11 @@
 /* The name IS the hero. Display scale, optical left-align, nothing else
    allowed to be this large anywhere on the site. */
 .name {
+  /* Positioning context for the web that sits behind it, and a stacking
+     context so the web's negative z-index stays trapped behind the type
+     rather than falling behind the page background. */
+  position: relative;
+  isolation: isolate;
   margin-top: auto;
   margin-left: -0.055em;
   font-size: var(--t-display);
