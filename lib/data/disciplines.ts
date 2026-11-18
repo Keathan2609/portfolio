@@ -23,8 +23,12 @@ export const disciplines: Discipline[] = [
     accentHex: "#4f7cff",
     intro:
       "I build products, systems and interfaces — from the screen back to the data.",
-    // TODO — no level was supplied for this discipline. Carried over from
-    // the previous content pass rather than guessed at afresh.
+    /**
+     * The best-evidenced world in the archive, and the reason this site now
+     * leads with it: Vantage, At Leisure, Kbot, RedSeptember and KELVIN are
+     * several substantial systems across Go, TypeScript and Python, two of
+     * them deployed and reachable.
+     */
     level: "Advanced / Broad",
     register: "Systems · Interfaces · Languages · Applications",
     process: ["Interface", "Application", "Logic", "Data", "Delivery"],
@@ -34,11 +38,13 @@ export const disciplines: Discipline[] = [
      * `programming` skill group in content.ts.
      */
     capabilities: [
-      "Frontend development",
-      "Application development",
-      "Web development",
+      "Full-stack application development",
+      "API and service design",
+      "Relational schema design",
+      "Offline-first and progressive web apps",
+      "Edge and serverless deployment",
+      "Automated testing",
       "Interface engineering",
-      "Scripting and automation",
     ],
     skillGroups: ["programming"],
   },
@@ -57,20 +63,28 @@ export const disciplines: Discipline[] = [
     accentVar: "--c-accent-xr",
     accentHex: "#9d5cff",
     intro:
-      "I model, animate and light — then take it into engines and make it real-time.",
-    level: "Advanced",
+      "I model and texture for real-time, and I am still learning the engine half properly.",
+    /**
+     * HONESTLY DOWNGRADED from "Advanced".
+     *
+     * The asset pipeline here is genuinely strong — Maya and Substance work
+     * exported game-ready, with functional parts separated for engine use.
+     * The engine side is not yet: one coursework OpenXR scene assembled on
+     * licensed asset packs, whose original code is an audio interaction
+     * layer. That is real exposure rather than depth, and stating otherwise
+     * would be the single easiest claim on this site to disprove in an
+     * interview.
+     */
+    level: "Growing",
     register: "Modelling · Animation · VFX · Real-time",
     process: ["Model", "Sculpt", "Texture", "Animate", "Real-time"],
     capabilities: [
-      "3D modelling",
-      "Animation",
-      "Character animation",
-      "Visual effects design",
-      "Texturing",
-      "Digital sculpting",
-      "Real-time 3D",
-      "VFX",
-      "XR development",
+      "3D modelling for real-time",
+      "PBR texturing and map authoring",
+      "Game-ready asset export",
+      "Rigging parts for engine-driven motion",
+      "OpenXR scene assembly",
+      "Interaction and spatial audio scripting",
     ],
     skillGroups: ["xr3d"],
   },
@@ -84,7 +98,14 @@ export const disciplines: Discipline[] = [
     accentHex: "#ff6b3d",
     intro:
       "I design identities, interfaces and campaign work — then build the assets that carry them.",
-    level: "Advanced",
+    /**
+     * Broad and sustained — months of modelling and texturing, a shipped
+     * multi-week content programme, code-drawn brand marks. Held below
+     * "Advanced" for one honest reason: almost none of the 3D work has been
+     * rendered, so its finished quality is undemonstrated rather than
+     * demonstrated and found wanting.
+     */
+    level: "Intermediate → Advanced",
     register: "Identity · Interface · Communication · Campaign",
     process: ["Identity", "Concept", "Design", "Asset", "Performance"],
     capabilities: [
@@ -102,19 +123,27 @@ export const disciplines: Discipline[] = [
   {
     id: "ai",
     slug: "ai-data-science",
-    name: "Data Science",
-    shortName: "Data",
+    name: "Data & Applied AI",
+    shortName: "Data & AI",
     index: 4,
     accentVar: "--c-accent-ai",
     accentHex: "#00c2a8",
     intro:
-      "I analyse data, engineer features and run machine learning experiments.",
+      "I build systems that act on models, and I do the unglamorous data work that makes them worth acting on.",
     /**
-     * VERIFIED framing: growing, junior-level machine learning. This is
-     * explicitly NOT a senior ML engineering claim.
+     * RAISED from "Growing", on two independent legs rather than one.
+     *
+     * The applied-AI leg is an agent runtime in production: bounded tool
+     * loops, a policy engine, approval gates and depth-limited delegation.
+     * The classical leg is client-scale analysis — 643,933 repair records
+     * through classification and intermittent-demand forecasting.
+     *
+     * Still short of "Advanced" deliberately: the agent work is concentrated
+     * in a single codebase, and no model here has been through adversarial
+     * validation or a production feedback loop.
      */
-    level: "Growing",
-    register: "Analysis · Modelling · Prediction · Visualisation",
+    level: "Intermediate → Advanced",
+    register: "Data · Modelling · Agents · Delivery",
     process: [
       "Data",
       "Analysis",
@@ -123,12 +152,12 @@ export const disciplines: Discipline[] = [
       "Visualisation",
     ],
     capabilities: [
-      "Python-based data analysis",
-      "Feature engineering",
-      "Machine learning experiments",
-      "Statistical modelling",
-      "Predictive analytics",
-      "Data visualisation",
+      "Large messy dataset preparation",
+      "Classification and feature engineering",
+      "Intermittent-demand forecasting",
+      "LLM agent runtimes and tool calling",
+      "Approval-gated autonomous systems",
+      "Reporting business users can actually open",
     ],
     skillGroups: ["data"],
   },
@@ -141,24 +170,33 @@ export const disciplines: Discipline[] = [
     accentVar: "--c-accent-security",
     accentHex: "#5c86a8",
     intro:
-      "I am actively building this capability — learning to break systems so I can build them properly.",
-    /** VERIFIED framing: junior. Held deliberately below every other world. */
-    level: "Currently Developing",
-    register: "Offensive · Defensive · Forensics · Detection",
-    process: ["Recon", "Exploit", "Detect", "Respond", "Harden"],
+      "I build the security in — authentication, authorisation and sandboxing, designed before the feature rather than audited after it.",
+    /**
+     * REFRAMED, and raised.
+     *
+     * The previous framing was offensive — recon, exploit, forensics, SOC —
+     * and the only standalone evidence for it was a small amount of CTF
+     * practice. Meanwhile the genuinely strong security work was sitting
+     * unclaimed inside the engineering: Row Level Security carrying real
+     * authorisation rules, WebAuthn implemented by hand with no password
+     * path, dedicated SSRF guards, argv-only sandboxed execution contained
+     * by an OS job object, and a ten-job security pipeline.
+     *
+     * This is the stronger claim and the true one. Offensive practice stays
+     * listed as practice, under Training, where it belongs.
+     */
+    level: "Intermediate → Advanced",
+    register: "Authentication · Authorisation · Isolation · Supply chain",
+    process: ["Model", "Constrain", "Gate", "Scan", "Verify"],
     capabilities: [
-      "Penetration Testing",
-      "Threat Analysis",
-      "Security Architecture",
-      "Web Exploitation",
-      "Cryptography",
-      "Reverse Engineering",
-      "Digital Forensics",
-      "SOC Analysis",
-      "Threat Detection",
-      "Incident Response",
-      "Security Metrics",
-      "Cloud Security",
+      "Passwordless authentication (WebAuthn)",
+      "Row-level authorisation in the database",
+      "SSRF and egress guarding",
+      "Sandboxed command execution",
+      "Approval gates for sensitive actions",
+      "Secret scanning and dependency auditing",
+      "Static and dynamic analysis in CI",
+      "Threat modelling",
     ],
     skillGroups: ["security"],
   },

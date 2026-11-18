@@ -23,10 +23,10 @@ export const profile: Profile = {
    * VERIFIED positioning. The hero shows this line and nothing more — the
    * breadth belongs to the discipline worlds, not to a single headline.
    */
-  headline: "Creative Developer",
+  headline: "Software Engineer & Multidisciplinary Builder",
 
-  /** No location supplied. The source CV's street address is excluded. */
-  location: "",
+  /** Country only. The source CV's street address stays excluded. */
+  location: "South Africa",
 
   email: "keathan179@gmail.com",
 
@@ -36,9 +36,9 @@ export const profile: Profile = {
    * paragraphs.
    */
   intro: [
-    "I am a builder. The label changes depending on the room — engineer, designer, animator, analyst — but the work underneath is the same: take something that only exists as an idea, and make it real enough to use.",
-    "Most people pick a lane. I found that the interesting problems live in the gaps between them. A spatial experience needs an engineer and a 3D artist. A forecasting model is worthless until someone designs the interface that makes it legible. A system is not finished until someone has tried to break it.",
-    "So I learned all of it. Not as a collection of hobbies, but as one practice with five entrances.",
+    "I am a builder. The label changes depending on the room — engineer, designer, analyst — but the work underneath is the same: take something that exists only as an idea, and make it real enough to use.",
+    "Most of what I build is software, and most of it is the unglamorous half: the risk engine that refuses the order, the policy that makes an agent stop and ask, the database rule that makes a permission true rather than merely displayed. I like the parts that have to be right.",
+    "The rest of it — the 3D, the design, the security — is not a separate set of hobbies. A forecast nobody opens is not a forecast. A spatial experience needs someone who can model it and someone who can ship it. A system is not finished until somebody has tried to break it. Five entrances, one practice.",
   ],
 
   /**
@@ -46,7 +46,7 @@ export const profile: Profile = {
    * no seniority claim, no outcome, no employer.
    */
   summary:
-    "Creative developer working across software development, creative technology, 3D and VFX, graphic design, UI/UX, XR, data and AI, and cybersecurity.",
+    "Software engineer working across full-stack and edge systems, applied AI and data, security engineering, 3D and real-time, and design. Builds end to end: architecture, implementation, testing and deployment.",
 
   /** TODO — editable. No availability statement was supplied. */
   availability: "Open to roles, contracts and collaborations.",

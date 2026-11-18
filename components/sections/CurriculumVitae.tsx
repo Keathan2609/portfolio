@@ -88,10 +88,21 @@ export function CurriculumVitae() {
                     <span className={styles.tag}>Placeholder</span>
                   )}
                 </div>
-                <p className={styles.entryMeta}>
-                  {entry.organisation} · {entry.period}
-                </p>
-                <p className={styles.entryBody}>{entry.summary}</p>
+                {/* An absent organisation or period renders as nothing at
+                    all — not as an empty string beside a stranded separator.
+                    The data layer's promise is that omitting a field removes
+                    it from the page; the separator has to be conditional for
+                    that to be true. */}
+                {(entry.organisation || entry.period) && (
+                  <p className={styles.entryMeta}>
+                    {[entry.organisation, entry.period]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
+                {entry.summary && (
+                  <p className={styles.entryBody}>{entry.summary}</p>
+                )}
                 {entry.highlights.length > 0 && (
                   <ul className={styles.highlights}>
                     {entry.highlights.map((highlight) => (
@@ -116,9 +127,14 @@ export function CurriculumVitae() {
                     <span className={styles.tag}>Placeholder</span>
                   )}
                 </div>
-                <p className={styles.entryMeta}>
-                  {entry.issuer} · {entry.issued}
-                </p>
+                {/* Same rule as experience: no issue date means the issuer
+                    stands alone, rather than trailing a separator into
+                    nothing. */}
+                {(entry.issuer || entry.issued) && (
+                  <p className={styles.entryMeta}>
+                    {[entry.issuer, entry.issued].filter(Boolean).join(" · ")}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
@@ -179,7 +195,9 @@ export function CurriculumVitae() {
               }
             >
               <span className={styles.timelineDot} aria-hidden="true" />
-              <p className={styles.timelinePeriod}>{entry.period}</p>
+              {entry.period && (
+                <p className={styles.timelinePeriod}>{entry.period}</p>
+              )}
               <h4 className={styles.timelineTitle}>{entry.title}</h4>
               <p className={styles.timelineDetail}>{entry.detail}</p>
             </li>

@@ -27,8 +27,7 @@ export function CurrentlyBuilding() {
           Currently building / learning
         </h2>
         <p className={styles.note}>
-          In progress, not finished work. Placeholder entries until the real
-          ones are ready to show.
+          In progress, not finished work.
         </p>
       </div>
 

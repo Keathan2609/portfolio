@@ -263,7 +263,7 @@ export function DisciplineWorld({ discipline }: { discipline: Discipline }) {
           <div className={styles.railHead}>
             <h3 className={styles.railTitle}>Work</h3>
             <p className={styles.railNote}>
-              Placeholder entries demonstrating the presentation format.
+              Selected work. Imagery is still being produced.
             </p>
           </div>
 
