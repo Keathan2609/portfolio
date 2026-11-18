@@ -37,6 +37,21 @@ import type {
  *   - Only verified links appear. Every URL here resolves to something that
  *     exists and is public.
  *
+ *   - NEXUS and Atlas are stated as never deployed, in their own first
+ *     lines, because they are not. Several specific claims their own
+ *     documentation makes were left out after they failed verification
+ *     against the source: Atlas's test and package counts, and NEXUS's
+ *     audit-trail immutability, webhook replay and delivery pipeline. The
+ *     rule is the same one as everywhere else in this file \u2014 a README is a
+ *     claim, not evidence.
+ *
+ *   - Forge is absent deliberately, not by oversight. It is a real and
+ *     substantial repository, but its two strongest claims are each already
+ *     made better here by another project: a small pure core proved without
+ *     infrastructure is Vantage's thesis, and correctness across processes
+ *     that die independently is NEXUS's \u2014 and NEXUS drives real containers
+ *     where Forge's worker only ever runs handlers it defines itself.
+ *
  * Replacing content is a matter of editing this file. No component changes.
  */
 export const projects: Project[] = [
@@ -118,6 +133,45 @@ export const projects: Project[] = [
   },
 
   {
+    slug: "nexus",
+    title: "NEXUS",
+    discipline: "software",
+    summary:
+      "A control plane for software delivery, built so several worker processes can compete for the same queue with no coordinator between them: a worker claims a job from Postgres under a lease, and a crashed worker is nothing more than a lease that expired. It runs against Docker or a local kind cluster and has never been pointed at anything beyond one machine.",
+    role: "Sole author \u2014 Go services, schema, reconciliation, Kubernetes path",
+    year: "2026",
+    stack: ["Go", "PostgreSQL", "NATS JetStream", "Kubernetes", "Docker", "Next.js", "TypeScript"],
+    repositoryUrl: "https://github.com/Keathan2609/nexus-control-plane",
+    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    presentation: "expanded",
+    caseStudy: [
+      {
+        heading: "Context",
+        body: "Delivery tooling is a pile of scripts until something dies halfway through. The question this is built around is not how fast a pipeline runs but what is true afterwards if the process running it is killed at the worst possible moment \u2014 which is the moment it will eventually be killed at.",
+      },
+      {
+        heading: "Claimed, never assigned",
+        body: "There is no scheduler handing work out, because a scheduler is a thing that can itself go down and take the map of who-has-what with it. Workers compete for the same table: one UPDATE whose subquery selects FOR UPDATE SKIP LOCKED and takes a lease. No leader election, no worker registry, no partition map to keep in agreement with reality. A worker that dies holds a lease that stops being renewed, and that is the whole of the recovery story.",
+      },
+      {
+        heading: "Earning the word healthy",
+        body: "The deployment state table has no edge from DEPLOYING to HEALTHY. A release has to pass through VERIFYING and is accepted only after three consecutive successful probes against the running application, with one failure resetting the count to zero \u2014 so a release cannot be marked good because it started, only because it kept answering.",
+      },
+    ],
+    technicalDetails: [
+      "Workers claim jobs with one UPDATE over a FOR UPDATE SKIP LOCKED subquery, taking a lease rather than an assignment.",
+      "Heartbeat and completion both carry AND worker_id = $2, so a worker whose lease was already reclaimed cannot resume ownership of work someone else is now running.",
+      "Events reach NATS only through an outbox whose write function takes a transaction rather than a pool, so an event cannot be emitted outside the transaction that caused it.",
+      "One live deployment per environment is a partial unique index, and promotion supersedes the previous release inside the same transaction that marks the new one healthy, so the index is never momentarily violated.",
+      "GitHub webhooks are verified with HMAC-SHA256 and de-duplicated by a unique index on provider and delivery id, so a redelivery loses the race instead of starting a second build of the same commit.",
+      "The Kubernetes path drives kubectl directly \u2014 apply, rollout status, and reading pod events when a rollout stalls \u2014 against a local kind cluster.",
+      "Reconciliation is one ticker over nine independent steps, each failure logged and stepped past, so drift detection going wrong cannot stop leases being reclaimed.",
+      "152 Go test functions across 16 files. Nine need live Postgres and NATS behind a build tag, so a clean checkout exercises the planner, state transitions and RBAC but not the deployment path \u2014 which is the half that matters most and the gap worth naming.",
+    ],
+    placeholder: false,
+  },
+
+  {
     slug: "freevoices",
     title: "FreeVoices",
     discipline: "software",
@@ -151,6 +205,45 @@ export const projects: Project[] = [
       "Server-side PDF invoices; logo uploads capped at 5 MB, restricted to JPEG and PNG, stored under unguessable filenames.",
       "Nightly jobs for recurring invoices, overdue marking and account anonymisation.",
       "Privacy policy, terms and an account-deletion route shipped as part of the product rather than bolted on for a store listing.",
+    ],
+    placeholder: false,
+  },
+
+  {
+    slug: "atlas",
+    title: "Atlas",
+    discipline: "software",
+    summary:
+      "A multi-tenant team workspace \u2014 organisations, workspaces, projects, work items, members, API keys and an audit log \u2014 built around a single problem: making it structurally impossible for one tenant to read another\u2019s data, rather than something every query has to remember. It runs locally from a Docker stack and has never been deployed.",
+    role: "Sole author \u2014 schema, isolation model, API, web client, tests",
+    year: "2026",
+    stack: ["TypeScript", "NestJS", "Prisma", "PostgreSQL", "Redis", "Next.js", "Turborepo", "Playwright"],
+    repositoryUrl: "https://github.com/Keathan2609/atlas-multitenant-platform",
+    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    presentation: "expanded",
+    caseStudy: [
+      {
+        heading: "Context",
+        body: "In a multi-tenant product the worst bug is not a crash, it is a query that quietly returns somebody else\u2019s rows. The usual defence is discipline \u2014 remember the tenant filter, every time, forever, including the developer who joins next year. Discipline is not a control. The whole design here is an attempt to make the mistake unavailable rather than merely discouraged.",
+      },
+      {
+        heading: "Three layers that do not depend on each other",
+        body: "Composite foreign keys carry the organisation id, so a cross-tenant reference is refused by Postgres whatever the application believes. A Prisma client extension intercepts every operation and injects the tenant filter \u2014 an extension rather than a repository wrapper, because a wrapper only protects the people who remember to use it, while a scoped client cannot issue an unscoped query at all. Above both, HTTP guards resolve the tenant before any service runs.",
+      },
+      {
+        heading: "Making the rule impossible to forget",
+        body: "A boot-time assertion reads Prisma\u2019s runtime data model and refuses to start the API if any model is registered neither as tenant-owned nor as deliberately excluded, each exclusion carrying its reason in code. So adding a table without deciding what it belongs to is not an oversight that ships \u2014 it is a server that will not boot.",
+      },
+    ],
+    technicalDetails: [
+      "Seven relations reference [organizationId, id] rather than id alone, so cross-tenant references are rejected by the database itself.",
+      "Tenant scoping is a Prisma client extension intercepting $allOperations, not a repository wrapper that developers must remember to use.",
+      "A boot-time assertion fails API startup if any model is registered as neither tenant-owned nor deliberately excluded.",
+      "A hand-written ESLint AST selector bans unscoped findUnique and findFirst on tenant-owned models, and bans $queryRawUnsafe outright.",
+      "The tenant guard returns the same 404 for an organisation that does not exist and one you are simply not a member of, so slug enumeration yields nothing; the real reason goes to the log.",
+      "Owner-count changes run under Serializable isolation, because two concurrent demotions at a weaker level could each see two owners and leave the organisation with none.",
+      "Argon2id at OWASP parameters with rehash on login, and a dummy hash verified on the user-not-found branch to close the timing oracle. Session tokens and API keys use SHA-256 \u2014 256 bits of CSPRNG output has no dictionary to attack, and a slow hash would only tax every request.",
+      "220 declared test cases across 17 spec files, including suites against real Postgres and Redis that assert a cross-tenant read is indistinguishable from a nonexistent one.",
     ],
     placeholder: false,
   },
@@ -360,7 +453,7 @@ export const skillGroups: SkillGroup[] = [
       { name: "CSS", disciplines: ["software", "creative"], tier: "secondary", note: "Layout and styling", related: ["HTML", "ReactJS"] },
 
       { name: "Next.js", disciplines: ["software", "creative"], tier: "primary", note: "Application and interface framework", related: ["ReactJS", "TypeScript"] },
-      { name: "NestJS", disciplines: ["software"], tier: "secondary", note: "Typed backend services", related: ["TypeScript", "Prisma"] },
+      { name: "NestJS", disciplines: ["software"], tier: "secondary", note: "Typed backend services — the multi-tenant platform", related: ["TypeScript", "Prisma"] },
       { name: "Angular", disciplines: ["software"], tier: "secondary", note: "Application framework — the invoicing platform", related: ["TypeScript", "Ionic"] },
       { name: "Ionic", disciplines: ["software"], tier: "supporting", note: "Mobile-shaped UI on the web platform", related: ["Angular", "Capacitor"] },
       { name: "Capacitor", disciplines: ["software"], tier: "supporting", note: "One web codebase packaged as a native app", related: ["Angular"] },
@@ -380,7 +473,7 @@ export const skillGroups: SkillGroup[] = [
       { name: "Git / GitHub", disciplines: ["software"], tier: "secondary", note: "Version control and collaboration", related: ["CI/CD"] },
       { name: "Playwright", disciplines: ["software"], tier: "secondary", note: "End-to-end browser testing", related: ["TypeScript", "CI/CD"] },
       { name: "Cloudflare Workers", disciplines: ["software"], tier: "secondary", note: "Edge runtime and deployment", related: ["TypeScript"] },
-      { name: "Kubernetes", disciplines: ["software"], tier: "supporting", note: "Container orchestration", related: ["Docker"] },
+      { name: "Kubernetes", disciplines: ["software"], tier: "secondary", note: "Rollouts driven from the delivery control plane", related: ["Docker", "Go"] },
     ],
   },
   {
