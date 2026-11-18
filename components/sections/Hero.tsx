@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { Stage } from "@/components/layout/Stage";
 import { RevealText } from "@/components/ui/Reveal";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { sceneForHero } from "@/lib/webgl/scenes/registry";
-import { measureHeroAnchor } from "@/lib/webgl/hero-anchor";
 import { profile } from "@/lib/data/profile";
 import { disciplines } from "@/lib/data/disciplines";
 import styles from "./hero.module.css";
@@ -23,37 +21,6 @@ import styles from "./hero.module.css";
  * object acknowledges the cursor. Nothing depends on that interaction.
  */
 export function Hero() {
-  const nameRef = useRef<HTMLHeadingElement>(null);
-
-  /**
-   * Tell the background where the name is, so the hero cloud can gather
-   * around it — see lib/webgl/hero-anchor.ts for why this is measured here
-   * rather than read from inside the frame loop.
-   *
-   * A ResizeObserver rather than a window resize listener, because the name
-   * also changes size when the font finishes loading and when it re-wraps,
-   * neither of which fires a resize event. The initial observation the
-   * observer delivers on connect doubles as the first measurement.
-   */
-  useEffect(() => {
-    const el = nameRef.current;
-    if (!el) return;
-
-    const measure = () => measureHeroAnchor(el);
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    window.addEventListener("resize", measure, { passive: true });
-
-    // Fonts settling changes the name's height, and the cloud is sized from
-    // it. Guarded because `document.fonts` is not universal.
-    document.fonts?.ready.then(measure).catch(() => {});
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
-
   return (
     <Stage
       id="hero"
@@ -66,7 +33,7 @@ export function Hero() {
       <div className={styles.hero}>
         <Eyebrow label="Portfolio — 001" />
 
-        <h1 id="hero-title" ref={nameRef} className={styles.name}>
+        <h1 id="hero-title" className={styles.name}>
           {profile.name}
         </h1>
 

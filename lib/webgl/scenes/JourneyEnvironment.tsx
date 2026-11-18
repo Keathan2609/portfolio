@@ -7,9 +7,8 @@ import * as THREE from "three";
 import { useQuality } from "@/lib/performance/QualityProvider";
 import { useReducedMotion } from "@/lib/animation/MotionProvider";
 import { readJourneyState } from "@/lib/webgl/journey-state";
-import { heroAnchor } from "@/lib/webgl/hero-anchor";
 import { pointerState, trackPointer } from "@/lib/webgl/pointer-state";
-import { normalisedVelocity, scrollState } from "@/lib/scroll/scroll-state";
+import { normalisedVelocity } from "@/lib/scroll/scroll-state";
 import {
   ENVIRONMENT_STATES,
   NEUTRAL,
@@ -254,8 +253,6 @@ export function JourneyEnvironment() {
     position: -1,
     /** Ambient clock RATE, damped so pacing changes never step. */
     rate: 1,
-    /** Hero cloud presence. Damped, so leaving the hero is a dissipation. */
-    hero: 0,
   });
 
   const stateOf = (index: number): EnvironmentState =>
@@ -455,50 +452,6 @@ export function JourneyEnvironment() {
     u.uStorm.value = fieldAnimates ? 1 : 0;
 
     /* ---------------------------------------------------------------------
-       THE HERO CLOUD.
-
-       The name's viewport position, derived rather than measured: its
-       document position is known, and the smoothed scroll offset is already
-       in hand. Subtracting one from the other costs nothing and avoids a
-       layout read inside the frame loop. Lenis's smoothed value, not
-       window.scrollY — the cloud has to sit with the name as it is PAINTED,
-       and under smooth scrolling those two differ by as much as a third of
-       a screen mid-flick.
-
-       PRESENCE COMES FROM THAT SAME NUMBER, not from the hero stage, and
-       two wrong turns got me here. Keying it on stage `progress` put the
-       cloud at zero exactly when the name was centred, because a trigger
-       spanning `top bottom` to `bottom top` reads 0.5 at perfect framing.
-       Keying it on stage `centered` was closer but still measured 0.377
-       with the name dead centre of the viewport — a full-height hero is not
-       centred at the same scroll offset its name is.
-
-       The question is simply "is the name well placed on screen right now",
-       and nothing answers that better than where the name actually is. Full
-       presence while its centre sits anywhere in the middle 60% of the
-       viewport, dispersing as it leaves at either edge. No stage, no
-       trigger, no curve to keep in agreement with a layout.
-       --------------------------------------------------------------------- */
-    const nameY = heroAnchor.measured
-      ? 1 - (heroAnchor.docY - scrollState.scroll) / Math.max(size.height, 1)
-      : -1;
-    const heroTarget = heroAnchor.measured
-      ? Math.max(0, Math.min(1, (0.52 - Math.abs(nameY - 0.6)) / 0.22))
-      : 0;
-
-    /* Eased, not assigned: damped at 2.4 it disperses over roughly half a
-       second, slow enough to read as the air clearing rather than a light
-       being switched off. */
-    v.hero = ease(v.hero, heroTarget, 2.4, dt);
-    u.uHero.value = v.hero;
-
-    if (v.hero > 0.001) {
-      u.uHeroAnchor.value.set(heroAnchor.x, nameY);
-      u.uHeroRadius.value.set(heroAnchor.radiusX, heroAnchor.radiusY);
-      u.uHeroText.value = heroAnchor.textHalf;
-    }
-
-    /* ---------------------------------------------------------------------
        Camera.
 
        Under reduced motion the camera is pinned to the neutral state and
@@ -621,16 +574,6 @@ export function JourneyEnvironment() {
       d.arc = journey.arc;
       d.quiet = journey.quiet;
       d.focus = journey.focus;
-      /* The hero cloud, for the same reason as the clock: it is positioned
-         from a measurement taken in the DOM and a scroll offset taken from
-         Lenis, so "is it where the name is" is not answerable by reading
-         either file on its own. */
-      d.hero = v.hero;
-      d.heroMeasured = heroAnchor.measured ? 1 : 0;
-      d.heroAnchorX = u.uHeroAnchor.value.x;
-      d.heroAnchorY = u.uHeroAnchor.value.y;
-      d.heroDocY = heroAnchor.docY;
-      d.scroll = scrollState.scroll;
     }
 
     /* ---------------------------------------------------------------------

@@ -81,18 +81,6 @@ uniform float uKeyRadius;
 /** 0 disables the storm entirely. Held at 0 whenever ambient motion is off. */
 uniform float uStorm;
 
-/* The hero cloud. uHero is presence (0 away from the hero, 1 on it),
-   uHeroAnchor is the centre of the name in uv, and uHeroRadius is its extent,
-   both measured from the rendered element and updated as it scrolls.
-
-   Anchored in uv rather than in world space on purpose: the name is laid out
-   by CSS against the viewport, so the cloud has to track the type block, not
-   the aspect ratio. */
-uniform float uHero;
-uniform vec2  uHeroAnchor;
-uniform vec2  uHeroRadius;
-uniform float uHeroText;
-
 varying vec2 vUv;
 
 const int OCTAVES = ${octaves};
@@ -291,82 +279,6 @@ void main() {
   float guard = smoothstep(0.02, 0.62, uv.x);
   colour *= mix(0.62, 1.0, guard);
 
-  /* ---- the hero cloud -------------------------------------------------
-     A volume of weather gathered around the name, and the one thing in this
-     shader allowed to sit AFTER the type guard.
-
-     That exemption is the whole point. The guard dims the left third to 0.62
-     so that 13px metadata survives, and the name happens to live in exactly
-     that third — so the opening frame of the site was the one frame where
-     the field was deliberately turned down. Correct for the small text,
-     wrong for the largest word on the page.
-
-     It is safe to exempt because of the asymmetry below. The cloud reaches
-     well above the name and tucks in under it, so it never descends as far
-     as the headline, the discipline index or the scroll cue — the three
-     smallest pieces of text on the page, all of which sit beneath it. The
-     guard still protects everything it was written to protect.
-
-     THE SHAPE IS AN EGG, NOT AN ELLIPSE, and both reasons are good ones.
-     Weather gathers and rises, so a form that is taller above its centre
-     than below reads as cloud where a symmetrical one reads as a halo. And
-     it is the cheapest possible way to keep the light off the small type:
-     the cloud simply does not extend that far down.
-
-     WHAT MAKES IT A CLOUD AND NOT A VIGNETTE is the torn edge. A plain
-     radial falloff behind type reads as a spotlight no matter how soft it
-     is, because its boundary is a shape nothing in nature makes. Pushing
-     the radius in and out with the same fbm that builds the billows gives
-     it an edge that agrees with the rest of the frame, and the density term
-     below puts the light INSIDE the smoke rather than in front of it. */
-  if (uHero > 0.001) {
-    /* Tighter below the name than above it — see the egg note. */
-    float ry = uv.y < uHeroAnchor.y ? uHeroRadius.y * 0.60 : uHeroRadius.y;
-    vec2 d = (uv - uHeroAnchor) / vec2(uHeroRadius.x, max(ry, 0.001));
-
-    float edge = fbm(uv * 3.4 + vec2(t * 0.05, -t * 0.09), 3) - 0.5;
-    float r = length(d) * (1.0 + edge * 0.60);
-    float shape = pow(1.0 - clamp(r, 0.0, 1.0), 2.0);
-
-    /* AROUND THE NAME, NOT BEHIND IT.
-
-       The cloud thins across the band the glyphs occupy and blooms above
-       and below it. Two things make this the right term rather than a
-       compromise:
-
-       It is a readability floor. White display type against a brightening
-       field loses its edges, and this measured 2.31:1 at the brightest
-       point without it — under the 3:1 WCAG large-text floor, and visibly
-       so where the glow sat behind the middle of the name.
-
-       It is also simply how this should look. A cloud that brightens
-       directly behind type competes with it; one that parts around the
-       letters and billows past them puts the name INSIDE the weather,
-       which is the thing being asked for.
-
-       The band is deliberately narrow - the glyphs plus a small margin, not
-       the cloud's whole vertical extent. A first attempt ran the carve out
-       to 2.8x the text half-height and removed most of the cloud along with
-       the problem. */
-    float onType = 1.0 - smoothstep(uHeroText * 0.7, uHeroText * 1.7,
-                                    abs(uv.y - uHeroAnchor.y));
-
-    float cloud = shape * uHero * (1.0 - onType * 0.58);
-
-    /* Density before light. A cloud has a dark side, and a glow with no
-       dark side reads as a lamp behind a page rather than as weather —
-       this is the term that gives it volume. Strongest where the smoke is
-       thin, so it deepens the gaps rather than flattening the billows. */
-    colour = mix(colour, uShadow * 0.72, cloud * 0.24 * (1.0 - body));
-
-    /* Then the light, gated on smoke density so it lives in the billows. */
-    colour += uLight * cloud * (0.30 + body * 1.05) * 1.05;
-
-    /* A small white-ward core, so the brightest part has somewhere to go
-       without the key colour blowing out. */
-    colour += vec3(1.0) * pow(cloud, 3.0) * 0.085;
-  }
-
   colour += dither8(gl_FragCoord.xy);
 
   gl_FragColor = vec4(colour, 1.0);
@@ -414,14 +326,6 @@ export const FlowField = forwardRef<FlowFieldHandle, { octaves: number }>(
             uKey: { value: new THREE.Vector2(0.5, 0.5) },
             uKeyRadius: { value: 0.7 },
             uStorm: { value: 1 },
-            uHero: { value: 0 },
-            /* Both are overwritten every frame from the measured element —
-               see lib/webgl/hero-anchor.ts. These values are only what the
-               cloud would be before the first measurement lands, and uHero
-               is 0 until then anyway. */
-            uHeroAnchor: { value: new THREE.Vector2(0.46, 0.72) },
-            uHeroRadius: { value: new THREE.Vector2(0.5, 0.24) },
-            uHeroText: { value: 0.06 },
           },
         }),
       [octaves, warpPasses],
