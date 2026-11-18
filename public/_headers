@@ -1,0 +1,35 @@
+# Cloudflare Pages response headers.
+#
+# WHY THIS FILE EXISTS. next.config.ts defines the same security headers in
+# its headers() block, but that block is served by a Next.js server. This
+# site deploys as a static export, so there is no server to run it — a
+# static host just serves files. Cloudflare Pages reads this file instead.
+#
+# Anything in public/ is copied verbatim to the output root, which is where
+# Cloudflare looks for it.
+#
+# KEEP IN STEP with the securityHeaders array in next.config.ts. They are
+# deliberately identical; if one changes, change the other. The reasoning for
+# each header — and for the three deliberately absent ones (CSP, COEP, HSTS)
+# — is documented in next.config.ts and not repeated here.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  X-DNS-Prefetch-Control: on
+
+# Next.js fingerprints everything under /_next/static with a content hash, so
+# these URLs are immutable by construction and can be cached forever. This is
+# the single biggest win available to a static site on a CDN: a repeat visitor
+# revalidates nothing.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Media is content-addressed by path rather than by hash, so it gets a long
+# cache with revalidation rather than an immutable one — replacing an image at
+# the same filename must still be able to take effect.
+/media/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

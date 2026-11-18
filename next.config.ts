@@ -72,7 +72,38 @@ const securityHeaders = [
  *     not have TLS yet. Enable at the host once the real domain is live.
  */
 
+/**
+ * STATIC EXPORT, for Cloudflare Pages.
+ *
+ * This site has no server surface at all — no route handlers, no server
+ * actions, no middleware, and every route already prerenders as static. So
+ * it deploys as a plain folder of files, which is the cheapest, fastest and
+ * most durable thing it can be, and is free on Cloudflare Pages forever.
+ *
+ * Gated rather than unconditional for two reasons:
+ *   - Cloudflare sets CF_PAGES=1 in its build environment, so the deployed
+ *     build switches itself on with no build-command configuration.
+ *   - STATIC_EXPORT=1 lets the same build be reproduced locally, which is
+ *     the only way to catch an export-only failure before it reaches the
+ *     remote. `npm run build:static` does exactly that.
+ *
+ * `next dev` is unaffected either way: `output` is only read by `next build`.
+ *
+ * TWO THINGS ARE LOST IN EXPORT MODE, both handled rather than ignored:
+ *   - headers() below is not applied — a static host serves files, not a
+ *     Next server. The identical headers are restored in `public/_headers`,
+ *     which Cloudflare Pages reads. Both lists must be kept in step.
+ *   - The next/image optimizer needs a server. Images are marked unoptimized
+ *     here, which costs this site very little: every asset in public/media
+ *     is already a hand-sized `-lg`/`-sm` webp pair, so the responsive work
+ *     the optimizer would do has already been done ahead of time.
+ */
+const staticExport =
+  process.env.STATIC_EXPORT === "1" || process.env.CF_PAGES === "1";
+
 const nextConfig: NextConfig = {
+  ...(staticExport ? { output: "export" as const } : {}),
+
   // Required from Next 13.1+: the three.js add-on ecosystem ships untranspiled
   // ESM that the server compiler otherwise chokes on.
   transpilePackages: ["three"],
@@ -81,6 +112,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   images: {
+    // See the static-export note above: no server, no optimizer. The media
+    // is pre-sized, so this changes what is served barely at all.
+    ...(staticExport ? { unoptimized: true } : {}),
+
     // AVIF first, WebP fallback. Both are materially smaller than the
     // source JPEG/PNG for the kind of imagery this portfolio will carry.
     formats: ["image/avif", "image/webp"],

@@ -15,6 +15,9 @@ import { profile } from "@/lib/data/profile";
  * runtime cost. Satori supports a subset of CSS — plain values only here,
  * no custom properties, no clamp().
  */
+/** See the note in app/robots.ts — required by the static export build. */
+export const dynamic = "force-static";
+
 export const size = { width: site.ogImage.width, height: site.ogImage.height };
 export const contentType = "image/png";
 export const alt = site.ogImage.alt;

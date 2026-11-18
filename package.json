@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:static": "node -e \"process.env.STATIC_EXPORT='1';require('child_process').execSync('next build',{stdio:'inherit'})\"",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
