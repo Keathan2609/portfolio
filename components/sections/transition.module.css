@@ -61,15 +61,8 @@
   color: var(--c-accent);
 }
 
-.mechanic {
-  font-size: var(--t-nano);
-  letter-spacing: var(--tr-label);
-  color: var(--c-text-faint);
-}
-
 /* Mobile intentionally simplifies: the band shortens hard, because a long
-   atmospheric passage on a phone is just a long scroll with nothing in it,
-   and the mechanic line is dropped so only the world pair remains. */
+   atmospheric passage on a phone is just a long scroll with nothing in it. */
 @media (max-width: 63.9375rem) {
   .band {
     --band-length: 55dvh;
@@ -77,10 +70,6 @@
 
   .marker {
     padding-block: var(--s-6);
-  }
-
-  .mechanic {
-    display: none;
   }
 }
 

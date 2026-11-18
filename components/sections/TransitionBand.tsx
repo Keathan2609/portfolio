@@ -40,34 +40,25 @@ import styles from "./transition.module.css";
  * of the claim being made. A hairline running down the band, drawing itself
  * as you scroll, says continuing.
  *
+ * EACH BAND USED TO CARRY A SECOND LINE naming its mechanic — "Interfaces
+ * extrude into space", "Type resolves into signal", and two more like them.
+ * They are gone. They described the WebGL transformation in the language of
+ * an art statement rather than the language of the person whose work this
+ * is, and a reader arriving to find out what he builds does not need a
+ * caption telling them how to feel about a gradient. The world pair stays,
+ * because it says where you are. The poetry does not.
+ *
  * These bands carry no content a visitor needs, so they stay `aria-hidden`
  * and outside the tab order. With WebGL absent the thread and its label are
  * the whole passage — still deliberate, just no longer atmospheric.
  */
 
-const COPY: Record<TransitionKind, { from: string; to: string; note: string }> =
-  {
-    "software-xr": {
-      from: "software",
-      to: "xr",
-      note: "Interfaces extrude into space",
-    },
-    "xr-creative": {
-      from: "xr",
-      to: "creative",
-      note: "Volume fragments into composition",
-    },
-    "creative-ai": {
-      from: "creative",
-      to: "ai",
-      note: "Type resolves into signal",
-    },
-    "ai-security": {
-      from: "ai",
-      to: "security",
-      note: "Records break into topology",
-    },
-  };
+const COPY: Record<TransitionKind, { from: string; to: string }> = {
+  "software-xr": { from: "software", to: "xr" },
+  "xr-creative": { from: "xr", to: "creative" },
+  "creative-ai": { from: "creative", to: "ai" },
+  "ai-security": { from: "ai", to: "security" },
+};
 
 export function TransitionBand({ kind }: { kind: TransitionKind }) {
   const root = useRef<HTMLDivElement>(null);
@@ -121,7 +112,6 @@ export function TransitionBand({ kind }: { kind: TransitionKind }) {
             </span>
             {to.shortName}
           </span>
-          <span className={styles.mechanic}>{copy.note}</span>
         </span>
       </div>
     </Stage>

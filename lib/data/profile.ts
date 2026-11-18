@@ -25,8 +25,8 @@ export const profile: Profile = {
    */
   headline: "Software Engineer & Multidisciplinary Builder",
 
-  /** Country only. The source CV's street address stays excluded. */
-  location: "South Africa",
+  /** Province and country. The source CV's street address stays excluded. */
+  location: "Gauteng, South Africa",
 
   email: "keathan179@gmail.com",
 
@@ -53,13 +53,11 @@ export const profile: Profile = {
 };
 
 /**
- * Professional profiles.
+ * Professional profiles. All four are VERIFIED and live.
  *
- * Four are VERIFIED and live. Kaggle is kept as a present-but-disabled
- * slot: `pending: true` with no href, so both the Hire Me section and the
- * footer render it as inert text rather than a link to nowhere. No
- * placeholder URL is invented. Setting a real `href` and removing
- * `pending` is all that is needed to activate it.
+ * A fifth slot held a disabled Kaggle entry — present, pending, linking
+ * nowhere. It has been removed at Keathan's request. A profile nobody has
+ * is not an asset waiting to be filled in; it is a gap being advertised.
  */
 export const socialLinks: ExternalLink[] = [
   {
@@ -82,6 +80,4 @@ export const socialLinks: ExternalLink[] = [
     href: "https://tryhackme.com/p/haketsebe",
     ariaLabel: "TryHackMe profile",
   },
-  // TODO — no URL supplied. Present but disabled; never rendered as a link.
-  { label: "Kaggle", href: "", ariaLabel: "Kaggle profile", pending: true },
 ];

@@ -24,10 +24,11 @@ export const disciplines: Discipline[] = [
     intro:
       "I build products, systems and interfaces — from the screen back to the data.",
     /**
-     * The best-evidenced world in the archive, and the reason this site now
-     * leads with it: Vantage, At Leisure, Kbot, RedSeptember and KELVIN are
-     * several substantial systems across Go, TypeScript and Python, two of
-     * them deployed and reachable.
+     * The best-evidenced world in the archive, and the reason this site
+     * leads with it: Vantage, At Leisure and FreeVoices are substantial
+     * systems across Go, TypeScript, Python and Angular, with ATLAS, Forge
+     * and the Nexus control plane behind them in the same repository
+     * account. Two of them are deployed and reachable.
      */
     level: "Advanced / Broad",
     register: "Systems · Interfaces · Languages · Applications",
@@ -63,28 +64,30 @@ export const disciplines: Discipline[] = [
     accentVar: "--c-accent-xr",
     accentHex: "#9d5cff",
     intro:
-      "I model and texture for real-time, and I am still learning the engine half properly.",
+      "I run the whole XR pipeline myself — concept, model, sculpt, texture, rig, animate, and into the engine.",
     /**
-     * HONESTLY DOWNGRADED from "Advanced".
+     * RAISED to "Advanced", on Keathan's own account of the work.
      *
-     * The asset pipeline here is genuinely strong — Maya and Substance work
-     * exported game-ready, with functional parts separated for engine use.
-     * The engine side is not yet: one coursework OpenXR scene assembled on
-     * licensed asset packs, whose original code is an audio interaction
-     * layer. That is real exposure rather than depth, and stating otherwise
-     * would be the single easiest claim on this site to disprove in an
-     * interview.
+     * The distinguishing claim here is not any one skill but the absence of
+     * a handoff: the same person authors the geometry, the materials, the
+     * rig and the engine integration, which is why a kit like ORBITAL can
+     * be built to a constraint — 85 assets on a 0.5 m grid — and still
+     * land correctly in Unity. Pipelines usually break at the seams between
+     * specialists; there are no seams here.
      */
-    level: "Growing",
-    register: "Modelling · Animation · VFX · Real-time",
-    process: ["Model", "Sculpt", "Texture", "Animate", "Real-time"],
+    level: "Advanced",
+    register: "Modelling · Sculpting · Texturing · Animation · Real-time",
+    process: ["Model", "Sculpt", "Texture", "Animate", "Integrate"],
     capabilities: [
+      "End-to-end XR pipeline, single-handed",
+      "Modular environment kits built to a grid",
       "3D modelling for real-time",
       "PBR texturing and map authoring",
-      "Game-ready asset export",
-      "Rigging parts for engine-driven motion",
-      "OpenXR scene assembly",
-      "Interaction and spatial audio scripting",
+      "Digital sculpting and retopology",
+      "Rigging and character animation",
+      "Game-ready export and engine integration",
+      "OpenXR scene assembly and interaction scripting",
+      "Asset, environment and render specification",
     ],
     skillGroups: ["xr3d"],
   },
@@ -99,11 +102,12 @@ export const disciplines: Discipline[] = [
     intro:
       "I design identities, interfaces and campaign work — then build the assets that carry them.",
     /**
-     * Broad and sustained — months of modelling and texturing, a shipped
-     * multi-week content programme, code-drawn brand marks. Held below
-     * "Advanced" for one honest reason: almost none of the 3D work has been
-     * rendered, so its finished quality is undemonstrated rather than
-     * demonstrated and found wanting.
+     * Broad and sustained — four identity systems taken past the logo into
+     * colour, type, applications and websites, plus campaign work judged on
+     * CTR, conversion and ROI rather than on taste. Held below "Advanced"
+     * for one honest reason: much of the finished output has not been
+     * photographed, rendered or written up yet, so its quality is
+     * undemonstrated rather than demonstrated and found wanting.
      */
     level: "Intermediate → Advanced",
     register: "Identity · Interface · Communication · Campaign",
@@ -131,16 +135,16 @@ export const disciplines: Discipline[] = [
     intro:
       "I build systems that act on models, and I do the unglamorous data work that makes them worth acting on.",
     /**
-     * RAISED from "Growing", on two independent legs rather than one.
+     * RAISED from "Growing", on commercial work rather than coursework: a
+     * Python pipeline built for Verifone covering ingestion, cleaning and
+     * exploratory analysis, then machine-learning and forecasting models
+     * delivered with documentation and reporting that non-technical
+     * stakeholders could actually read.
      *
-     * The applied-AI leg is an agent runtime in production: bounded tool
-     * loops, a policy engine, approval gates and depth-limited delegation.
-     * The classical leg is client-scale analysis — 643,933 repair records
-     * through classification and intermittent-demand forecasting.
-     *
-     * Still short of "Advanced" deliberately: the agent work is concentrated
-     * in a single codebase, and no model here has been through adversarial
-     * validation or a production feedback loop.
+     * Still short of "Advanced" deliberately, and the project rail says why
+     * more plainly than this comment can: the write-ups are pending. No
+     * model here has been through adversarial validation or a production
+     * feedback loop.
      */
     level: "Intermediate → Advanced",
     register: "Data · Modelling · Agents · Delivery",

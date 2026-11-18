@@ -15,31 +15,27 @@ import type {
 /**
  * Content collections.
  *
- * Every project below is REAL and carries `placeholder: false`. Each was
- * characterised from the source files on disk rather than from memory, and
- * the standing rule applies without exception: no invented project, metric,
+ * Every non-placeholder project below is REAL, and was characterised from
+ * the source files, repository or CV it belongs to rather than from memory.
+ * The standing rule applies without exception: no invented project, metric,
  * certification, client or link.
  *
+ * Entries carrying `placeholder: true` are the opposite claim, stated
+ * openly: a slot held for work that exists but has not been written up yet.
+ * The card labels them, so nobody mistakes one for finished work.
+ *
  * WHAT IS DELIBERATELY ABSENT, and why:
- *
- *   - No accuracy figures appear for the repair-return model. A README
- *     beside that work quotes a headline accuracy that its own results file
- *     contradicts, and the classifier splits without grouping, so any single
- *     number would overstate it. The data scale is stated instead, because
- *     that is independently reconciled inside the notebook.
- *
- *   - No specification is repeated from KELVIN K1. The product is fictional
- *     and its numbers are invented; the entry says so in its own first line
- *     rather than leaving a reader to discover it.
  *
  *   - `media` is `pending: true` everywhere. There is real imagery on disk
  *     for the 3D and content work, but none of it has been brought in,
  *     sized or captioned yet. A pending marker renders as a composed frame;
  *     it never fabricates a screenshot.
  *
- *   - Only verified links appear. Every URL here was requested and answered
- *     before it was written down, and the public/private status of the one
- *     repository link was confirmed.
+ *   - No accuracy, conversion or performance figure appears anywhere that
+ *     it could not be reconciled against a file.
+ *
+ *   - Only verified links appear. Every URL here resolves to something that
+ *     exists and is public.
  *
  * Replacing content is a matter of editing this file. No component changes.
  */
@@ -122,138 +118,39 @@ export const projects: Project[] = [
   },
 
   {
-    slug: "redseptember-lms",
-    title: "RedSeptember",
+    slug: "freevoices",
+    title: "FreeVoices",
     discipline: "software",
     summary:
-      "A learning management system with genuinely separate student and facilitator roles, where the authorisation rules live in the database rather than in whichever interface happens to be in front of you.",
-    role: "Database design and application development",
-    year: "2025",
-    stack: ["React", "TypeScript", "Vite", "Supabase", "PostgreSQL", "Tailwind CSS"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
-    presentation: "compact",
-    technicalDetails: [
-      "Eleven-table Postgres schema with Row Level Security enabled on every table.",
-      "Policies encode the real rules: a student may edit a submission only while its grade is still null, and only the owning facilitator can grade it.",
-      "A SECURITY DEFINER trigger creates the profile row on sign-up and sets the role server-side rather than trusting the client.",
-    ],
-    placeholder: false,
-  },
-
-  {
-    slug: "schoeman-inspection",
-    title: "Schoeman Inspection Services",
-    discipline: "software",
-    summary:
-      "A marketing site for a water-leak-detection business, built as a single self-contained HTML file with every asset inlined — no dependencies, no build step, and it will still open correctly in a decade.",
-    role: "Design and build",
+      "An invoicing and quoting system for small businesses \u2014 customers, products, quotes, invoices, payments and a client portal \u2014 written once in Angular and shipped as both a website and an Android app, with a single Express service and a thirteen-table schema behind it.",
+    role: "Sole author \u2014 product, Angular client, Express API, schema, release",
     year: "2026",
-    stack: ["HTML", "CSS", "JavaScript"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
-    presentation: "compact",
-    technicalDetails: [
-      "Single-file delivery: images and assets embedded as data URIs, so the entire site is one portable document.",
-    ],
-    placeholder: false,
-  },
-
-  {
-    slug: "kelvin-k1",
-    title: "KELVIN K1",
-    discipline: "software",
-    summary:
-      "A scroll-driven launch site for a vacuum flask that does not exist. Built purely as an engineering exercise: one temperature value derived from scroll position simultaneously drives a 3D material, the typography, the lighting and the copy.",
-    role: "Self-directed exercise — concept, 3D and front-end",
-    year: "2026",
-    stack: ["React", "TypeScript", "Three.js", "React Three Fiber", "GSAP", "Lenis"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
-    presentation: "compact",
-    technicalDetails: [
-      "The product, the brand and every specification shown are invented. This is a design and engineering exercise, not a real product.",
-      "Vessel geometry is generated procedurally rather than modelled and imported.",
-      "One thermal colour ramp is defined once and shared: the GLSL ramp is generated from the same array the CPU samples, so shader and DOM colour cannot drift apart.",
-      "MeshStandardMaterial is patched through onBeforeCompile rather than replaced, keeping physically-based lighting while injecting a Fresnel term.",
-      "Three.js is deliberately kept out of the initial bundle.",
-    ],
-    placeholder: false,
-  },
-
-  /* ---------------------------------------------------------------- */
-  /* AI                                                                */
-  /* ---------------------------------------------------------------- */
-
-  {
-    slug: "kbot",
-    title: "Kbot",
-    discipline: "ai",
-    summary:
-      "A self-hosted multi-agent AI platform built end to end on free infrastructure. Agents call tools, delegate to sub-agents, and stop to ask permission before doing anything consequential.",
-    role: "Sole author — architecture, agent runtime, authentication, deployment",
-    year: "2026",
-    stack: ["TypeScript", "Cloudflare Workers", "Hono", "D1", "Durable Objects", "React", "Workers AI"],
-    liveUrl: "https://kbot.pages.dev",
+    stack: ["Angular", "Ionic", "Capacitor", "TypeScript", "Express", "MySQL", "PDFKit", "Chart.js"],
+    repositoryUrl: "https://github.com/Keathan2609/freevoices",
     media: [{ kind: "image", src: "", alt: "", pending: true }],
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "The constraint",
-        body: "The rule set at the outset was that it had to run on free tiers. That is a product constraint wearing a budget constraint's clothes: it ruled out object storage, ruled out paid models as a silent fallback, and forced every decision about where state lives to be made deliberately instead of by reaching for the obvious managed service.",
+        heading: "Context",
+        body: "Invoicing software is either expensive or it is a spreadsheet. The gap is a small business that needs to raise a quote, turn it into an invoice, send it, chase it when it goes unpaid, and keep a record that still balances afterwards \u2014 without paying per seat for the privilege. FreeVoices is that, as one codebase that runs in a browser and installs as an Android app.",
       },
       {
-        heading: "The agent runtime",
-        body: "An agent turn is a bounded loop, not an open one. There is a cap on tool rounds, a cap on calls within a round, and a depth limit on how far a supervisor may delegate. Sensitive tools sit behind an approval step that pauses the run and resumes it on consent. A degenerate-run detector refuses to repeat an identical failing call after two attempts — which is what stops a confused agent burning an afternoon in a loop.",
+        heading: "One document, several states",
+        body: "A quote and an invoice are the same record at different points in its life, so they share one documents table rather than two near-identical ones. Each document carries its line items, its tracking history and its payments separately, which keeps what was changed and what has actually been paid as two different facts instead of one hopeful status field.",
       },
       {
-        heading: "Security",
-        body: "There is no password anywhere: authentication is passkeys, implemented directly rather than delegated to a service. Every tool that can reach the network passes through a dedicated SSRF guard, and the ones that fetch are restricted to named hosts with validated responses and a transport size cap.",
-      },
-      {
-        heading: "Verification",
-        body: "230 test files, an end-to-end suite driven by a virtual passkey authenticator, and continuous integration that runs a dependency audit, type checks, database migrations against a throwaway instance, and a check that every model still qualifies as free-tier.",
+        heading: "The parts that run without you",
+        body: "Three jobs run every night: one raises the invoices due to recur, one marks overdue invoices overdue, and one anonymises accounts that asked to be deleted. That last job is why the sign-in path has to handle a user whose password hash is deliberately null \u2014 a deleted account has to stay deleted without taking its invoice history with it, because the books still have to balance after someone leaves.",
       },
     ],
     technicalDetails: [
-      "Bounded agent loop: capped tool rounds, capped calls per round, depth-limited supervisor delegation.",
-      "Approval-gated tools that pause and resume a run, rather than asking forgiveness afterwards.",
-      "Degenerate-run detection — an identical failing call is refused after two attempts.",
-      "WebAuthn passkey authentication implemented in-house; no password path exists at all.",
-      "A dedicated SSRF guard module; network tools restricted to named hosts with validated responses.",
-      "Durable Objects and Workflows for per-user background jobs.",
-      "230 test files plus a Playwright end-to-end suite using a virtual passkey authenticator.",
-    ],
-    placeholder: false,
-  },
-
-  {
-    slug: "repair-return-forecast",
-    title: "Repair Return Prediction & Spare-Parts Forecast",
-    discipline: "ai",
-    summary:
-      "An end-to-end analysis of 643,933 European repair records: predicting which devices come back, forecasting demand across 672 distinct spare parts, and delivering it as dashboards the business can actually open.",
-    role: "Data analysis and modelling",
-    year: "2025 — 2026",
-    stack: ["Python", "pandas", "scikit-learn", "XGBoost", "statsmodels", "openpyxl"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
-    presentation: "expanded",
-    caseStudy: [
-      {
-        heading: "The data",
-        body: "The source was a 136 MB Excel workbook with its headers on the fourth row and a parts column holding several part numbers per cell. Most of the work happened before any modelling: splitting that column to one row per part per job, then proving the counts still reconciled against the yearly totals. That assertion lives in the notebook and it passes — 643,933 raw job rows, 642,962 exploded spare-usage rows.",
-      },
-      {
-        heading: "Two questions",
-        body: "First, classification: will this device come back for repair again? Second, forecasting: how much of each of 672 part numbers will be needed next year. Spare-parts demand is intermittent — long runs of zero punctuated by spikes — which ordinary forecasting handles badly, so the demand side uses methods built for that shape specifically.",
-      },
-      {
-        heading: "Delivery",
-        body: "Results are written out as multi-sheet Excel workbooks with native charts, because the people who needed the answer work in Excel. A forecast nobody opens is not a forecast.",
-      },
-    ],
-    technicalDetails: [
-      "643,933 repair records spanning 2018 to 2025, reconciled by a row-count assertion inside the notebook.",
-      "A multi-value parts column exploded to one row per part per job before any modelling began.",
-      "Intermittent-demand forecasting across 672 distinct part numbers.",
-      "Output written as multi-sheet Excel workbooks with native charts, usable without a notebook.",
+      "One Angular 18 codebase, delivered as a web app and as a Capacitor Android build.",
+      "Thirteen-table MySQL schema with a forward-only migration runner supporting --status and --dry-run.",
+      "Argon2 password hashing, with tiered rate limits on the auth routes specifically because every attempt costs an expensive verify.",
+      "Google sign-in alongside local accounts, including the case where an account has no password hash at all.",
+      "Server-side PDF invoices; logo uploads capped at 5 MB, restricted to JPEG and PNG, stored under unguessable filenames.",
+      "Nightly jobs for recurring invoices, overdue marking and account anonymisation.",
+      "Privacy policy, terms and an account-deletion route shipped as part of the product rather than bolted on for a store listing.",
     ],
     placeholder: false,
   },
@@ -263,49 +160,35 @@ export const projects: Project[] = [
   /* ---------------------------------------------------------------- */
 
   {
-    slug: "maluti-xr",
-    title: "Maluti XR",
+    slug: "orbital",
+    title: "ORBITAL",
     discipline: "xr",
     summary:
-      "A room-scale VR scene in Unity 6 with OpenXR: teleport movement, physics objects you can pick up, and an audio layer that reacts to how you actually move them rather than merely to the fact that you touched them.",
-    role: "Interaction and audio scripting, scene assembly",
-    year: "2025",
-    stack: ["Unity 6", "C#", "OpenXR", "XR Interaction Toolkit", "Universal Render Pipeline"],
+      "A modular XR environment kit: a five-zone orbital research station built from 85 authored assets on a strict 0.5 m grid, so the pieces meet without a seam and arrive in Unity at the right scale on the first import.",
+    role: "Author \u2014 modelling, modular system, specifications, Unity setup",
+    year: "2026",
+    stack: ["Blender", "Unity"],
     media: [{ kind: "image", src: "", alt: "", pending: true }],
     presentation: "expanded",
     caseStudy: [
       {
         heading: "Context",
-        body: "Built as structured XR coursework, configured for both standalone headsets and desktop. The rig is assembled from the XR Interaction Toolkit — grab interactables, teleport anchors, snap volumes — rather than written from scratch, which is the normal and correct way to build an OpenXR scene.",
+        body: "A single hero model is a portfolio piece. A kit is a tool. ORBITAL was built as the second thing \u2014 enough modular geometry to assemble an entire station, under the constraints that make modular work genuinely modular rather than merely repetitive.",
       },
       {
-        heading: "The original part",
-        body: "The code that is mine is the audio layer, and it is the part worth showing. A bottle of liquid sloshes based on both how fast it is moving and how far it has rotated since the previous frame, gated by a cooldown so that shaking it does not machine-gun the sample. A lantern separates its pickup, drop, movement and collision sounds. Both pick from clip arrays and randomise pitch slightly, so repeated interaction never sounds mechanical.",
+        heading: "The grid is the discipline",
+        body: "Every one of the 85 assets is authored to a 0.5 m grid. That single rule is what lets separate pieces meet without a seam, lets a corridor be extended by someone who never opened the source file, and makes scale survive the trip into the engine instead of being corrected by hand on import.",
+      },
+      {
+        heading: "Handing it over",
+        body: "The kit ships with asset, environment and render specifications, and a Unity project that consumes it. Documentation is the difference between a folder of meshes and something a team can build with: naming, pivots, scale, materials, and what each piece is for.",
       },
     ],
     technicalDetails: [
-      "Liquid audio driven by both rigidbody velocity and frame-to-frame rotation angle, with a configurable cooldown.",
-      "Grab callbacks subscribed on enable and unsubscribed on disable — no leaked handlers.",
-      "Pitch randomised per trigger and clips drawn from arrays, so repetition is never audible.",
-      "Learning-stage work: a coursework scene built on licensed asset packs, not a shipped product.",
-    ],
-    placeholder: false,
-  },
-
-  {
-    slug: "forklift-pipeline",
-    title: "Forklift — Maya to Unity pipeline",
-    discipline: "xr",
-    summary:
-      "A forklift and its yard environment, modelled and textured for real-time use — built with its moving parts separated and named so an engine can drive them, rather than as a single sealed mesh.",
-    role: "Modelling, texturing and export pipeline",
-    year: "2026",
-    stack: ["Autodesk Maya", "Substance Painter", "FBX", "Unity"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
-    presentation: "compact",
-    technicalDetails: [
-      "Functional parts modelled as separately named nodes — forks, brake, accelerator — so they can be animated or driven in-engine.",
-      "A dedicated export target, with the source-to-export chain recorded in the FBX metadata.",
+      "85 authored modular assets, all on a strict 0.5 m grid.",
+      "A five-zone station layout assembled from the kit.",
+      "Asset, environment and render specifications written alongside the geometry.",
+      "A Unity project consuming the kit for real-time use.",
     ],
     placeholder: false,
   },
@@ -315,57 +198,80 @@ export const projects: Project[] = [
   /* ---------------------------------------------------------------- */
 
   {
-    slug: "fire-safety-set",
-    title: "Fire Safety — interior set",
+    slug: "identity-systems",
+    title: "Identity systems \u2014 EMBER, FORM, KAERA, VANTA",
     discipline: "creative",
     summary:
-      "A three-room domestic interior — kitchen, living room, bedroom — modelled and textured around fire-safety props, and built to be handed to a real-time engine rather than rendered once and filed away.",
-    role: "Modelling and texturing",
-    year: "2025",
-    stack: ["Autodesk Maya", "Substance Painter", "FBX"],
+      "Four self-directed identity systems, each taken well past the logo: colour, typography, applications and a website, so the mark gets tested in the places it would actually have to survive.",
+    role: "Identity design and art direction",
+    stack: ["Brand Identity Design", "Typography", "Adobe Creative Cloud", "Figma"],
     media: [{ kind: "image", src: "", alt: "", pending: true }],
     presentation: "compact",
-    technicalDetails: [
-      "Scenes organised into named sub-assemblies rather than loose geometry.",
-      "Texture sets exported to the engine's own channel-packing naming convention, so they import without rewiring.",
+    placeholder: false,
+  },
+
+  {
+    slug: "websites",
+    title: "Websites",
+    discipline: "creative",
+    summary:
+      "Scroll-driven editorial and marketing sites, built rather than themed \u2014 including M Legacy, an editorial piece comparing two generations of BMW M3, and the site you are reading now.",
+    role: "Design and build",
+    year: "2025 \u2014 2026",
+    stack: ["React", "Next.js", "Vite", "GSAP", "ScrollTrigger", "Lenis", "Three.js", "Tailwind CSS"],
+    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    presentation: "expanded",
+    caseStudy: [
+      {
+        heading: "The recurring brief",
+        body: "Make a page that moves with the reader rather than at them. In practice that means the scroll position drives the composition \u2014 type, imagery and, where it earns its place, a WebGL layer \u2014 instead of elements animating on a timer the reader has no control over.",
+      },
+      {
+        heading: "How they are built",
+        body: "GSAP with ScrollTrigger for the choreography, Lenis for the scroll itself, and Three.js where a scene adds something a flat image cannot. This site goes furthest: one persistent WebGL canvas for the whole page, a single animation clock driving both the scroll and the scene, and semantic DOM underneath all of it so the content survives with the canvas switched off.",
+      },
     ],
     placeholder: false,
   },
 
   {
-    slug: "crown-splash-sim",
-    title: "Crown Splash — fluid study",
+    slug: "creative-pending",
+    title: "Further creative work",
     discipline: "creative",
     summary:
-      "A liquid simulation of a droplet impact, iterated across four tuned versions and surfaced to a mesh rather than left as particles — which is the difference between a physics demo and something you can light.",
-    role: "Simulation and rendering",
-    year: "2025",
-    stack: ["Blender", "Mantaflow", "Fluid simulation"],
+      "More identity, 3D and campaign work is finished but not yet written up for this site. It will appear here with its own imagery rather than as a description of imagery.",
+    stack: [],
     media: [{ kind: "image", src: "", alt: "", pending: true }],
     presentation: "compact",
-    technicalDetails: [
-      "Four iterations, each with its own baked cache — the tuning is the work.",
-      "Liquid surfaced to a mesh and rendered out to video, rather than captured from the viewport.",
-    ],
-    placeholder: false,
+    placeholder: true,
+  },
+
+  /* ---------------------------------------------------------------- */
+  /* DATA & APPLIED AI                                                 */
+  /* ---------------------------------------------------------------- */
+
+  {
+    slug: "data-platform-pending",
+    title: "Data platform work",
+    discipline: "ai",
+    summary:
+      "Ingestion, preparation, modelling and dashboards brought into one workflow for technical and non-technical users. In development; it will be written up here once it is finished rather than described while it moves.",
+    stack: [],
+    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    presentation: "compact",
+    placeholder: true,
   },
 
   {
-    slug: "cxi-social-series",
-    title: "CXI-Africa — content series",
-    discipline: "creative",
+    slug: "modelling-forecasting-pending",
+    title: "Modelling and forecasting",
+    discipline: "ai",
     summary:
-      "A sustained weekly content programme: short vertical videos with matched cover frames, course creatives and recurring tip slots, held to a single visual identity across every platform for months on end.",
-    role: "Design and content production",
-    year: "2025",
-    stack: ["Vertical video", "Social design", "Brand systems", "Analytics"],
+      "Machine-learning and forecasting work, with the documentation and visual reporting that made the findings usable by people who do not read notebooks. Write-up pending.",
+    stack: [],
     media: [{ kind: "image", src: "", alt: "", pending: true }],
     presentation: "compact",
-    technicalDetails: [
-      "A consistent delivery convention — every post ships as a video plus a matched cover frame.",
-      "Weekly performance capture across three platforms, kept as a time series rather than as one-off screenshots.",
-    ],
-    placeholder: false,
+    placeholder: true,
   },
 
   /* ---------------------------------------------------------------- */
@@ -434,15 +340,47 @@ export const skillGroups: SkillGroup[] = [
     id: "programming",
     label: "Software Engineering",
     discipline: "software",
+    /*
+     * Ordering is editorial, not alphabetical: the first four `primary`
+     * entries are what the Software world prints as its signature line, so
+     * they are the four languages the systems in this file actually run on.
+     * Everything after that is ordered language → framework → data →
+     * platform, which is roughly the order a reader would ask about it in.
+     */
     skills: [
-      { name: "Python", disciplines: ["software", "ai"], tier: "primary", note: "Scripting, data and automation", related: ["Machine Learning", "Data Analytics"] },
-      { name: "JavaScript", disciplines: ["software"], tier: "primary", note: "Application logic", related: ["TypeScript", "ReactJS"] },
-      { name: "TypeScript", disciplines: ["software"], tier: "primary", note: "Typed application development", related: ["ReactJS", "JavaScript"] },
-      { name: "ReactJS", disciplines: ["software", "creative"], tier: "primary", note: "Interface development", related: ["TypeScript", "CSS"] },
+      { name: "Python", disciplines: ["software", "ai"], tier: "primary", note: "Pipelines, research services and automation", related: ["pandas", "FastAPI"] },
+      { name: "TypeScript", disciplines: ["software"], tier: "primary", note: "Typed application development, front and back", related: ["ReactJS", "NestJS"] },
+      { name: "Go", disciplines: ["software"], tier: "primary", note: "Services and control planes — the trading platform and the delivery control plane", related: ["PostgreSQL", "Docker"] },
+      { name: "ReactJS", disciplines: ["software", "creative"], tier: "primary", note: "Interface development", related: ["Next.js", "TypeScript"] },
+
+      { name: "JavaScript", disciplines: ["software"], tier: "primary", note: "Application logic", related: ["TypeScript", "Node.js"] },
       { name: "C#", disciplines: ["software", "xr"], tier: "secondary", note: "Engine and application code", related: ["Unity"] },
       { name: "C++", disciplines: ["software"], tier: "secondary", note: "Systems-level programming", related: ["C#"] },
       { name: "HTML", disciplines: ["software", "creative"], tier: "secondary", note: "Structure and semantics", related: ["CSS"] },
       { name: "CSS", disciplines: ["software", "creative"], tier: "secondary", note: "Layout and styling", related: ["HTML", "ReactJS"] },
+
+      { name: "Next.js", disciplines: ["software", "creative"], tier: "primary", note: "Application and interface framework", related: ["ReactJS", "TypeScript"] },
+      { name: "NestJS", disciplines: ["software"], tier: "secondary", note: "Typed backend services", related: ["TypeScript", "Prisma"] },
+      { name: "Angular", disciplines: ["software"], tier: "secondary", note: "Application framework — the invoicing platform", related: ["TypeScript", "Ionic"] },
+      { name: "Ionic", disciplines: ["software"], tier: "supporting", note: "Mobile-shaped UI on the web platform", related: ["Angular", "Capacitor"] },
+      { name: "Capacitor", disciplines: ["software"], tier: "supporting", note: "One web codebase packaged as a native app", related: ["Angular"] },
+      { name: "Node.js", disciplines: ["software"], tier: "secondary", note: "Server-side JavaScript", related: ["Express", "TypeScript"] },
+      { name: "Express", disciplines: ["software"], tier: "secondary", note: "HTTP APIs", related: ["Node.js", "MySQL"] },
+      { name: "FastAPI", disciplines: ["software", "ai"], tier: "secondary", note: "Python research and inference services", related: ["Python"] },
+
+      { name: "SQL", disciplines: ["software", "ai"], tier: "primary", note: "Schema design and querying", related: ["PostgreSQL", "MySQL"] },
+      { name: "PostgreSQL", disciplines: ["software"], tier: "primary", note: "The default relational store across these systems", related: ["SQL", "Row Level Security"] },
+      { name: "MySQL", disciplines: ["software"], tier: "secondary", note: "Relational store", related: ["SQL"] },
+      { name: "Redis", disciplines: ["software"], tier: "secondary", note: "Caching, queues and ephemeral state", related: ["PostgreSQL"] },
+      { name: "Prisma", disciplines: ["software"], tier: "supporting", note: "Typed database access", related: ["PostgreSQL", "NestJS"] },
+      { name: "Supabase", disciplines: ["software"], tier: "secondary", note: "Hosted Postgres, auth and sync", related: ["PostgreSQL", "Row Level Security"] },
+
+      { name: "Docker", disciplines: ["software"], tier: "primary", note: "Containerised services and reproducible builds", related: ["CI/CD"] },
+      { name: "CI/CD", disciplines: ["software", "security"], tier: "secondary", note: "Automated build, test and release", related: ["Docker", "Security CI"] },
+      { name: "Git / GitHub", disciplines: ["software"], tier: "secondary", note: "Version control and collaboration", related: ["CI/CD"] },
+      { name: "Playwright", disciplines: ["software"], tier: "secondary", note: "End-to-end browser testing", related: ["TypeScript", "CI/CD"] },
+      { name: "Cloudflare Workers", disciplines: ["software"], tier: "secondary", note: "Edge runtime and deployment", related: ["TypeScript"] },
+      { name: "Kubernetes", disciplines: ["software"], tier: "supporting", note: "Container orchestration", related: ["Docker"] },
     ],
   },
   {
@@ -492,6 +430,9 @@ export const skillGroups: SkillGroup[] = [
       { name: "Jupyter", disciplines: ["ai"], tier: "secondary", note: "Exploratory analysis and narrative", related: ["Python", "pandas"] },
       { name: "LLM agent systems", disciplines: ["ai", "software"], tier: "primary", note: "Tool-calling runtimes with bounded loops", related: ["TypeScript", "Cloudflare Workers"] },
       { name: "Power BI", disciplines: ["ai"], tier: "secondary", note: "Reporting and dashboards", related: ["Tableau"] },
+      { name: "Apache Spark", disciplines: ["ai"], tier: "supporting", note: "Distributed data processing", related: ["Python"] },
+      { name: "MLflow", disciplines: ["ai"], tier: "secondary", note: "Experiment tracking and model registry", related: ["Python"] },
+      { name: "Superset", disciplines: ["ai"], tier: "supporting", note: "Dashboards and exploration", related: ["Power BI"] },
       { name: "Plotly", disciplines: ["ai"], tier: "supporting", note: "Charting", related: ["Python"] },
       { name: "D3.js", disciplines: ["ai"], tier: "supporting", note: "Custom visualisation", related: ["JavaScript"] },
       { name: "Tableau", disciplines: ["ai"], tier: "supporting", note: "Reporting and dashboards", related: ["Power BI"] },
@@ -558,92 +499,88 @@ export const skillGroups: SkillGroup[] = [
 /* ------------------------------------------------------------------ */
 
 /**
- * EXPERIENCE — roles are verified. Two organisations are. Dates are NOT.
+ * EXPERIENCE — transcribed from Keathan's own CV (Keathan_Naidoo_CV.pdf),
+ * which supplied the organisations, dates and descriptions that earlier
+ * passes of this file did not have and correctly refused to invent.
  *
- * Unknown fields are the EMPTY STRING, and the CV component now omits the
- * element entirely rather than rendering a stranded separator. The previous
- * pass used the literal "TODO" as a visible marker, which was right while
- * this was a private draft and wrong the moment it became a public site: it
- * put the word TODO on a stranger's screen beside a real person's name.
+ * Order follows the CV's own order rather than strict reverse chronology:
+ * four of the six roles are concurrent, and the CV leads with the one that
+ * carries the most responsibility. That is his curation, not a sort bug.
  *
- * Empty is the honest state. It is also the one the type comments already
- * promised — "the UI renders nothing at all when it is absent".
- *
- * STILL NEEDED FROM KEATHAN, and not inventable from any file on disk:
- * the Verifone dates and description, the Graphic Designer description,
- * and the organisation behind the XR, 3D/VFX, data and security roles.
- *
- * `placeholder` is false because these are real roles.
+ * Nothing here is paraphrased upward. Where the CV says "part of the team",
+ * so does this.
  */
 export const experience: ExperienceEntry[] = [
   {
+    id: "exp-lead-app-dev",
+    organisation: "CXI-Africa",
+    role: "Lead Application Developer",
+    period: "Aug 2022 — Present",
+    summary:
+      "Lead XR application and learner management system development, combining C# logic, 3D assets, interfaces and learning workflows, from requirements through to user adoption.",
+    highlights: [
+      "Part of the team that built three different learner management systems for TVET colleges.",
+      "Run implementation workshops and introduce new products to learners and stakeholders.",
+    ],
+    placeholder: false,
+  },
+  {
+    id: "exp-senior-facilitator",
+    organisation: "CXI-Africa",
+    role: "Senior Facilitator (Part-time)",
+    period: "Apr 2023 — Present",
+    summary:
+      "Deliver XR development and Cisco Networking Academy cybersecurity training across academic and industry settings. Currently delivering systems engineering training for CHIETA.",
+    highlights: [
+      "Trained lecturers from multiple TVET colleges.",
+      "Supported lecturer upskilling at Tshwane University of Technology.",
+      "Worked on programmes involving the U.S. Embassy, Tshimologong and MICT SETA.",
+    ],
+    placeholder: false,
+  },
+  {
+    id: "exp-senior-technical-specialist",
+    organisation: "CXI-Africa",
+    role: "Senior Technical Specialist",
+    period: "Jan 2025 — Present",
+    summary:
+      "Support user accounts, maintain and repair PCs, carry out updates and upgrades, and keep workplace systems secure and available.",
+    highlights: [],
+    placeholder: false,
+  },
+  {
+    id: "exp-digital-strategist",
+    organisation: "CXI-Africa",
+    role: "Digital Strategist",
+    period: "Aug 2025 — Present",
+    summary:
+      "Use campaign metrics to improve digital strategy and reporting.",
+    highlights: [],
+    placeholder: false,
+  },
+  {
     id: "exp-data-analyst",
     organisation: "Verifone",
-    role: "Senior Data Analyst",
-    period: "",
-    // TODO — no description supplied for this role.
-    summary: "",
-    highlights: [],
+    role: "Senior Data Analyst (Freelance)",
+    period: "Sep 2025 — Jan 2026",
+    summary:
+      "Built a Python pipeline that brought regional datasets together for analysis and reporting: ingestion, cleaning, exploratory analysis and preparation.",
+    highlights: [
+      "Developed machine-learning and forecasting models, with documentation and visual reports that explained the findings to business stakeholders.",
+    ],
     placeholder: false,
   },
   {
-    id: "exp-creative-designer",
+    id: "exp-creative-developer",
     organisation: "Kommar Technologies",
-    role: "Creative Designer",
-    period: "",
+    role: "Creative Developer / Designer (Freelance)",
+    period: "Mar 2022 — Present",
     summary:
-      "Created digital assets including advertising creatives, landing pages, email templates, website content and social campaigns. Developed brand identities and visual communication systems. Worked with performance metrics including CTR, conversion rates and ROI. Used A/B testing and iterative design to improve creative performance. Used generative AI tools to accelerate concept development and creative production.",
-    highlights: [],
-    placeholder: false,
-  },
-  {
-    id: "exp-xr-developer",
-    organisation: "",
-    role: "XR Developer",
-    period: "",
-    summary:
-      "Developing immersive VR/AR experiences using Unity and Unreal Engine. Building interactive 3D environments and real-time experiences.",
-    highlights: [],
-    placeholder: false,
-  },
-  {
-    id: "exp-3d-vfx",
-    organisation: "",
-    role: "Animator, 3D Modeller & VFX Artist",
-    period: "",
-    summary:
-      "Produced advanced 3D models and character animations using Maya and Blender. Created VFX using Houdini and industry-standard compositing tools. Performed texturing and digital sculpting with Substance Painter and ZBrush.",
-    highlights: [],
-    placeholder: false,
-  },
-  {
-    id: "exp-graphic-designer",
-    organisation: "",
-    role: "Graphic Designer",
-    period: "",
-    // TODO — no description supplied for this role.
-    summary: "",
-    highlights: [],
-    placeholder: false,
-  },
-  {
-    id: "exp-data-ai",
-    organisation: "",
-    role: "Data Science & AI/ML Practitioner",
-    period: "",
-    summary:
-      "Conducted Python-based data analysis, feature engineering and machine learning experiments. Applied statistical modelling for insights and predictive analytics. Growing expertise in TensorFlow, PyTorch and Scikit-learn.",
-    highlights: [],
-    placeholder: false,
-  },
-  {
-    id: "exp-cyber-analyst",
-    organisation: "",
-    role: "Junior Cybersecurity Analyst",
-    period: "",
-    summary:
-      "Studying ethical hacking through platforms including TryHackMe and related hands-on environments. Learning network defense, threat analysis and security tools. Practicing CTF-style challenges.",
-    highlights: [],
+      "Deliver application, data science and design projects, from exploratory analysis and model evaluation through to deployment.",
+    highlights: [
+      "Create brand identities, advertising creatives, landing pages, email templates and social campaigns.",
+      "Use CTR, conversion and ROI metrics, A/B testing and iterative design to improve performance.",
+    ],
     placeholder: false,
   },
 ];
@@ -655,31 +592,39 @@ export const experience: ExperienceEntry[] = [
  * visual measure with no number attached — never rendered as a percentage,
  * because a percentage would be a fabricated precision about a person.
  *
- * The Data Science and Cybersecurity weights are held deliberately low: both
- * were specified as growing/junior, and flattening them level with XR
- * Development would misrepresent him.
+ * XR was raised to Advanced on Keathan's own account of it: he runs the
+ * entire pipeline himself rather than handing part of it off. It sits
+ * second rather than first only because the positioning of this site is
+ * software-led, which is a separate editorial decision from capability.
  */
 export const professionalDevelopment: ProfessionalDevelopmentEntry[] = [
   {
     discipline: "software",
     label: "Software Engineering",
     level: "Advanced / Broad",
-    weight: 0.92,
-    note: "Several substantial systems across Go, TypeScript and Python; two deployed.",
+    weight: 0.95,
+    note: "Several substantial systems across Go, TypeScript, Python and Angular; two deployed.",
   },
   {
-    discipline: "ai",
-    label: "Data & Applied AI",
-    level: "Intermediate → Advanced",
-    weight: 0.78,
-    note: "An agent runtime in production, and client-scale analysis of 643,933 records.",
+    discipline: "xr",
+    label: "XR Development",
+    level: "Advanced",
+    weight: 0.92,
+    note: "The whole pipeline, single-handed — model, sculpt, texture, animate, and into the engine.",
   },
   {
     discipline: "creative",
     label: "Creative",
     level: "Intermediate → Advanced",
-    weight: 0.72,
-    note: "Months of modelling and texturing; a shipped multi-week content programme.",
+    weight: 0.78,
+    note: "Identity systems taken through to applications and websites, plus campaign work measured on performance.",
+  },
+  {
+    discipline: "ai",
+    label: "Data & Applied AI",
+    level: "Intermediate → Advanced",
+    weight: 0.74,
+    note: "Python pipelines, forecasting models and reporting delivered to a commercial client.",
   },
   {
     discipline: "security",
@@ -688,19 +633,12 @@ export const professionalDevelopment: ProfessionalDevelopmentEntry[] = [
     weight: 0.62,
     note: "Auth, authorisation and sandboxing built into real systems, plus a security pipeline.",
   },
-  {
-    discipline: "xr",
-    label: "XR Development",
-    level: "Growing",
-    weight: 0.42,
-    note: "Strong asset pipeline; the engine side is one coursework OpenXR scene.",
-  },
 ];
 
 /**
- * CERTIFICATIONS — confirmed by Keathan directly, and transcribed from his
- * own CV rather than paraphrased: nine Cisco Networking Academy credentials
- * and the CXI-Africa XR Developer Certificate.
+ * CERTIFICATIONS — transcribed from Keathan's CV rather than paraphrased:
+ * nine Cisco Networking Academy credentials, three AWS Skill Builder
+ * credentials, and the CXI-Africa XR Developer Certificate.
  *
  * Note that "Junior Cybersecurity Analyst" is one of the Cisco credentials.
  * An earlier CV used it as a job title in its header, which overstated it in
@@ -719,6 +657,9 @@ export const certifications: Certification[] = [
   { id: "cert-networking-basics", name: "Networking Basics", issuer: "Cisco Networking Academy", issued: "", placeholder: false },
   { id: "cert-network-devices", name: "Network Devices & Initial Configuration", issuer: "Cisco Networking Academy", issued: "", placeholder: false },
   { id: "cert-python", name: "Python", issuer: "Cisco Networking Academy", issued: "", placeholder: false },
+  { id: "cert-aws-serverless", name: "Serverless — Demonstrated", issuer: "AWS Skill Builder", issued: "", placeholder: false },
+  { id: "cert-aws-dataviz", name: "Data Visualization — Demonstrated", issuer: "AWS Skill Builder", issued: "", placeholder: false },
+  { id: "cert-aws-app-networking", name: "Application Networking — Demonstrated", issuer: "AWS Skill Builder", issued: "", placeholder: false },
   {
     id: "cert-xr-developer",
     name: "XR Developer Certificate",
@@ -751,42 +692,50 @@ export const languages: LanguageEntry[] = [
   { name: "Afrikaans", level: "Proficient" },
 ];
 
+/* ------------------------------------------------------------------ */
+/* Timeline                                                            */
+/* ------------------------------------------------------------------ */
+
 /**
- * TIMELINE — the ordering is honest; the dates are unknown and therefore
- * empty, so the component omits the period line rather than printing a
- * placeholder. Project years do exist and are set per project above, dated
- * from repository history and file metadata rather than from memory.
+ * TIMELINE — the five practices, dated from the CV's own role dates rather
+ * than from memory. Where several roles feed one practice the range spans
+ * them; where a practice is ongoing study rather than a dated role, it says
+ * "Current" instead of inventing a start.
  */
 export const timeline: TimelineEntry[] = [
   {
     id: "tl-creative",
-    period: "",
+    period: "2022 — Present",
     title: "Creative and design practice",
-    detail: "Brand identity, digital art, UI/UX and campaign creative.",
+    detail:
+      "Brand identity, digital art, UI/UX and campaign creative, delivered freelance through Kommar Technologies.",
     discipline: "creative",
     placeholder: false,
   },
   {
-    id: "tl-3d",
-    period: "",
-    title: "3D, animation and VFX",
-    detail: "Modelling, character animation, sculpting, texturing and VFX.",
-    discipline: "xr",
-    placeholder: false,
-  },
-  {
     id: "tl-software",
-    period: "",
-    title: "Software development",
-    detail: "Application and interface development.",
+    period: "2022 — Present",
+    title: "Application and systems development",
+    detail:
+      "Leading application and learner-management development at CXI-Africa, alongside independent platform and service work.",
     discipline: "software",
     placeholder: false,
   },
   {
+    id: "tl-3d",
+    period: "2022 — Present",
+    title: "XR, 3D and real-time",
+    detail:
+      "Modelling, sculpting, texturing, animation and engine work — the full pipeline, plus XR training delivery.",
+    discipline: "xr",
+    placeholder: false,
+  },
+  {
     id: "tl-data",
-    period: "",
+    period: "2025 — 2026",
     title: "Data and AI/ML",
-    detail: "Data analysis, visualisation and machine learning experiments.",
+    detail:
+      "Python pipelines, forecasting and machine-learning models, including freelance work for Verifone.",
     discipline: "ai",
     placeholder: false,
   },
@@ -794,7 +743,8 @@ export const timeline: TimelineEntry[] = [
     id: "tl-security",
     period: "Current",
     title: "Cybersecurity",
-    detail: "Actively developing this capability.",
+    detail:
+      "Cisco Networking Academy credentials, security engineering inside production systems, and ongoing hands-on practice.",
     discipline: "security",
     placeholder: false,
   },
@@ -804,6 +754,12 @@ export const timeline: TimelineEntry[] = [
 /* Currently building / learning                                       */
 /* ------------------------------------------------------------------ */
 
+/**
+ * CURRENTLY BUILDING / LEARNING
+ *
+ * One entry per world, each explicitly unfinished. Nothing here is a
+ * shipped achievement wearing a progress label.
+ */
 export const currentlyBuilding: CurrentlyBuilding[] = [
   {
     id: "cb-at-leisure",
@@ -814,11 +770,11 @@ export const currentlyBuilding: CurrentlyBuilding[] = [
     placeholder: false,
   },
   {
-    id: "cb-kbot-devices",
-    title: "Kbot — device control",
+    id: "cb-data-lab",
+    title: "CHIETA Data Lab",
     discipline: "ai",
     status: "building",
-    note: "Letting the assistant act on a paired phone, with every action behind an explicit approval.",
+    note: "A data science platform bringing ingestion, preparation, modelling and dashboards into one workflow for both technical and non-technical users.",
     placeholder: false,
   },
   {
@@ -830,11 +786,11 @@ export const currentlyBuilding: CurrentlyBuilding[] = [
     placeholder: false,
   },
   {
-    id: "cb-xr-engine",
-    title: "XR — the engine half",
+    id: "cb-orbital",
+    title: "ORBITAL — extending the kit",
     discipline: "xr",
-    status: "studying",
-    note: "Closing the gap between the asset pipeline, which is solid, and the runtime side, which is not yet.",
+    status: "building",
+    note: "More zones, more modules, and the interaction layer that turns a built environment into something you can actually do things in.",
     placeholder: false,
   },
   {

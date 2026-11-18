@@ -47,6 +47,13 @@ export function HireMe() {
             >
               {profile.email}
             </a>
+            {/* `profile.location` existed in the data model and was rendered
+                nowhere, which made this the one section that answers "can we
+                hire him" without answering "where is he". A recruiter asks
+                that second. */}
+            {profile.location && (
+              <p className={styles.location}>{profile.location}</p>
+            )}
             {profile.availability && (
               <p className={styles.availability}>{profile.availability}</p>
             )}

@@ -21,24 +21,36 @@
   --c-line-strong: #33333f;
 
   --c-text: #f2f2f4;
-  --c-text-muted: #9a9aa6;
-  /* Raised twice, both times for contrast, both times measured.
-     
-     #63636f gave 3.34:1 on --c-base and failed AA outright for the small text
-     it carries in ~33 places (every eyebrow, every metadata line, the motion
-     toggle readout, the "Placeholder" tags). #7c7c88 cleared it at 4.80:1 —
-     but only just, and 4.80 leaves 0.0035 of relative luminance before the
-     ratio drops under 4.5.
 
-     That margin is not enough to sit a lit environment behind. The WebGL
-     canvas composites UNDER the text, so any light the environment adds is
-     added to this token's background too; measured against the finished
-     environment, the Data Science and transition frames pushed it to 3.69:1
-     and 4.25:1. Rather than flatten the environment back toward the black
-     page it was, the token takes the headroom: #90909c reads as the same
-     faint tone in the same cool ramp and measures 6.27:1 on --c-base and
-     4.77:1 against the brightest region the environment ever produces. */
-  --c-text-faint: #90909c;
+  /* RAISED FOR THE THIRD TIME, and for the reason the previous two raises
+     anticipated rather than solved.
+
+     The history is worth keeping, because it is the same mistake twice:
+     #63636f measured 3.34:1 on --c-base and failed AA outright for the small
+     text it carries in ~33 places. #7c7c88 cleared it at 4.80:1 — by 0.0035
+     of relative luminance. #90909c reached 6.27:1, which looked safe on a
+     static page.
+
+     None of those numbers were ever the real figure, because this text is
+     not on a static page. The WebGL canvas composites UNDER it, so whatever
+     light the environment adds lands on the text's background too — and the
+     environment now drifts faster and fires lightning, so the background
+     under a given word is not one colour but a range of them, changing while
+     the word is being read. Measured against the brightest frames, #90909c
+     fell to 4.77:1: technically passing, genuinely hard to read.
+
+     So these two tokens stop budgeting to the threshold and take real
+     headroom instead. --c-text-muted measures 11.9:1 on --c-base and roughly
+     9:1 against the brightest region the environment produces;
+     --c-text-faint, 9.4:1 and roughly 7:1. Both stay in the same cool
+     neutral ramp, so the hierarchy between text, muted and faint is intact —
+     there is simply more light in the lower two steps.
+
+     The alternative fix was to dim the environment or put a scrim behind the
+     text. Both were rejected: the background is the piece, and a scrim would
+     fight it in every frame rather than solve anything. Brighten the type. */
+  --c-text-muted: #c8c8d2;
+  --c-text-faint: #b2b2be;
 
   /* ---------------------------------------------------------------------
      COLOUR — discipline accents
