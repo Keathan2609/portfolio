@@ -145,6 +145,9 @@ const RADIUS = 1.05;
  */
 const FRAME_FILL = 0.66;
 
+/** A little wider than the type, so the name sits inside the mass. */
+const WIDTH_MARGIN = 1.0;
+
 /** Scratch vectors. Allocating these per frame would be 60 a second. */
 const _forward = new THREE.Vector3();
 const _up = new THREE.Vector3();
@@ -261,6 +264,30 @@ export function HeroObject({ accent = "#f2f2f4" }: { accent?: string }) {
         .addScaledVector(_right, nameX * halfW)
         .addScaledVector(_up, nameY * halfH);
       group.quaternion.copy(cam.quaternion);
+
+      /* STRETCHED TO THE NAME, and stretched is ALL that happens here.
+       *
+       * A round mass cannot span the name at any size: the name is most of
+       * the viewport across and a tenth of it down, so a circle wide enough
+       * is about twice the viewport tall, and at that size both its sides
+       * leave the frame and it stops reading as a shape at all. The only
+       * way to cover the type is a form wider than it is tall.
+       *
+       * An earlier attempt at this bundled the stretch together with a
+       * churnier noise field, resampled normals and no rotation, and the
+       * result destroyed the form. So this touches one number and nothing
+       * else: the field, the amplitude, the yaw and the shading are exactly
+       * what they were. Only X is scaled — Y carries the underside
+       * dissolve, which is keyed to unscaled object space.
+       *
+       * Derived from the measured name, clamped so it can never be narrower
+       * than the sphere it started as nor smeared across the page by a
+       * freak measurement. */
+      const radiusPx = FRAME_FILL * (Math.min(size.width, size.height) / 2);
+      const wantHalfW =
+        ((heroAnchor.widthFrac * Math.max(size.width, 1)) / 2) * WIDTH_MARGIN;
+      const stretch = Math.min(Math.max(wantHalfW / radiusPx, 1), 2.6);
+      group.scale.set(stretch, 1, 1);
     }
 
     /* Pointer parallax, damped. Small range on purpose — the mass should

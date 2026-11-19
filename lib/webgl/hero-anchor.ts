@@ -25,11 +25,24 @@ export interface HeroAnchor {
   docY: number;
   /** Centre of the name as a fraction of viewport width. */
   x: number;
+  /**
+   * Width of the name as a fraction of viewport width.
+   *
+   * The mass stretches to this rather than to a constant, which is what
+   * lets the two-line wrap on narrow viewports work without a breakpoint:
+   * a narrower name simply asks for less stretch.
+   */
+  widthFrac: number;
   /** False until a real element has been measured. */
   measured: boolean;
 }
 
-export const heroAnchor: HeroAnchor = { docY: 0, x: 0.5, measured: false };
+export const heroAnchor: HeroAnchor = {
+  docY: 0,
+  x: 0.5,
+  widthFrac: 0.6,
+  measured: false,
+};
 
 /**
  * Measure the name. Cheap, and never called from inside the frame loop.
@@ -44,5 +57,6 @@ export function measureHeroAnchor(el: HTMLElement | null): void {
   // measurement, so it wants the real position, not the animated one.
   heroAnchor.docY = rect.top + window.scrollY + rect.height / 2;
   heroAnchor.x = (rect.left + rect.width / 2) / vw;
+  heroAnchor.widthFrac = rect.width / vw;
   heroAnchor.measured = true;
 }
