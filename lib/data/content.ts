@@ -389,7 +389,18 @@ export const projects: Project[] = [
     role: "Design and build",
     year: "2025 \u2014 2026",
     stack: ["React", "Next.js", "Vite", "GSAP", "ScrollTrigger", "Lenis", "Three.js", "Tailwind CSS"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    /* A capture of this site, live, which is the one piece of work in this
+       entry a reader can already see for themselves. Taken from the
+       deployed build rather than a local dev server, so it is the real
+       thing at the real address and not a staged approximation. */
+    media: [
+      {
+        kind: "image",
+        src: "/media/projects/websites/portfolio-hero-lg.webp",
+        alt: "The hero of this portfolio, live: the name set large inside a drifting mass of smoke, with the five disciplines indexed down the right.",
+        ratio: "800 / 574",
+      },
+    ],
     presentation: "expanded",
     caseStudy: [
       {
