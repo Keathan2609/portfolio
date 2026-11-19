@@ -100,6 +100,12 @@ void main() {
 
   // The body stays near-black; the accent lives only in the rim and in the
   // crests of the displacement. Restraint is the point.
+  /* Thickness through the volume: a translucent mass is deepest through the
+     middle of its silhouette and thinnest at its edge, which is the exact
+     inverse of the rim term. Carrying both is what gives it presence
+     without turning it into a lit bubble. */
+  float body = 1.0 - rim;
+
   vec3 color = mix(uCore, uAccent, rim);
   color += uAccent * smoothstep(0.05, 0.28, vDisplace) * 0.18;
 
@@ -110,7 +116,19 @@ void main() {
      at those values it read as chrome: it burned through the statement
      lines and the discipline index behind it. The body still carries the
      form; the rim just stopped shouting. */
-  float alpha = (0.05 + rim * 0.34) * uOpacity;
+  /* DENSER, because at the original density this disappeared.
+   *
+   * These values were set when this object had a drei view to itself, which
+   * was cleared to flat black before drawing — against black, a faint rim
+   * is plenty. It composites over lit, moving smoke now, and whenever the
+   * weather behind it brightened the mass simply stopped being visible: it
+   * read as having shrunk, when what it had actually lost was presence.
+   *
+   * Almost all of the increase goes into the body rather than the rim, and
+   * that is deliberate twice over. The body is near-black, so thickening it
+   * DARKENS the lit smoke behind the name and the white type gains contrast
+   * — the same increase spent on the near-white rim would have cost it. */
+  float alpha = (0.07 + body * 0.26 + rim * 0.34) * uOpacity;
 
   /* THE UNDERSIDE DISSOLVES, for a reason that is equal parts craft and
      accessibility. A mass with a hard lower edge reads as an object; a
