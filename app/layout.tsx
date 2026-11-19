@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/layout/AppShell";
 import { profile } from "@/lib/data/profile";
-import { site, siteUrl } from "@/lib/data/site";
+import { isPreview, site, siteUrl } from "@/lib/data/site";
 import "./globals.css";
 
 /**
@@ -89,12 +89,16 @@ export const metadata: Metadata = {
     description: site.description,
   },
 
+  /* robots.txt asks crawlers not to read a preview; this tells any that
+     arrive anyway — from a pasted link, say — not to index what they found.
+     The two are belt and braces on purpose, because the cost of a staging
+     CV reaching the index is paid in someone else's search results. */
   robots: {
-    index: true,
-    follow: true,
+    index: !isPreview,
+    follow: !isPreview,
     googleBot: {
-      index: true,
-      follow: true,
+      index: !isPreview,
+      follow: !isPreview,
       "max-image-preview": "large",
       "max-snippet": -1,
       "max-video-preview": -1,

@@ -37,6 +37,37 @@ const fromEnv =
  */
 export const siteUrl = fromEnv ?? "https://keathannaidoo.com";
 
+/**
+ * THE PRODUCTION BRANCH. Everything else is a preview.
+ *
+ * Cloudflare Pages builds every branch, not just the production one, and
+ * serves each at its own address. That is exactly the staging environment
+ * this project wants — somewhere to see a change on the real stack before
+ * it is the CV a recruiter opens — but it comes with a trap: a preview is a
+ * complete, publicly reachable copy of the site, and by default it is as
+ * crawlable as the real one.
+ *
+ * Left alone that means several near-identical CVs in the index, competing
+ * with each other, and a recruiter who can land on a half-finished draft
+ * from a search result. Hence `isPreview` below, which is the one fact the
+ * robots route and the page metadata both key off.
+ */
+const PRODUCTION_BRANCH = "master";
+
+/**
+ * True on any Cloudflare build that is not the production branch.
+ *
+ * CF_PAGES_BRANCH is set by the Pages build environment and by nothing
+ * else, so a local build and a production build both read as "not a
+ * preview" — which is the safe direction to be wrong in: the worst case is
+ * that something indexable stays indexable, never that the live CV
+ * silently de-indexes itself.
+ */
+export const isPreview =
+  typeof process.env.CF_PAGES_BRANCH === "string" &&
+  process.env.CF_PAGES_BRANCH !== "" &&
+  process.env.CF_PAGES_BRANCH !== PRODUCTION_BRANCH;
+
 export const site = {
   url: siteUrl,
 
