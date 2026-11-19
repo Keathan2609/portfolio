@@ -62,6 +62,14 @@ export function DisciplineWorld({ discipline }: { discipline: Discipline }) {
   const projects = projectsByDiscipline(discipline.id);
   const titleId = `${discipline.slug}-title`;
   const horizontal = isDesktop && !reduced && projects.length > 1;
+
+  /* The rail used to state flatly that imagery was still being produced.
+     That was true of every world when it was written and is now false of
+     some of them, so it is asked rather than asserted: a world whose work
+     all carries real media should not apologise for media it has. */
+  const imageryPending = projects.some((project) =>
+    project.media.some((asset) => asset.pending),
+  );
   const signature = signatureSkills(discipline);
 
   /**
@@ -263,7 +271,9 @@ export function DisciplineWorld({ discipline }: { discipline: Discipline }) {
           <div className={styles.railHead}>
             <h3 className={styles.railTitle}>Work</h3>
             <p className={styles.railNote}>
-              Selected work. Imagery is still being produced.
+              {imageryPending
+                ? "Selected work. Imagery is still being produced."
+                : "Selected work."}
             </p>
           </div>
 

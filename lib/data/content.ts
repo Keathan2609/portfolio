@@ -261,7 +261,44 @@ export const projects: Project[] = [
     role: "Author \u2014 modelling, modular system, specifications, Unity setup",
     year: "2026",
     stack: ["Blender", "Unity"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    /* Real renders, finally wired up. These have been sitting in
+       public/media/projects/orbital since September, correctly named and
+       already optimised at two sizes, referenced by nothing — the data
+       layer said `pending` while the pictures were on disk the whole time.
+       Every alt below describes a frame that was opened and looked at. */
+    media: [
+      {
+        kind: "image",
+        src: "/media/projects/orbital/environment-lg.webp",
+        alt: "A corridor inside the station, lit by ceiling strips, looking through a bulkhead toward the glowing reactor.",
+        ratio: "16 / 9",
+      },
+      {
+        kind: "video",
+        src: "/media/projects/orbital/reactor-turntable.mp4",
+        poster: "/media/projects/orbital/reactor-turntable-poster-lg.webp",
+        alt: "The reactor assembly turning slowly on its base.",
+        ratio: "16 / 9",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/orbital/reactor-hero-lg.webp",
+        alt: "The reactor: a caged sphere held inside a ring frame on an octagonal base, lit from within.",
+        ratio: "16 / 9",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/orbital/modular-kit-lg.webp",
+        alt: "The modular kit laid out flat — wall panels, doors, a column, floor tiles, rails and a lit strip.",
+        ratio: "16 / 9",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/orbital/console-hero-lg.webp",
+        alt: "A control console with angled screens showing bar readouts, plus knobs, switches and a joystick.",
+        ratio: "16 / 9",
+      },
+    ],
     presentation: "expanded",
     caseStudy: [
       {
@@ -298,8 +335,48 @@ export const projects: Project[] = [
       "Four self-directed identity systems, each taken well past the logo: colour, typography, applications and a website, so the mark gets tested in the places it would actually have to survive.",
     role: "Identity design and art direction",
     stack: ["Brand Identity Design", "Typography", "Adobe Creative Cloud", "Figma"],
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
-    presentation: "compact",
+    /* Four final showcase boards, one per identity, from
+       public/media/projects/brand. Each brand also has its logo, palette,
+       typography, applications, process and website boards on disk; the
+       showcase is the one that carries all of them at once, so it is what
+       the rail shows. The rest are a gallery waiting to be asked for. */
+    media: [
+      {
+        kind: "image",
+        src: "/media/projects/brand/ember/showcase-lg.webp",
+        alt: "EMBER Coffee: the identity in use across packaging, cups, signage, apparel, print and the website.",
+        ratio: "1200 / 718",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/brand/vanta/showcase-lg.webp",
+        alt: "VANTA Properties: the identity in use across stationery, website, mobile, print, signage and social.",
+        ratio: "16 / 9",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/brand/form/showcase-lg.webp",
+        alt: "FORM: the identity applied across its full set of touchpoints.",
+        ratio: "3 / 2",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/brand/kaera/showcase-lg.webp",
+        alt: "KAERA: the identity applied across its full set of touchpoints.",
+        ratio: "3 / 2",
+      },
+    ],
+    presentation: "expanded",
+    caseStudy: [
+      {
+        heading: "Context",
+        body: "Four identities, self-directed, in four different sectors — a coffee roastery, a premium property developer, and two more. Self-directed is the point rather than an apology: a brief invented in-house can be held to a standard a client brief rarely allows, and nothing here had to survive a committee.",
+      },
+      {
+        heading: "Past the logo",
+        body: "A mark on a white page proves very little. Each of these is built out as a system — palette, typography, applications, and a website — and then assembled into a single board showing all of it at once. That final board is the test: an identity either holds together across a business card, a shopfront, a phone screen and a paper bag, or it quietly falls apart on one of them.",
+      },
+    ],
     placeholder: false,
   },
 
