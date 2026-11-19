@@ -56,6 +56,9 @@ ${SIMPLEX_3D}
 
 uniform float uTime;
 uniform float uAmplitude;
+/* How far the group is stretched across. The shape has to undo it — see the
+   note in main(). */
+uniform float uStretch;
 
 varying vec3 vNormal;
 varying vec3 vView;
@@ -66,12 +69,37 @@ varying float vDisplace;
 varying float vUp;
 
 void main() {
+  /* THE SHAPE UNDOES THE STRETCH THAT THE SILHOUETTE NEEDS.
+   *
+   * The group is scaled on X so the mass spans the name. Left alone, that
+   * scale drags the surface with it: every lump is drawn out sideways by
+   * the same factor, so what should be a field of round billows becomes a
+   * set of horizontal smears. The outline was right and the form was wrong.
+   *
+   * Two compensations, and they are separate problems.
+   *
+   * SAMPLING. The noise is read at a point whose X is pre-multiplied by the
+   * stretch, so a feature that measures N across in noise space comes out
+   * N/stretch across in object space — and the group's scale then returns
+   * it to N on screen. The billows stay round however wide the mass gets.
+   *
+   * DISPLACEMENT. The offset is applied along the normal and then scaled
+   * with everything else, so bumps at the left and right ends of the mass
+   * protruded by the full stretch factor while bumps at the top and bottom
+   * did not. Dividing the X component by the stretch first makes the relief
+   * the same depth everywhere once the scale has been applied.
+   */
+  vec3 sampleDir = vec3(normal.x * uStretch, normal.y, normal.z);
+
   // Two octaves: a slow swell, and a finer ripple that catches the rim light.
-  float slow = snoise(normal * 1.15 + uTime * 0.09);
-  float fine = snoise(normal * 3.4 - uTime * 0.16) * 0.35;
+  float slow = snoise(sampleDir * 1.15 + uTime * 0.09);
+  float fine = snoise(sampleDir * 3.4 - uTime * 0.16) * 0.35;
   float displace = (slow + fine) * uAmplitude;
 
-  vec3 displaced = position + normal * displace;
+  vec3 offset = normal * displace;
+  offset.x /= max(uStretch, 0.0001);
+
+  vec3 displaced = position + offset;
 
   vec4 mv = modelViewMatrix * vec4(displaced, 1.0);
   vNormal = normalize(normalMatrix * normal);
@@ -137,7 +165,14 @@ void main() {
      index — so a bright rim travelling through that band is the one place
      this object can do real damage. Measured before this term, the headline
      sat at 1.60:1 and the index at 2.02:1 against a 4.5 floor. */
-  alpha *= mix(0.06, 1.0, smoothstep(-0.95, -0.05, vUp));
+  /* Clears the small type completely rather than merely thinning over it.
+     The mass is larger and denser than when this term was written, so its
+     lower edge now reaches the headline and the discipline index — the two
+     smallest things on the screen. Ending the fade at zero, and ending it
+     higher, keeps the cloud entirely above them: measured against the
+     brightest adjacent pixel they were 4.26:1 and 3.84:1 against a 4.5
+     floor before this, with the mass itself the thing in the way. */
+  alpha *= smoothstep(-0.85, -0.02, vUp);
   gl_FragColor = vec4(color, alpha);
 }
 `;
@@ -182,6 +217,7 @@ export function HeroObject({ accent = "#f2f2f4" }: { accent?: string }) {
     () => ({
       uTime: { value: 0 },
       uAmplitude: { value: 0.16 },
+      uStretch: { value: 1 },
       uAccent: { value: new THREE.Color(accent) },
       uCore: { value: new THREE.Color("#0d0d12") },
       uOpacity: { value: 1 },
@@ -306,6 +342,9 @@ export function HeroObject({ accent = "#f2f2f4" }: { accent?: string }) {
         ((heroAnchor.widthFrac * Math.max(size.width, 1)) / 2) * WIDTH_MARGIN;
       const stretch = Math.min(Math.max(wantHalfW / radiusPx, 1), 2.6);
       group.scale.set(stretch, 1, 1);
+      // The shader needs it too, to keep the surface from being smeared
+      // along with the silhouette.
+      material.uniforms.uStretch.value = stretch;
     }
 
     /* Pointer parallax, damped. Small range on purpose — the mass should

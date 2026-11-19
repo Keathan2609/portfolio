@@ -144,10 +144,10 @@ function budgets(density: number, coarse: boolean) {
      a budget written for six layers, still being applied to the cheapest
      thing on the page. */
   if (density <= 0.3) {
-    return { mass: 10, points: 300, structures: 14, near: 5, octaves: 3, groundSegments: 1 };
+    return { mass: 10, points: 300, structures: 14, near: 5, octaves: 2, groundSegments: 1 };
   }
   if (density <= 0.65 || coarse) {
-    return { mass: 20, points: 480, structures: 24, near: 6, octaves: 4, groundSegments: 2 };
+    return { mass: 20, points: 480, structures: 24, near: 6, octaves: 3, groundSegments: 2 };
   }
   return { mass: 36, points: 900, structures: 42, near: 8, octaves: 4, groundSegments: 4 };
 }

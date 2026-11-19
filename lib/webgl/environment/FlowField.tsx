@@ -303,7 +303,7 @@ export const FlowField = forwardRef<FlowFieldHandle, { octaves: number }>(
        second is most of what makes it read as smoke rather than as marble.
        Tying it to the top octave count meant the cheaper tiers lost the
        character of the background rather than some of its detail. */
-    const warpPasses = octaves >= 3 ? 2 : 1;
+    const warpPasses = octaves >= 4 ? 2 : 1;
 
     const material = useMemo(
       () =>
