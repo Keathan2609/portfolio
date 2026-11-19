@@ -25,26 +25,11 @@ export interface HeroAnchor {
   docY: number;
   /** Centre of the name as a fraction of viewport width. */
   x: number;
-  /**
-   * Width of the name as a fraction of viewport width.
-   *
-   * The cloud stretches to this rather than to a constant, because the name
-   * is a wide, short block and a sphere wide enough to cover it would be
-   * far too tall. It also wraps to two lines on narrow viewports, where the
-   * right answer is narrower and taller — reading it from the element means
-   * neither case has to be special-cased.
-   */
-  widthFrac: number;
   /** False until a real element has been measured. */
   measured: boolean;
 }
 
-export const heroAnchor: HeroAnchor = {
-  docY: 0,
-  x: 0.5,
-  widthFrac: 0.6,
-  measured: false,
-};
+export const heroAnchor: HeroAnchor = { docY: 0, x: 0.5, measured: false };
 
 /**
  * Measure the name. Cheap, and never called from inside the frame loop.
@@ -59,6 +44,5 @@ export function measureHeroAnchor(el: HTMLElement | null): void {
   // measurement, so it wants the real position, not the animated one.
   heroAnchor.docY = rect.top + window.scrollY + rect.height / 2;
   heroAnchor.x = (rect.left + rect.width / 2) / vw;
-  heroAnchor.widthFrac = rect.width / vw;
   heroAnchor.measured = true;
 }
