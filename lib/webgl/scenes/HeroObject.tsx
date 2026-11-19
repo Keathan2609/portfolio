@@ -2,29 +2,56 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useThree } from "@react-three/fiber";
-import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { useSceneFrame } from "@/lib/webgl/hooks/useSceneFrame";
 import { disposeObject } from "@/lib/webgl/utils/dispose";
 import { heroPresence } from "@/lib/webgl/utils/envelope";
 import { FRESNEL, SIMPLEX_3D } from "@/lib/webgl/shaders/chunks";
 import { damp } from "@/lib/utils/math";
+import { heroAnchor } from "@/lib/webgl/hero-anchor";
+import { scrollState } from "@/lib/scroll/scroll-state";
 
 /**
- * THE HERO OBJECT
+ * THE CLOUD BEHIND THE NAME.
  *
- * One form, built properly, rather than a scene full of geometry. It reads
- * as something engineered — a faceted mass under tension inside a wider
- * structural cage — and it stays dark so the name remains the loudest thing
- * on screen.
+ * A sphere pushed around by two octaves of simplex noise and lit only at its
+ * rim, so it reads as a soft mass rather than as geometry. It sits behind the
+ * hero's name and is the one thing in the hero that is not flat.
  *
- * This is the only ambient scene that accepts pointer input. Motion is
- * damped rather than tracked directly, so it feels weighted, and it is
- * driven from R3F's pointer state (which is hosted on the DOM shell) rather
- * than a window listener, keeping the single-clock rule intact.
+ * WHAT WAS REMOVED, AND WHY
+ *
+ * This carried a second object: an icosahedral wireframe at a larger radius,
+ * counter-rotating, described as a structural cage. It is gone at Keathan's
+ * request — the cloud was always the subject, and the cage was a grid drawn
+ * around it.
+ *
+ * It also declared `<PerspectiveCamera makeDefault>`. So does the journey
+ * environment, and drei's View renders every view with the single global
+ * `state.camera` — there is no per-view camera. Two makeDefault declarations
+ * is a race, not a configuration, and whichever mounted last silently
+ * decided the framing for both. When the environment won, this object was
+ * drawn through a camera 9.4 units back aimed 8 units behind the origin,
+ * which is nowhere near where anyone was looking.
+ *
+ * WHY IT RENDERS NOW, after a long time rendering nothing at all.
+ *
+ * Its material was attached with `<primitive object={material}
+ * attach="material" />`, and that attach was not taking. A mesh with no
+ * material is skipped by three.js in silence — no warning, no error, and
+ * every ref, uniform and opacity still reading back perfectly correct from
+ * outside, which is what made this look like a positioning problem for so
+ * long. A probe mesh at the identical position with an inline
+ * `<meshBasicMaterial>` drew immediately, and that is what finally separated
+ * "not positioned" from "not drawn".
+ *
+ * The material is passed as a prop now, which is the form R3F documents for
+ * an instance you constructed yourself.
  */
 
+const RADIUS_GLSL = "1.05";
+
 const vertexShader = /* glsl */ `
+#define RADIUS ${RADIUS_GLSL}
 ${SIMPLEX_3D}
 
 uniform float uTime;
@@ -33,6 +60,10 @@ uniform float uAmplitude;
 varying vec3 vNormal;
 varying vec3 vView;
 varying float vDisplace;
+/* Normalised height within the object, -1 at the base and 1 at the top.
+   The group is camera-aligned, so this is screen-up and can be used to
+   decide what the cloud is allowed to cover. */
+varying float vUp;
 
 void main() {
   // Two octaves: a slow swell, and a finer ripple that catches the rim light.
@@ -46,6 +77,7 @@ void main() {
   vNormal = normalize(normalMatrix * normal);
   vView = normalize(-mv.xyz);
   vDisplace = displace;
+  vUp = position.y / RADIUS;
 
   gl_Position = projectionMatrix * mv;
 }
@@ -61,6 +93,7 @@ uniform float uOpacity;
 varying vec3 vNormal;
 varying vec3 vView;
 varying float vDisplace;
+varying float vUp;
 
 void main() {
   float rim = fresnel(vView, vNormal, 2.6);
@@ -68,29 +101,54 @@ void main() {
   // The body stays near-black; the accent lives only in the rim and in the
   // crests of the displacement. Restraint is the point.
   vec3 color = mix(uCore, uAccent, rim);
-  color += uAccent * smoothstep(0.05, 0.28, vDisplace) * 0.35;
+  color += uAccent * smoothstep(0.05, 0.28, vDisplace) * 0.18;
 
-  float alpha = (0.18 + rim * 0.9) * uOpacity;
+  /* MUCH QUIETER THAN AUTHORED, because what it sits on has changed.
+     These values were set when this object had a view to itself, which drei
+     cleared to flat black before drawing — a near-white rim at 0.9 alpha is
+     restrained against black. It now composites over lit, moving smoke, and
+     at those values it read as chrome: it burned through the statement
+     lines and the discipline index behind it. The body still carries the
+     form; the rim just stopped shouting. */
+  float alpha = (0.05 + rim * 0.34) * uOpacity;
+
+  /* THE UNDERSIDE DISSOLVES, for a reason that is equal parts craft and
+     accessibility. A mass with a hard lower edge reads as an object; a
+     cloud thins out and lets go. And everything small on this screen lives
+     below the name — the statement lines, the headline, the discipline
+     index — so a bright rim travelling through that band is the one place
+     this object can do real damage. Measured before this term, the headline
+     sat at 1.60:1 and the index at 2.02:1 against a 4.5 floor. */
+  alpha *= mix(0.06, 1.0, smoothstep(-0.95, -0.05, vUp));
   gl_FragColor = vec4(color, alpha);
 }
 `;
 
+/** Geometry radius, before displacement pushes the surface around. */
+const RADIUS = 1.05;
+
+/**
+ * How much of the visible frame HALF-height the cloud spans.
+ *
+ * The authored framing was 0.69 — a 1.05 sphere through a 38-degree lens
+ * from 4.4 units back. That was sized for a view of its own, centred on the
+ * screen. Pinned behind the name it reached down through the headline and
+ * the discipline index, so it is smaller here: half the frame half-height,
+ * which keeps it around the name and off the small type.
+ */
+const FRAME_FILL = 0.50;
+
+/** Scratch vectors. Allocating these per frame would be 60 a second. */
+const _forward = new THREE.Vector3();
+const _up = new THREE.Vector3();
+const _right = new THREE.Vector3();
+
 export function HeroObject({ accent = "#f2f2f4" }: { accent?: string }) {
-  const group = useRef<THREE.Group>(null);
+  const anchor = useRef<THREE.Group>(null);
   const core = useRef<THREE.Mesh>(null);
-  const cage = useRef<THREE.LineSegments>(null);
   const target = useRef({ x: 0, y: 0 });
 
-  /**
-   * Per-frame mutation goes through refs to the rendered objects, never
-   * through the memoised bindings. Values returned from useMemo are frozen
-   * under the React Compiler rules, and mutating them is both a lint error
-   * and a genuine correctness hazard once the compiler starts caching.
-   */
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-  const cageMaterialRef = useRef<THREE.LineBasicMaterial>(null);
-
-  const { pointer } = useThree();
+  const { pointer, camera: activeCamera, size } = useThree();
 
   const uniforms = useMemo(
     () => ({
@@ -111,93 +169,108 @@ export function HeroObject({ accent = "#f2f2f4" }: { accent?: string }) {
         uniforms,
         transparent: true,
         depthWrite: false,
+        /* DEPTH IS NEVER CLEARED IN THIS SCENE. The background is a
+           fullscreen pass that writes no depth, and the view it renders
+           through clears colour only — so whatever sits in the depth buffer
+           is stale and arbitrary. There is no meaningful depth here anyway:
+           one fullscreen quad and one camera-facing mass, ordered entirely
+           by renderOrder. */
+        depthTest: false,
         blending: THREE.NormalBlending,
       }),
     [uniforms],
   );
 
-  // The structural cage: an icosahedral wireframe at a larger radius,
-  // counter-rotating. Reads as scaffolding around the mass.
-  const cageGeometry = useMemo(() => {
-    const base = new THREE.IcosahedronGeometry(1.72, 1);
-    const wire = new THREE.WireframeGeometry(base);
-    base.dispose();
-    return wire;
-  }, []);
-
-  const cageMaterial = useMemo(
-    () =>
-      new THREE.LineBasicMaterial({
-        color: new THREE.Color(accent),
-        transparent: true,
-        opacity: 0.14,
-        depthWrite: false,
-      }),
-    [accent],
-  );
-
   useEffect(() => {
-    const node = group.current;
+    const node = anchor.current;
     return () => {
       material.dispose();
-      cageGeometry.dispose();
-      cageMaterial.dispose();
       if (node) disposeObject(node);
     };
-  }, [material, cageGeometry, cageMaterial]);
+  }, [material]);
 
   useSceneFrame("hero", ({ dt, time, progress }) => {
-    const mat = materialRef.current;
-    const cageMat = cageMaterialRef.current;
-    if (!mat) return;
+    material.uniforms.uTime.value = time;
 
-    mat.uniforms.uTime.value = time;
+    /* RIDE THE ACTIVE CAMERA rather than competing with it. Placed along the
+       camera's forward axis at whatever distance makes the cloud span a
+       constant fraction of the frame, so the lens changing as the journey
+       moves cannot resize it. */
+    const cam = activeCamera as THREE.PerspectiveCamera;
+    const group = anchor.current;
+    if (group && cam) {
+      const fov = typeof cam.fov === "number" ? cam.fov : 46;
+      const halfFrame = Math.tan((fov * Math.PI) / 360);
+      const distance = RADIUS / Math.max(FRAME_FILL * halfFrame, 0.0001);
 
-    // Pointer parallax, damped. Small range on purpose — the object should
-    // acknowledge the cursor, not chase it.
-    target.current.x = damp(target.current.x, pointer.y * 0.22, 3, dt);
-    target.current.y = damp(target.current.y, pointer.x * 0.3, 3, dt);
+      _forward.set(0, 0, -1).applyQuaternion(cam.quaternion);
+      _up.set(0, 1, 0).applyQuaternion(cam.quaternion);
+      _right.set(1, 0, 0).applyQuaternion(cam.quaternion);
+
+      /* BEHIND THE NAME, not in the middle of the screen.
+       *
+       * The name's viewport position is derived rather than measured: its
+       * document position is known (see hero-anchor.ts) and the smoothed
+       * scroll offset is already in hand, so subtracting one from the other
+       * costs nothing and avoids a layout read on the hot path. Lenis's
+       * smoothed value, not window.scrollY — the cloud has to sit with the
+       * name as it is PAINTED, and under smooth scrolling those two differ
+       * by as much as a third of a screen mid-flick.
+       *
+       * Centring on the viewport instead put the mass over the statement
+       * lines and the discipline index, which is both the wrong place and
+       * the wrong thing to cover.
+       *
+       * This also replaces the old sink. The cloud no longer needs to be
+       * pushed out of frame on scroll, because it is pinned to a name that
+       * scrolls away on its own. */
+      const halfH = distance * halfFrame;
+      const halfW = halfH * Math.max(size.width, 1) / Math.max(size.height, 1);
+
+      const nameY = heroAnchor.measured
+        ? 1 - (2 * (heroAnchor.docY - scrollState.scroll)) / Math.max(size.height, 1)
+        : 0;
+      const nameX = heroAnchor.measured ? heroAnchor.x * 2 - 1 : 0;
+
+      group.position
+        .copy(cam.position)
+        .addScaledVector(_forward, distance)
+        .addScaledVector(_right, nameX * halfW)
+        .addScaledVector(_up, nameY * halfH);
+      group.quaternion.copy(cam.quaternion);
+    }
+
+    /* Pointer parallax, damped. Small range on purpose — the mass should
+       acknowledge the cursor, not chase it.
+
+       The finite guards are not defensive padding. R3F derives `pointer`
+       from the view's measured size, which is undefined until that
+       measurement lands, so an event arriving in the gap yields NaN. One NaN
+       reaches a rotation, three.js propagates it through the matrix, and the
+       entire subtree stops rendering while everything still reads correct
+       from outside. */
+    const px = Number.isFinite(pointer.x) ? pointer.x : 0;
+    const py = Number.isFinite(pointer.y) ? pointer.y : 0;
+    if (!Number.isFinite(target.current.x)) target.current.x = 0;
+    if (!Number.isFinite(target.current.y)) target.current.y = 0;
+
+    target.current.x = damp(target.current.x, py * 0.22, 3, dt);
+    target.current.y = damp(target.current.y, px * 0.3, 3, dt);
 
     if (core.current) {
       core.current.rotation.x = target.current.x;
-      core.current.rotation.y += dt * 0.1;
+      core.current.rotation.y = target.current.y + time * 0.1;
     }
 
-    if (group.current) {
-      group.current.rotation.y = target.current.y;
-      // Sink and fade as the hero scrolls away, so the object hands the
-      // stage over rather than simply vanishing at the section boundary.
-      group.current.position.y = -progress * 1.4;
-    }
-
-    if (cage.current) {
-      cage.current.rotation.y -= dt * 0.045;
-      cage.current.rotation.z += dt * 0.02;
-    }
-
-    const fade = heroPresence(progress);
-    mat.uniforms.uOpacity.value = fade;
-    if (cageMat) cageMat.opacity = 0.14 * fade;
+    // Fade as the hero hands over, so it leaves rather than switching off.
+    material.uniforms.uOpacity.value = heroPresence(progress);
   });
 
   return (
-    <group ref={group}>
-      <PerspectiveCamera makeDefault position={[0, 0, 4.4]} fov={38} />
-      <ambientLight intensity={0.4} />
-
-      <mesh ref={core}>
-        <icosahedronGeometry args={[1.05, 24]} />
-        <primitive object={material} attach="material" ref={materialRef} />
+    <group ref={anchor}>
+      <mesh ref={core} material={material} frustumCulled={false}>
+        <icosahedronGeometry args={[RADIUS, 24]} />
       </mesh>
-
-      <lineSegments ref={cage}>
-        <primitive object={cageGeometry} attach="geometry" />
-        <primitive
-          object={cageMaterial}
-          attach="material"
-          ref={cageMaterialRef}
-        />
-      </lineSegments>
     </group>
   );
 }

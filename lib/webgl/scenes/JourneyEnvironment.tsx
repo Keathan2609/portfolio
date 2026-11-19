@@ -22,6 +22,7 @@ import {
 } from "@/lib/webgl/environment/states";
 import { resolvedEnvironment } from "@/lib/webgl/environment/resolved-state";
 import { FlowField, type FlowFieldHandle } from "@/lib/webgl/environment/FlowField";
+import { HeroObject } from "@/lib/webgl/scenes/HeroObject";
 
 /**
  * THE JOURNEY ENVIRONMENT
@@ -645,6 +646,24 @@ export function JourneyEnvironment() {
         how carefully the parts agree with each other.
       */}
       <FlowField ref={field} octaves={budget.octaves} />
+
+      {/*
+        THE HERO CLOUD LIVES HERE, not in a view of its own.
+
+        It used to mount through the hero Stage as a second drei View, and
+        that could never work once the environment became a full-viewport
+        view: drei views do not composite. Each one scissors to its tracked
+        element and CLEARS that rectangle before drawing its own scene, so
+        two overlapping views means whichever draws second erases the other.
+        Both orders were observed — the cloud painted over by the backdrop,
+        and the backdrop punched through by a flat hole exactly where the
+        name sits.
+
+        Inside this scene it is simply geometry drawn after the field, which
+        has renderOrder -100 and writes no depth, so it composites over the
+        weather the way it always should have.
+      */}
+      <HeroObject />
     </group>
   );
 }
