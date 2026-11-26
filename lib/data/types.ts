@@ -83,6 +83,14 @@ export interface MediaAsset {
   srcLow?: string;
   /** Aspect ratio override, e.g. "4 / 3". Falls back to the slot default. */
   ratio?: string;
+  /**
+   * One line printed under the asset in a takeover's board list.
+   *
+   * NOT a duplicate of `alt`. `alt` describes the picture for somebody who
+   * cannot see it; a caption says why it is worth looking at, and is read by
+   * everybody. An asset with no caption simply renders without one.
+   */
+  caption?: string;
   /** No asset yet — render the composed placeholder treatment instead. */
   pending?: boolean;
 }

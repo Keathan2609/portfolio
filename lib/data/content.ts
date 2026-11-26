@@ -77,20 +77,48 @@ export const projects: Project[] = [
     year: "2025 — 2026",
     stack: ["Go", "PostgreSQL", "Redis", "Python", "FastAPI", "pandas", "Prometheus"],
     repositoryUrl: "https://github.com/Keathan2609/vantage",
-    /* A DIAGRAM, not a screenshot, and labelled as one on the page.
+    /* DIAGRAMS, not screenshots, and labelled as such on the page.
 
        This system has no interface worth photographing and has never been
        deployed, so the honest options were a composed placeholder frame or
-       a drawing of the thing itself. Every statement on the diagram is one
-       of the verified claims already in this entry — it is the case study
-       restated visually, and it invents nothing. A staged terminal or a
-       mocked-up dashboard would have been the dishonest option. */
+       a drawing of the thing itself. A staged terminal or a mocked-up
+       dashboard would have been the dishonest option.
+
+       Three boards rather than one, so the entry reads like a readme: the
+       shape of the thing first, then two decisions inside it worth a
+       reader's time. Each board is captioned, because alt text serves
+       somebody who cannot see the picture and a caption tells everybody
+       why it is there.
+
+       Vantage is the one of the three checked out on this machine, so these
+       were drawn from the source: the eleven order states and the shape of
+       the transition table from internal/domain/order.go, the check names
+       and the count from internal/domain/risk.go. That count is also how
+       the previously claimed 27 was found to be 20. */
     media: [
       {
         kind: "image",
         src: "/media/projects/software/vantage-architecture-lg.webp",
-        alt: "A diagram of Vantage’s order path: strategies, then a consensus layer, then a highlighted risk engine — one pure function running 27 named checks plus a five-check authority ceiling, with every check evaluated — and only then the venue. A dashed route bypassing the engine is crossed out and labelled “no path around it”.",
-        ratio: "8 / 5",
+        alt: "A diagram of Vantage’s order path: strategies, then a consensus layer, then a highlighted risk engine — one pure function running 20 named checks plus a five-check authority ceiling, with every check evaluated — and only then the venue. A dashed route bypassing the engine is crossed out and labelled “no path around it”.",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — the order path. Nothing reaches a venue without passing the risk engine first.",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/software/vantage-checks-lg.webp",
+        alt: "A diagram listing Vantage’s risk checks by the names they carry in code, grouped as gates, market conditions, loss and book down one column and the order’s own limits and exposure down another, with the five authority-ceiling checks in a highlighted panel. A note records that the engine never short-circuits: every check runs on every order.",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — the twenty checks and the five ceilings above them, by the names they carry in the code.",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/software/vantage-states-lg.webp",
+        alt: "A diagram of Vantage’s order state machine: the path an order takes when nothing goes wrong — CREATED, VALIDATING, ACCEPTED, SUBMITTED, PARTIALLY_FILLED, FILLED — with PARTIALLY_FILLED looping back to itself; the four terminal states below it; and FAILED shown apart as still recoverable, to FILLED, PARTIALLY_FILLED, CANCELLED or REJECTED, through reconciliation against the venue.",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — eleven states, four of them terminal, and why FAILED is deliberately not one of them.",
       },
     ],
     presentation: "expanded",
@@ -101,16 +129,16 @@ export const projects: Project[] = [
       },
       {
         heading: "Approach",
-        body: "The risk engine is a single pure function. It evaluates every check on every order instead of short-circuiting on the first failure, so a refusal arrives as a complete account of everything wrong rather than the first thing noticed. Twenty-seven named checks sit behind it, with a separate trading-authority ceiling layer above them. Money is never a float: it is decimal end to end. The order pipeline is an explicit state machine rather than a scatter of booleans.",
+        body: "The risk engine is a single pure function. It evaluates every check on every order instead of short-circuiting on the first failure, so a refusal arrives as a complete account of everything wrong rather than the first thing noticed. Twenty named checks sit behind it, with a separate five-check trading-authority ceiling layer above them. Money is never a float: it is decimal end to end. The order pipeline is an explicit state machine rather than a scatter of booleans.",
       },
       {
         heading: "Proving it",
-        body: "73 of 179 Go files are tests, and in at least one case the test file is larger than the implementation it covers. Fills are reconciled against the venue and runs replay deterministically, which is the only practical way to debug a system whose inputs never repeat. A ten-job security pipeline runs static analysis, secret scanning, dependency and container audits, and a dynamic scan over it.",
+        body: "73 of 180 Go files are tests, and in at least one case the test file is larger than the implementation it covers. Fills are reconciled against the venue and runs replay deterministically, which is the only practical way to debug a system whose inputs never repeat. A ten-job security pipeline runs static analysis, secret scanning, dependency and container audits, and a dynamic scan over it.",
       },
     ],
     technicalDetails: [
       "Risk engine is one pure function evaluating all checks per order, so a refusal reports every violation rather than only the first.",
-      "27 named risk checks, plus a separate five-check trading-authority ceiling layer.",
+      "20 named risk checks, plus a separate five-check trading-authority ceiling layer.",
       "Decimal money throughout — no floating point anywhere in the ledger.",
       "Forward-only numbered Postgres migrations, embedded in the binary.",
       "Deterministic replay and venue reconciliation for post-hoc debugging.",
@@ -165,20 +193,42 @@ export const projects: Project[] = [
     year: "2026",
     stack: ["Go", "PostgreSQL", "NATS JetStream", "Kubernetes", "Docker", "Next.js", "TypeScript"],
     repositoryUrl: "https://github.com/Keathan2609/nexus-control-plane",
-    /* A DIAGRAM, not a screenshot, and labelled as one on the page.
+    /* DIAGRAMS, not screenshots, and labelled as such on the page.
 
        This system has no interface worth photographing and has never been
        deployed, so the honest options were a composed placeholder frame or
-       a drawing of the thing itself. Every statement on the diagram is one
-       of the verified claims already in this entry — it is the case study
-       restated visually, and it invents nothing. A staged terminal or a
-       mocked-up dashboard would have been the dishonest option. */
+       a drawing of the thing itself. A staged terminal or a mocked-up
+       dashboard would have been the dishonest option.
+
+       Three boards rather than one, so the entry reads like a readme: the
+       shape of the thing first, then two decisions inside it worth a
+       reader's time. Each board is captioned, because alt text serves
+       somebody who cannot see the picture and a caption tells everybody
+       why it is there. */
     media: [
       {
         kind: "image",
         src: "/media/projects/software/nexus-architecture-lg.webp",
         alt: "A diagram of how NEXUS hands out work: three workers all pointing at a single Postgres jobs table that holds the claim statement, an UPDATE over a FOR UPDATE SKIP LOCKED subquery taking a lease rather than an assignment. A note explains that a dead worker is simply a lease that stops being renewed. Below, the deployment states run DEPLOYING to VERIFYING to HEALTHY, gated on three consecutive probes.",
-        ratio: "8 / 5",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — how work is taken, and what a release has to do before it may be called healthy.",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/software/nexus-lease-lg.webp",
+        alt: "A diagram of the NEXUS lease: claim takes it, heartbeat extends it, completion ends it, and every one of those statements carries the clause AND worker_id = $2. Below, a worker whose lease was already reclaimed finds that its late heartbeat or completion matches zero rows.",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — claim, heartbeat and completion all carry the same clause, and that clause is the whole defence.",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/software/nexus-outbox-lg.webp",
+        alt: "A diagram of the NEXUS outbox: one transaction holding both the state change and the outbox row, the row written by a function that takes a transaction rather than a connection pool; a relay then reads the outbox and publishes to NATS.",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — the outbox, where a type signature does the work a written convention would have done badly.",
       },
     ],
     presentation: "expanded",
@@ -271,20 +321,42 @@ export const projects: Project[] = [
     year: "2026",
     stack: ["TypeScript", "NestJS", "Prisma", "PostgreSQL", "Redis", "Next.js", "Turborepo", "Playwright"],
     repositoryUrl: "https://github.com/Keathan2609/atlas-multitenant-platform",
-    /* A DIAGRAM, not a screenshot, and labelled as one on the page.
+    /* DIAGRAMS, not screenshots, and labelled as such on the page.
 
        This system has no interface worth photographing and has never been
        deployed, so the honest options were a composed placeholder frame or
-       a drawing of the thing itself. Every statement on the diagram is one
-       of the verified claims already in this entry — it is the case study
-       restated visually, and it invents nothing. A staged terminal or a
-       mocked-up dashboard would have been the dishonest option. */
+       a drawing of the thing itself. A staged terminal or a mocked-up
+       dashboard would have been the dishonest option.
+
+       Three boards rather than one, so the entry reads like a readme: the
+       shape of the thing first, then two decisions inside it worth a
+       reader's time. Each board is captioned, because alt text serves
+       somebody who cannot see the picture and a caption tells everybody
+       why it is there. */
     media: [
       {
         kind: "image",
         src: "/media/projects/software/atlas-architecture-lg.webp",
         alt: "A diagram of Atlas’s tenant isolation: a request passing three stacked, independent layers — HTTP guards that resolve the tenant, a Prisma client extension that injects the tenant filter, and composite foreign keys on [organizationId, id] that Postgres itself enforces — before reaching tenant data, with a note that each layer holds if the other two are removed.",
-        ratio: "8 / 5",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — the three isolation layers a request passes before it reaches any tenant data.",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/software/atlas-enforcement-lg.webp",
+        alt: "A diagram of Atlas’s three enforcement points: at boot, an assertion that refuses to start the API if a model is registered neither as tenant-owned nor as deliberately excluded; at lint, a hand-written ESLint AST selector banning unscoped findUnique and findFirst on tenant-owned models and banning $queryRawUnsafe outright; and at the database, seven relations keyed on [organizationId, id] that Postgres enforces itself.",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — the same rule enforced at boot, at lint and in the database, so removing one still leaves two.",
+      },
+      {
+        kind: "image",
+        src: "/media/projects/software/atlas-choices-lg.webp",
+        alt: "A diagram of four decisions in Atlas where the obvious implementation was rejected: the same 404 for an organisation that does not exist and one you are simply not a member of; Argon2id with a dummy hash verified on the user-not-found branch; SHA-256 rather than a slow hash for session tokens and API keys; and owner-count changes run under Serializable isolation.",
+        ratio: "16 / 9",
+        caption:
+          "Diagram — four decisions where the obvious implementation would have been the wrong one.",
       },
     ],
     presentation: "expanded",

@@ -347,12 +347,17 @@ export function ProjectTakeover({
           ) : (
             <>
             {hero && (
-              <Media
-                asset={hero}
-                ratio={hero.ratio ?? "21 / 9"}
-                sizes="(max-width: 72rem) 100vw, 72rem"
-                placeholderLabel={`${project.title} — visual pending`}
-              />
+              <div className={styles.heroFigure}>
+                <Media
+                  asset={hero}
+                  ratio={hero.ratio ?? "21 / 9"}
+                  sizes="(max-width: 72rem) 100vw, 72rem"
+                  placeholderLabel={`${project.title} — visual pending`}
+                />
+                {hero.caption && (
+                  <p className={styles.caption}>{hero.caption}</p>
+                )}
+              </div>
             )}
 
             {meta.length > 0 && (
@@ -393,16 +398,27 @@ export function ProjectTakeover({
               </section>
             )}
 
+            {/* Boards, not thumbnails.
+
+                This was a `repeat(auto-fit, minmax(18rem, 1fr))` grid, which
+                is right for photographs and wrong for everything these
+                projects actually have: an architecture diagram three columns
+                wide is a grey smear. One per row, full width, with its
+                caption under it — so a case study reads top to bottom like a
+                readme rather than ending in a contact sheet. */}
             {showFlatGallery && (
-              <ul className={styles.gallery}>
+              <ul className={styles.boards}>
                 {gallery.map((asset, i) => (
                   <li key={asset.src || i}>
                     <Media
                       asset={asset}
-                      ratio={asset.ratio ?? "4 / 3"}
-                      sizes="(max-width: 48rem) 100vw, 36rem"
-                      placeholderLabel="Gallery visual pending"
+                      ratio={asset.ratio ?? "16 / 9"}
+                      sizes="(max-width: 72rem) 100vw, 72rem"
+                      placeholderLabel="Board pending"
                     />
+                    {asset.caption && (
+                      <p className={styles.caption}>{asset.caption}</p>
+                    )}
                   </li>
                 ))}
               </ul>

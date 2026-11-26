@@ -188,6 +188,37 @@
   gap: var(--s-5);
 }
 
+/* Boards — the same slot as .gallery, but one per row at full width.
+
+   An architecture diagram is dense: it carries named identifiers and whole
+   sentences, and at a third of the dialog's width none of that survives.
+   These get the full measure of the panel and a caption underneath, which
+   is the difference between a gallery and a readme. */
+.heroFigure,
+.boards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+.heroFigure {
+  gap: var(--s-3);
+}
+
+.boards > li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+/* Not --measure-capped: it sits under a full-width board and reads as that
+   board's label, so it tracks the image rather than the prose column. */
+.caption {
+  font-size: var(--t-small);
+  line-height: var(--lh-body);
+  color: var(--c-text-faint);
+}
+
 /* ------------------------------------------------------------------ */
 /* Collections                                                         */
 /* ------------------------------------------------------------------ */
