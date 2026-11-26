@@ -1,0 +1,237 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+/* A single asset. No controls, so no layout for them either. */
+.solo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.stage {
+  position: relative;
+}
+
+/* The track is the scroller. `scroll-snap-type: x mandatory` plus one
+   full-width child per slide is what makes a swipe land on a slide instead
+   of between two. */
+.track {
+  display: flex;
+  gap: var(--s-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: auto;
+  /* Hide the scrollbar: the dots, counter and thumbnails already say where
+     you are, and a bar under a full-bleed image reads as a mistake. The
+     element still scrolls by every other means. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Keeps a focus ring on a slide's own controls from being clipped. */
+  padding-bottom: 1px;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 3px;
+}
+
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* ------------------------------------------------------------------ */
+/* Arrows                                                              */
+/* ------------------------------------------------------------------ */
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  /* 2.75rem is the minimum touch target used everywhere else on the site. */
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: var(--t-body);
+  color: var(--c-text);
+  background: color-mix(in oklab, var(--c-void) 72%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--radius-md);
+  transition:
+    color var(--d-fast) var(--e-out-quart),
+    border-color var(--d-fast) var(--e-out-quart),
+    opacity var(--d-fast) var(--e-out-quart);
+}
+
+.arrow:hover:not(:disabled),
+.arrow:focus-visible:not(:disabled) {
+  border-color: var(--c-accent);
+}
+
+/* Disabled rather than hidden, so the control does not move or vanish
+   under the pointer at the ends of the run. */
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.prev {
+  left: var(--s-4);
+}
+
+.next {
+  right: var(--s-4);
+}
+
+/* ------------------------------------------------------------------ */
+/* Counter and dots                                                    */
+/* ------------------------------------------------------------------ */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+}
+
+.counter {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  color: var(--c-text);
+  /* Tabular figures stop the row shifting as the number changes. */
+  font-variant-numeric: tabular-nums;
+}
+
+.counterSlash {
+  color: var(--c-text-faint);
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.dot {
+  display: block;
+  width: 2rem;
+  height: 2.75rem;
+  position: relative;
+  background: none;
+  border: 0;
+}
+
+/* The visible mark is a hairline, drawn inside a full-height target. The
+   target stays tappable; the mark stays quiet. */
+.dot::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--c-line-strong);
+  transition:
+    background var(--d-fast) var(--e-out-quart),
+    height var(--d-fast) var(--e-out-quart);
+}
+
+.dot:hover::after,
+.dot:focus-visible::after {
+  background: var(--c-text-faint);
+}
+
+.dotOn::after {
+  background: var(--c-accent);
+  height: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Caption                                                             */
+/* ------------------------------------------------------------------ */
+
+/* Not capped at --measure: it labels a full-width frame and tracks it.
+   min-height holds the row open so a slide without a caption does not
+   collapse the layout and shift everything below it. */
+.caption {
+  min-height: 1.6em;
+  font-size: var(--t-small);
+  line-height: var(--lh-body);
+  color: var(--c-text-faint);
+}
+
+/* ------------------------------------------------------------------ */
+/* Thumbnails                                                          */
+/* ------------------------------------------------------------------ */
+
+.thumbs {
+  display: flex;
+  gap: var(--s-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.thumb {
+  display: block;
+  width: 8rem;
+  flex: 0 0 auto;
+  opacity: 0.45;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  transition:
+    opacity var(--d-fast) var(--e-out-quart),
+    border-color var(--d-fast) var(--e-out-quart);
+}
+
+.thumb:hover,
+.thumb:focus-visible {
+  opacity: 0.8;
+}
+
+.thumbOn {
+  opacity: 1;
+  border-color: var(--c-accent);
+}
+
+@media (max-width: 47.9375rem) {
+  /* The arrows overlap a phone-width frame badly and duplicate a gesture
+     that already works. Swipe, dots and thumbnails remain. */
+  .arrow {
+    display: none;
+  }
+
+  .thumb {
+    width: 5.5rem;
+  }
+}
+
+/* A visitor who asked for less motion gets no smooth scroll from the
+   buttons — goTo already passes behavior:"auto", and this covers the
+   native snap animation the platform would still run. */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    scroll-behavior: auto;
+  }
+
+  .thumb,
+  .arrow,
+  .dot::after {
+    transition: none;
+  }
+}

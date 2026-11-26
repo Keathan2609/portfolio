@@ -297,3 +297,32 @@ export function resetJourneyState(): void {
   lastPosition = -1;
   lastArc = 0;
 }
+
+/**
+ * Park the environment at a discipline and leave it there.
+ *
+ * For a route that has no stages at all — a project page. With nothing
+ * publishing stage progress, `readJourneyState` already falls through to its
+ * last branch and HOLDS `lastPosition`, which is exactly the behaviour a
+ * project page wants: the world the visitor was in, at rest, rather than a
+ * reset to neutral or a scene that keeps animating against a document that
+ * is not there.
+ *
+ * This only supplies the starting value for that hold, which matters in the
+ * one case the hold cannot cover on its own: a visitor who opened the
+ * project URL directly, in a tab that has never been through the journey, so
+ * `lastPosition` is still -1 and the page would sit against the neutral
+ * opening instead of its own discipline.
+ *
+ * Deliberately NOT an override. Nothing is intercepted and no second source
+ * of truth is introduced; it writes the same module state a scroll would
+ * have written, so returning to the homepage resumes from here with no
+ * teardown and nothing to clear.
+ *
+ * @param position 0 for the first discipline in journey order, 4 for the
+ *                 last. See `JourneyState.position`.
+ */
+export function holdJourneyAt(position: number, arc = 0.5): void {
+  lastPosition = position;
+  lastArc = arc;
+}

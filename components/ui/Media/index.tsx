@@ -53,6 +53,20 @@ interface MediaProps {
   className?: string;
   /** Shown inside the placeholder frame so the slot is self-describing. */
   placeholderLabel?: string;
+  /**
+   * This instance is genuinely decorative: render with an empty alt and do
+   * NOT warn about it.
+   *
+   * The warning below exists because a placeholder's `alt: ""` would
+   * otherwise survive into a real image. That is the right default, but it
+   * cannot see the case where the same asset is deliberately presented
+   * twice — a slideshow thumbnail beside the slide it jumps to. The
+   * thumbnail's button already carries "Go to slide 3"; describing the
+   * picture again would announce the same image twice and make the control
+   * harder to use, not easier. Set this only when something else in the DOM
+   * already names the image.
+   */
+  decorative?: boolean;
 }
 
 export function Media({
@@ -62,6 +76,7 @@ export function Media({
   priority = false,
   className,
   placeholderLabel = "Visual pending",
+  decorative = false,
 }: MediaProps) {
   const { video: tierAllowsVideo } = useQuality();
   const reduced = useReducedMotion();
@@ -107,7 +122,8 @@ export function Media({
     process.env.NODE_ENV !== "production" &&
     asset.src &&
     asset.kind !== "model" &&
-    !asset.alt
+    !asset.alt &&
+    !decorative
   ) {
     console.warn(
       `[Media] "${asset.src}" has a src but an empty alt. Describe it in ` +
@@ -174,7 +190,7 @@ export function Media({
       <Image
         className={styles.media}
         src={asset.src}
-        alt={asset.alt}
+        alt={decorative ? "" : asset.alt}
         fill
         sizes={sizes}
         quality={82}

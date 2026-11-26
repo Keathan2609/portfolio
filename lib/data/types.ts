@@ -185,6 +185,16 @@ export interface Project {
    */
   entries?: ProjectEntry[];
   /**
+   * An entity-relationship diagram, shown as the last block before the
+   * links and only when one exists.
+   *
+   * Separate from `media` rather than another slide: an ERD is read, not
+   * looked at. It wants its own full-width block and its own horizontal
+   * scroll on a narrow screen, where a slideshow would shrink it to the
+   * width of a phone and make it useless.
+   */
+  erd?: MediaAsset;
+  /**
    * Heading above the catalogue grid. Defaults to "In this collection",
    * which is accurate but anonymous — a project usually has a better word
    * for what its entries are ("The kit, piece by piece").

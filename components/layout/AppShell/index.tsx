@@ -7,6 +7,7 @@ import { SkipLink } from "@/components/layout/SkipLink";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Cursor } from "@/components/ui/Cursor";
+import { RouteScroll } from "@/components/layout/RouteScroll";
 import styles from "./app-shell.module.css";
 
 /**
@@ -24,6 +25,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div ref={shellRef} className={styles.shell} data-app-shell>
       {/* First in the tab order, before anything else. */}
       <SkipLink />
+
+      {/* Owns scroll across route changes. Here rather than in a page
+          because Lenis is never torn down and neither is this. */}
+      <RouteScroll />
 
       {/* Fixed, behind everything, mounted once for the whole journey. */}
       <CanvasRoot eventSource={shellRef} />

@@ -1,0 +1,420 @@
+/* A project, as a page.
+ *
+ * The .caption, .collection, .catalogue and tile rules below came across
+ * from takeover.module.css unchanged — they were written for this content
+ * and the content did not change, only the container. The modal's own rules
+ * (scrim, panel, close, header) died with the component, and .boards went
+ * with them: the flat full-width board list is replaced by the slideshow.
+ */
+
+.chrome {
+  /* The accent is set as an inline custom property by ProjectChrome, so
+     everything below can say var(--c-accent) and never name a discipline. */
+  display: block;
+  min-height: 100dvh;
+
+  /* THE SCRIM, carried over from the takeover this page replaces.
+     Exactly the modal's own value — not a new treatment.
+
+     The environment is frozen behind a project page rather than removed,
+     which means a discipline's field is sitting under body copy at full
+     strength. On the software and XR worlds that is a bright blue wash and
+     the summary becomes hard to read on a phone, where the text fills the
+     screen. The modal never had the problem because its panel was opaque;
+     this keeps the depth and takes back the contrast. */
+  background: color-mix(in oklab, var(--c-void) 88%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.page {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  /* Clears the fixed header. Without the --header-h term the breadcrumb
+     sits underneath "Keathan Naidoo" and the motion toggle, which is
+     exactly where it landed at 375px. */
+  padding: calc(var(--header-h) + var(--s-6)) var(--gutter) var(--s-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+/* ------------------------------------------------------------------ */
+/* Breadcrumb                                                          */
+/* ------------------------------------------------------------------ */
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+}
+
+.crumbBack {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--c-text-faint);
+  transition: color var(--d-fast) var(--e-out-quart);
+}
+
+.crumbBack:hover,
+.crumbBack:focus-visible {
+  color: var(--c-accent);
+}
+
+.crumbSep {
+  color: var(--c-line-strong);
+}
+
+.crumbHere {
+  color: var(--c-text-muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* Head                                                                */
+/* ------------------------------------------------------------------ */
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+
+.title {
+  font-size: var(--t-h1);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-display);
+}
+
+/* The h1 is a focus TARGET, not a tab stop: focus is moved here on
+   navigation so a screen reader starts at the title rather than back at
+   the top of the shell.
+
+   No ring. Chromium treats programmatic focus as :focus-visible, so the
+   rule that was here drew a full-width white rectangle around the title on
+   every single arrival — on a 375px screen it was the loudest thing on the
+   page. The visible-focus requirement is about controls a visitor is
+   driving with the keyboard; this element is not one, cannot be tabbed to,
+   and announcing it is the entire job. */
+.title:focus,
+.title:focus-visible {
+  outline: none;
+}
+
+.summary {
+  font-size: var(--t-lead);
+  line-height: 1.45;
+  color: var(--c-text);
+  max-width: var(--measure);
+}
+
+/* ------------------------------------------------------------------ */
+/* Details row                                                         */
+/* ------------------------------------------------------------------ */
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--s-5);
+  padding-block: var(--s-5);
+  border-block: 1px solid var(--c-line);
+}
+
+.details dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-text-faint);
+  margin-bottom: var(--s-2);
+}
+
+.details dd {
+  font-size: var(--t-body);
+  color: var(--c-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* Case study — heading pinned left, text right                        */
+/* ------------------------------------------------------------------ */
+
+.study {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+}
+
+/* The heading column is fixed rather than fractional so headings of
+   different lengths still line up with each other down the page. */
+.row {
+  display: grid;
+  grid-template-columns: 14rem minmax(0, 1fr);
+  gap: var(--s-5) var(--s-6);
+  align-items: start;
+}
+
+.rowHeading {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+  /* Sticks while its own text scrolls past, then releases with the row.
+     Offset clears the fixed header. */
+  position: sticky;
+  top: var(--s-8);
+}
+
+.rowBody {
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  color: var(--c-text-muted);
+  max-width: var(--measure);
+}
+
+/* Technical notes — a list, not prose, because that is how implementation
+   detail is actually read. */
+.technical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  max-width: var(--measure);
+}
+
+.technical li {
+  position: relative;
+  padding-left: var(--s-4);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  color: var(--c-text-muted);
+}
+
+.technical li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 6px;
+  height: 1px;
+  background: var(--c-accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Caption                                                             */
+/* ------------------------------------------------------------------ */
+
+/* Not --measure-capped: it sits under a full-width visual and reads as that
+   visual's label, so it tracks the image rather than the prose column. */
+.caption {
+  font-size: var(--t-small);
+  line-height: var(--lh-body);
+  color: var(--c-text-faint);
+}
+
+/* ------------------------------------------------------------------ */
+/* Collections                                                         */
+/* ------------------------------------------------------------------ */
+
+.collection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.collectionHeading {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+/* A wider minimum than a plain gallery's: a tile carries a title and a line
+   of copy beneath its cover, and at 18rem those wrapped to four lines. */
+.catalogue {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--s-6) var(--s-5);
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Keeps the stretched trigger from covering its own focus ring. */
+.tile :focus-visible {
+  position: relative;
+  z-index: 2;
+}
+
+.tileMedia {
+  opacity: 0.92;
+  transition:
+    transform var(--d-slow) var(--e-out-expo),
+    opacity var(--d-base) var(--e-out-quart);
+}
+
+.tile:hover .tileMedia,
+.tile:focus-within .tileMedia {
+  transform: scale(1.015);
+  opacity: 1;
+}
+
+.tileBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding-top: var(--s-4);
+}
+
+.tileTitle {
+  font-size: var(--t-body);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  color: var(--c-text);
+}
+
+.tileSummary {
+  font-size: var(--t-small);
+  line-height: var(--lh-body);
+  color: var(--c-text-muted);
+}
+
+/* The stretched link. Covers the tile, leaves the heading a heading. */
+.tileTrigger {
+  position: static;
+  align-self: flex-start;
+  margin-top: var(--s-1);
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+
+.tileTrigger::before {
+  content: "";
+  width: 1.5rem;
+  height: 1px;
+  background: currentColor;
+  transition: width var(--d-base) var(--e-out-expo);
+}
+
+.tileTrigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.tile:hover .tileTrigger::before,
+.tileTrigger:focus-visible::before {
+  width: 3rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* ERD                                                                 */
+/* ------------------------------------------------------------------ */
+
+.erd {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+/* Scrolls sideways rather than shrinking. A schema squeezed to phone width
+   is a picture of a diagram rather than a diagram. */
+.erdScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.erdMedia {
+  min-width: 48rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Links                                                               */
+/* ------------------------------------------------------------------ */
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--c-line);
+}
+
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  box-shadow: inset 0 -1px 0 var(--c-line-strong);
+  transition: box-shadow var(--d-fast) var(--e-out-quart);
+}
+
+.links a:hover,
+.links a:focus-visible {
+  box-shadow: inset 0 -1px 0 var(--c-accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Entry pages                                                         */
+/* ------------------------------------------------------------------ */
+
+.entryBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  max-width: var(--measure);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  color: var(--c-text-muted);
+}
+
+@media (max-width: 61.9375rem) {
+  /* Below this the two-column case-study row has no room for a 14rem
+     gutter, and a sticky heading in a single column just floats. */
+  .row {
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+  }
+
+  .rowHeading {
+    position: static;
+  }
+}
+
+@media (max-width: 47.9375rem) {
+  .page {
+    padding-top: calc(var(--header-h) + var(--s-4));
+    gap: var(--s-7);
+  }
+
+  .catalogue {
+    grid-template-columns: 1fr;
+  }
+}
