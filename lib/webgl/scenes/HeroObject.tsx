@@ -221,14 +221,20 @@ export function HeroObject({ accent = "#f2f2f4" }: { accent?: string }) {
       uAccent: { value: new THREE.Color(accent) },
       uCore: { value: new THREE.Color("#0d0d12") },
       /* Starts at 0, NOT 1.
-         `useSceneFrame` early-returns while the hero stage is off-screen,
-         and the hero begins ~1071px down the document against an ~837px
-         viewport — so on first paint the line below that drives this
-         (`uOpacity.value = heroPresence(progress)`) has never run. At 1 the
-         mass drew at full opacity at the group's untouched default position,
-         which is world origin: the "cloud spawns at the top" bug on load.
-         The convention useSceneFrame documents is the fix: every material
-         starts at opacity 0 and is raised by the scene itself. */
+
+         #hero begins 1071px down the document, against a viewport of about
+         837px, and its trigger starts at "top bottom". So at scroll 0 the
+         stage is genuinely inactive, `useSceneFrame` early-returns, and the
+         callback below — which both POSITIONS this group behind the name
+         and sets `uOpacity.value = heroPresence(progress)` — has not run
+         once. Whatever this holds is therefore what gets drawn on first
+         paint, at the group's untouched default transform: world origin.
+
+         At 1 that is a cloud sitting at the top of the screen, a page and a
+         half above the name it belongs to. At 0 nothing is drawn until the
+         hero scrolls in and the scene takes over, which is the behaviour
+         every other material here follows and the one useSceneFrame's own
+         documentation describes. */
       uOpacity: { value: 0 },
     }),
     [accent],
