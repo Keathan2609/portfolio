@@ -26,10 +26,18 @@ import type {
  *
  * WHAT IS DELIBERATELY ABSENT, and why:
  *
- *   - `media` is `pending: true` everywhere. There is real imagery on disk
- *     for the 3D and content work, but none of it has been brought in,
- *     sized or captioned yet. A pending marker renders as a composed frame;
- *     it never fabricates a screenshot.
+ *   - `media` is `pending: true` only where there is genuinely nothing to
+ *     show yet: At Leisure, the three deliberate placeholders, and the
+ *     security entry. Everything else now carries a real asset, and each
+ *     one is what it says it is — a render, a capture of a running build,
+ *     or a diagram declared as a diagram. A pending marker renders as a
+ *     composed frame; it never fabricates a screenshot.
+ *
+ *     At Leisure is still pending for a specific reason worth recording:
+ *     the deployed app's Discover tab cannot load, because it calls
+ *     www.gutenberg.org from the browser and is refused for want of an
+ *     Access-Control-Allow-Origin header. A screenshot of it today would
+ *     be a screenshot of an error state.
  *
  *   - No accuracy, conversion or performance figure appears anywhere that
  *     it could not be reconciled against a file.
@@ -69,7 +77,22 @@ export const projects: Project[] = [
     year: "2025 — 2026",
     stack: ["Go", "PostgreSQL", "Redis", "Python", "FastAPI", "pandas", "Prometheus"],
     repositoryUrl: "https://github.com/Keathan2609/vantage",
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    /* A DIAGRAM, not a screenshot, and labelled as one on the page.
+
+       This system has no interface worth photographing and has never been
+       deployed, so the honest options were a composed placeholder frame or
+       a drawing of the thing itself. Every statement on the diagram is one
+       of the verified claims already in this entry — it is the case study
+       restated visually, and it invents nothing. A staged terminal or a
+       mocked-up dashboard would have been the dishonest option. */
+    media: [
+      {
+        kind: "image",
+        src: "/media/projects/software/vantage-architecture-lg.webp",
+        alt: "A diagram of Vantage’s order path: strategies, then a consensus layer, then a highlighted risk engine — one pure function running 27 named checks plus a five-check authority ceiling, with every check evaluated — and only then the venue. A dashed route bypassing the engine is crossed out and labelled “no path around it”.",
+        ratio: "8 / 5",
+      },
+    ],
     presentation: "expanded",
     caseStudy: [
       {
@@ -142,7 +165,22 @@ export const projects: Project[] = [
     year: "2026",
     stack: ["Go", "PostgreSQL", "NATS JetStream", "Kubernetes", "Docker", "Next.js", "TypeScript"],
     repositoryUrl: "https://github.com/Keathan2609/nexus-control-plane",
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    /* A DIAGRAM, not a screenshot, and labelled as one on the page.
+
+       This system has no interface worth photographing and has never been
+       deployed, so the honest options were a composed placeholder frame or
+       a drawing of the thing itself. Every statement on the diagram is one
+       of the verified claims already in this entry — it is the case study
+       restated visually, and it invents nothing. A staged terminal or a
+       mocked-up dashboard would have been the dishonest option. */
+    media: [
+      {
+        kind: "image",
+        src: "/media/projects/software/nexus-architecture-lg.webp",
+        alt: "A diagram of how NEXUS hands out work: three workers all pointing at a single Postgres jobs table that holds the claim statement, an UPDATE over a FOR UPDATE SKIP LOCKED subquery taking a lease rather than an assignment. A note explains that a dead worker is simply a lease that stops being renewed. Below, the deployment states run DEPLOYING to VERIFYING to HEALTHY, gated on three consecutive probes.",
+        ratio: "8 / 5",
+      },
+    ],
     presentation: "expanded",
     caseStudy: [
       {
@@ -181,7 +219,21 @@ export const projects: Project[] = [
     year: "2026",
     stack: ["Angular", "Ionic", "Capacitor", "TypeScript", "Express", "MySQL", "PDFKit", "Chart.js"],
     repositoryUrl: "https://github.com/Keathan2609/freevoices",
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    /* The running application, captured from its own production bundle
+       served locally — not a mock-up and not a design file.
+
+       It is the sign-in page because everything past it is behind an
+       account, and the right screenshot of an invoicing product is
+       emphatically NOT somebody's real invoices. The same capture appears
+       under Websites, where this is one of the sites in the list. */
+    media: [
+      {
+        kind: "image",
+        src: "/media/projects/websites/freevoices-hero-lg.webp",
+        alt: "FreeVoices running: a dark split layout reading \"Invoicing for Africa — Professional invoicing free\" over a short feature list — invoices, quotes and receipts, PDF generation and email delivery, a customer payment portal, POPIA compliance — with a sign-in panel on the right.",
+        ratio: "16 / 10",
+      },
+    ],
     presentation: "expanded",
     caseStudy: [
       {
@@ -219,7 +271,22 @@ export const projects: Project[] = [
     year: "2026",
     stack: ["TypeScript", "NestJS", "Prisma", "PostgreSQL", "Redis", "Next.js", "Turborepo", "Playwright"],
     repositoryUrl: "https://github.com/Keathan2609/atlas-multitenant-platform",
-    media: [{ kind: "image", src: "", alt: "", pending: true }],
+    /* A DIAGRAM, not a screenshot, and labelled as one on the page.
+
+       This system has no interface worth photographing and has never been
+       deployed, so the honest options were a composed placeholder frame or
+       a drawing of the thing itself. Every statement on the diagram is one
+       of the verified claims already in this entry — it is the case study
+       restated visually, and it invents nothing. A staged terminal or a
+       mocked-up dashboard would have been the dishonest option. */
+    media: [
+      {
+        kind: "image",
+        src: "/media/projects/software/atlas-architecture-lg.webp",
+        alt: "A diagram of Atlas’s tenant isolation: a request passing three stacked, independent layers — HTTP guards that resolve the tenant, a Prisma client extension that injects the tenant filter, and composite foreign keys on [organizationId, id] that Postgres itself enforces — before reaching tenant data, with a note that each layer holds if the other two are removed.",
+        ratio: "8 / 5",
+      },
+    ],
     presentation: "expanded",
     caseStudy: [
       {
@@ -320,6 +387,107 @@ export const projects: Project[] = [
       "Asset, environment and render specifications written alongside the geometry.",
       "A Unity project consuming the kit for real-time use.",
     ],
+    /* The catalogue. ORBITAL is one project made of four subjects, and as a
+       flat gallery it was five pictures in a row with nothing to say which
+       belonged to what. Every frame below was opened and looked at before
+       its alt was written — which is how two of them turned out not to be
+       what their filenames implied: `environment-detail` is a console
+       installed in a corridor, and `wireframe` is a clay render of the kit
+       laid out flat, not a wireframe. */
+    entriesLabel: "The kit, piece by piece",
+    entries: [
+      {
+        id: "station",
+        title: "The station",
+        summary: "Five zones, assembled from the kit and lit.",
+        body:
+          "The assembled result, which is the only real test of a modular set: the corridors, bulkheads and fittings here are instances of the same pieces catalogued below, placed on the grid rather than modelled for the shot.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/orbital/environment-lg.webp",
+            alt: "A corridor inside the station, lit by ceiling strips, looking through a bulkhead toward the glowing reactor.",
+            ratio: "16 / 9",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/orbital/environment-detail-lg.webp",
+            alt: "A control console built into a dim corridor, its angled screens showing pale blue bar readouts, with a warm strip light on the wall behind it.",
+            ratio: "16 / 9",
+          },
+        ],
+      },
+      {
+        id: "reactor",
+        title: "The reactor",
+        summary: "The station's one hero object, inside and out.",
+        body:
+          "A caged sphere held in a ring frame on an octagonal base. The clay render is the same geometry without materials — the form has to read before any texture is applied, and this is where that gets checked.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/orbital/reactor-hero-lg.webp",
+            alt: "The reactor: a caged sphere held inside a ring frame on an octagonal base, lit from within.",
+            ratio: "16 / 9",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/orbital/reactor-detail-lg.webp",
+            alt: "Close on the reactor's core — an inner column lit by cyan strips, seen between the uprights of the cage and the ring frame.",
+            ratio: "16 / 9",
+          },
+          {
+            kind: "video",
+            src: "/media/projects/orbital/reactor-turntable.mp4",
+            poster: "/media/projects/orbital/reactor-turntable-poster-lg.webp",
+            alt: "The reactor assembly turning slowly on its base.",
+            ratio: "16 / 9",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/orbital/technical-reactor-lg.webp",
+            alt: "The same reactor as untextured grey geometry on a plain ground, showing the ring frame, cage and panelled base without materials.",
+            ratio: "16 / 9",
+          },
+        ],
+      },
+      {
+        id: "kit",
+        title: "The modular kit",
+        summary: "85 assets, every one authored to a 0.5 m grid.",
+        body:
+          "Laid out flat, which is how a kit is actually reviewed: wall panels, doors, a column, floor and grate tiles, rails and lit strips, each sized so that any two of them meet without a seam.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/orbital/modular-kit-lg.webp",
+            alt: "The modular kit laid out flat — wall panels, doors, a column, floor tiles, rails and a lit strip.",
+            ratio: "16 / 9",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/orbital/wireframe-lg.webp",
+            alt: "The same kit as untextured grey geometry: a row of upright wall and door panels with a column and a hatch, and four floor tiles below — plain, grated, one with a recessed strip and one carrying pipework.",
+            ratio: "16 / 9",
+          },
+        ],
+      },
+      {
+        id: "console",
+        title: "The console",
+        summary: "The piece of set dressing that has to hold a close-up.",
+        body:
+          "Angled screens, knobs, switches and a joystick. Most of the kit is built to be seen in passing; this one is built to be stood in front of, so it carries detail the corridor panels do not need.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/orbital/console-hero-lg.webp",
+            alt: "A control console with angled screens showing bar readouts, plus knobs, switches and a joystick.",
+            ratio: "16 / 9",
+          },
+        ],
+      },
+    ],
     placeholder: false,
   },
 
@@ -329,52 +497,268 @@ export const projects: Project[] = [
 
   {
     slug: "identity-systems",
-    title: "Identity systems \u2014 EMBER, FORM, KAERA, VANTA",
+    title: "Identity systems",
     discipline: "creative",
     summary:
-      "Four self-directed identity systems, each taken well past the logo: colour, typography, applications and a website, so the mark gets tested in the places it would actually have to survive.",
+      "Four self-directed identity systems \u2014 EMBER Coffee, FORM Performance Nutrition, Ka\u00e9ra and VANTA Properties \u2014 each taken well past the logo into colour, typography, applications and a website, so the mark gets tested where it would actually have to survive.",
     role: "Identity design and art direction",
     stack: ["Brand Identity Design", "Typography", "Adobe Creative Cloud", "Figma"],
-    /* Four final showcase boards, one per identity, from
-       public/media/projects/brand. Each brand also has its logo, palette,
-       typography, applications, process and website boards on disk; the
-       showcase is the one that carries all of them at once, so it is what
-       the rail shows. The rest are a gallery waiting to be asked for. */
+    /* The card cover is a 2\u00d72 composite of the four final showcase boards,
+       built from those four files and nothing else. It replaced EMBER's
+       showcase board, which had been standing in for all four and quietly
+       claiming the whole entry was a coffee brand.
+
+       The four identities are ENTRIES rather than four projects in the
+       creative rail: they are one body of self-directed work, and splitting
+       them would have put four brand cards beside "Websites" as though each
+       had been a separate engagement. Every board below was opened and
+       looked at before its alt text was written. */
     media: [
       {
         kind: "image",
-        src: "/media/projects/brand/ember/showcase-lg.webp",
-        alt: "EMBER Coffee: the identity in use across packaging, cups, signage, apparel, print and the website.",
-        ratio: "1200 / 718",
-      },
-      {
-        kind: "image",
-        src: "/media/projects/brand/vanta/showcase-lg.webp",
-        alt: "VANTA Properties: the identity in use across stationery, website, mobile, print, signage and social.",
+        src: "/media/projects/brand/identity-systems-cover-lg.webp",
+        alt: "The four identities side by side: EMBER Coffee in warm brown, FORM Performance Nutrition in black and lime, VANTA Properties in charcoal and gold, and Ka\u00e9ra in deep blue.",
         ratio: "16 / 9",
-      },
-      {
-        kind: "image",
-        src: "/media/projects/brand/form/showcase-lg.webp",
-        alt: "FORM: the identity applied across its full set of touchpoints.",
-        ratio: "3 / 2",
-      },
-      {
-        kind: "image",
-        src: "/media/projects/brand/kaera/showcase-lg.webp",
-        alt: "KAERA: the identity applied across its full set of touchpoints.",
-        ratio: "3 / 2",
       },
     ],
     presentation: "expanded",
     caseStudy: [
       {
         heading: "Context",
-        body: "Four identities, self-directed, in four different sectors — a coffee roastery, a premium property developer, and two more. Self-directed is the point rather than an apology: a brief invented in-house can be held to a standard a client brief rarely allows, and nothing here had to survive a committee.",
+        body: "Four identities, self-directed, in four unrelated sectors \u2014 a specialty coffee roastery, a sports nutrition line, a skincare brand and a property developer. Self-directed is the point rather than an apology: a brief invented in-house can be held to a standard a client brief rarely allows, and nothing here had to survive a committee.",
       },
       {
         heading: "Past the logo",
-        body: "A mark on a white page proves very little. Each of these is built out as a system — palette, typography, applications, and a website — and then assembled into a single board showing all of it at once. That final board is the test: an identity either holds together across a business card, a shopfront, a phone screen and a paper bag, or it quietly falls apart on one of them.",
+        body: "A mark on a white page proves very little. Each of these is built out as a system \u2014 a palette with usage ratios, a type scale, applications, a website and a social kit \u2014 and then assembled into a final board showing all of it at once. That board is the test: an identity either holds together across a business card, a shopfront, a phone screen and a paper bag, or it quietly falls apart on one of them.",
+      },
+      {
+        heading: "Why four",
+        body: "One identity demonstrates taste. Four in unrelated sectors demonstrate range, and more usefully they demonstrate that the method is portable \u2014 the same sequence of brief, research, moodboard, sketches, concepts and final system produced a warm roastery and a clinical skincare brand without either of them ending up looking like the other.",
+      },
+    ],
+    entriesLabel: "The four identities",
+    entries: [
+      {
+        id: "ember",
+        title: "EMBER Coffee",
+        summary: "A specialty coffee roastery. “Roasted with intent.”",
+        body:
+          "Warm browns against charcoal, Playfair Display over Suisse Int’l. The hardest surface for this one was packaging: a flame mark that works at signage size still has to survive being printed small on a bag seam, which is what the icon-only variant exists for.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/showcase-lg.webp",
+            alt: "EMBER Coffee, the final board: the identity across a laptop showing the site, a phone, coffee bags, a cup, hanging signage, an apron and a row of social posts.",
+            ratio: "600 / 359",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/logo-lg.webp",
+            alt: "EMBER Coffee's logo board: the wordmark with its flame mark, secondary and icon-only versions, black-and-white variants, clear space, minimum size, incorrect usage, and the mark over six backgrounds.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/palette-lg.webp",
+            alt: "EMBER Coffee's colour palette: Ember Brown, Roast, Golden Crema and two background tones, each with hex, RGB and CMYK values and a usage note, over a neutral extended ramp.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/typography-lg.webp",
+            alt: "EMBER Coffee's type board: Playfair Display for headings against Suisse Int’l for body, with weights, a heading scale, and the two shown working together on a page and a phone.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/applications-lg.webp",
+            alt: "EMBER Coffee applied: business cards, letterhead, email signature, coffee bags, product labels, cups, a menu, hanging signage, social posts, t-shirts, coasters and a paper bag.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/website-lg.webp",
+            alt: "EMBER Coffee's website board: homepage, about, shop and product pages on desktop, three mobile views, and the component set — buttons, form elements, navigation, icons and the type scale.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/social-lg.webp",
+            alt: "EMBER Coffee's social board: an Instagram profile and feed, stories, LinkedIn and Facebook posts, promotional graphics and digital ad banners.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/ember/process-lg.webp",
+            alt: "EMBER Coffee's process board: brief, research, moodboard, sketches, three logo concepts and the final identity.",
+            ratio: "1024 / 607",
+          },
+        ],
+      },
+      {
+        id: "form",
+        title: "FORM Performance Nutrition",
+        summary: "Sports nutrition. “Built for performance. Made for progress.”",
+        body:
+          "Black with a single acid lime accent, Anton over Inter. A supplement tub is read at arm’s length in a crowded aisle, so the system is built around one loud colour used sparingly and a condensed display face that still lands at a glance.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/showcase-lg.webp",
+            alt: "FORM Performance Nutrition, the final board: whey and creatine tubs, a shaker, packaging, business cards, apparel and a gym bag, with the website and social previews beneath.",
+            ratio: "3 / 2",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/logo-lg.webp",
+            alt: "FORM's logo board: the italic wordmark with its accent tick, secondary and icon-only versions, black and white variants, clear space, minimum sizes, and the logo over six backgrounds.",
+            ratio: "1024 / 621",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/palette-lg.webp",
+            alt: "FORM's palette: Performance Black, Steel Grey, Graphite, Performance Lime and Pure White, over a supporting set of blue, teal, orange and red, each with hex, RGB and CMYK values.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/typography-lg.webp",
+            alt: "FORM's type board: Anton for headlines against Inter for body, with styles, heading examples and both alphabets set out in full.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/applications-lg.webp",
+            alt: "FORM applied: business card, letterhead, email signature, whey and creatine packaging, product labels, social posts, an Instagram profile, a poster, a brochure, apparel and signage.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/website-lg.webp",
+            alt: "FORM's website board: homepage, about, all-products and product-detail pages on desktop, a mobile view, and the UI component set.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/social-lg.webp",
+            alt: "FORM's social board: Instagram feed posts, stories, LinkedIn and Facebook posts, a profile, banner graphics and promotional ad designs.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/form/process-lg.webp",
+            alt: "FORM's process board: brief, research with a competitor analysis, moodboard, sketches, concepts and the final identity on packaging.",
+            ratio: "1024 / 683",
+          },
+        ],
+      },
+      {
+        id: "kaera",
+        title: "Kaéra",
+        summary: "Premium skincare, Cape Town. “Advanced skin science. Pure intent.”",
+        body:
+          "A six-tone blue palette running Midnight to Ice, Cormorant Garamond over Suisse Int’l. Clinical and calm at once — the self-set brief was a brand that can make a scientific claim without looking like a pharmacy.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/brand/kaera/showcase-lg.webp",
+            alt: "Kaéra, the final board: skincare bottles and jars on stone, a laptop showing the site, a phone, business cards, a brochure, an envelope and a shopping bag, all in deep blue.",
+            ratio: "3 / 2",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/kaera/logo-lg.webp",
+            alt: "Kaéra's logo board: the primary wordmark, a secondary lockup and a circular K mark, black-and-white versions, variations, clear space, minimum size, and the logo over five backgrounds.",
+            ratio: "1024 / 819",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/kaera/palette-lg.webp",
+            alt: "Kaéra's palette: Midnight, Blue, Mist, Ice, Pure and Slate with hex, RGB and CMYK values, a usage breakdown ring, gradients, and the colours shown in application.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/kaera/typography-lg.webp",
+            alt: "Kaéra's type board: Cormorant Garamond for headings against Suisse Int’l for body, with both alphabets, a heading scale, and the pair shown on a page and a phone.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/kaera/applications-lg.webp",
+            alt: "Kaéra applied, across three parts: stationery and business essentials, product labels, packaging boxes, a shopping bag, social posts, a poster, a brochure, apparel and signage.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/kaera/website-lg.webp",
+            alt: "Kaéra's website board: homepage, about, product listing and product detail on desktop, mobile views, and the UI component set.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/kaera/process-lg.webp",
+            alt: "Kaéra's process board: brief, research with a competitor landscape, moodboard, sketches, concepts and the final identity.",
+            ratio: "1024 / 683",
+          },
+        ],
+      },
+      {
+        id: "vanta",
+        title: "VANTA Properties",
+        summary: "Premium residential property. “Exceptional spaces. Considered living.”",
+        body:
+          "Charcoal, warm stone and satin gold, Cormorant Garamond over Montserrat, with the gold held to roughly five per cent of any layout. The V monogram is the whole identity compressed: architectural, and still legible at the size of an app icon.",
+        media: [
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/showcase-lg.webp",
+            alt: "VANTA Properties, the final board: the identity across stationery, the website, mobile, print, signage and social, in charcoal and gold.",
+            ratio: "16 / 9",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/logo-lg.webp",
+            alt: "VANTA Properties' logo board: the V monogram with the wordmark, secondary and icon versions, variations, clear space and minimum size, black-and-white versions, and the logo over architecture, stone and marble.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/palette-lg.webp",
+            alt: "VANTA's palette: Charcoal, Warm Stone, Sand, Ivory, Satin Gold and Deep Black, each with hex, RGB, CMYK and a Pantone match, plus tints and a usage ratio guide.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/typography-lg.webp",
+            alt: "VANTA's type board: Cormorant Garamond for headings against Montserrat for body, with a full type scale and the pair shown on a property card.",
+            ratio: "1024 / 819",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/applications-lg.webp",
+            alt: "VANTA applied: business cards, letterhead, email signature, social posts, a stationery suite, signage, a brochure, an Instagram profile, posters and a web banner.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/website-lg.webp",
+            alt: "VANTA's website board: homepage, about and property-listing pages on desktop, three mobile views, and the UI component set.",
+            ratio: "1024 / 683",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/social-lg.webp",
+            alt: "VANTA's social board: a curated Instagram grid, stories, LinkedIn and Facebook posts, a profile and banner, and promotional ad designs.",
+            ratio: "4 / 3",
+          },
+          {
+            kind: "image",
+            src: "/media/projects/brand/vanta/process-lg.webp",
+            alt: "VANTA's process board: brief, research, moodboard, sketches, concepts and the final identity, with the journey from insight to execution along the foot.",
+            ratio: "1024 / 683",
+          },
+        ],
       },
     ],
     placeholder: false,
@@ -385,15 +769,28 @@ export const projects: Project[] = [
     title: "Websites",
     discipline: "creative",
     summary:
-      "Scroll-driven editorial and marketing sites, built rather than themed \u2014 including M Legacy, an editorial piece comparing two generations of BMW M3, and the site you are reading now.",
+      "Sites built rather than themed \u2014 FreeVoices, an invoicing product for South African businesses, M Legacy, an editorial piece comparing two generations of BMW M3, and the site you are reading now.",
     role: "Design and build",
     year: "2025 \u2014 2026",
-    stack: ["React", "Next.js", "Vite", "GSAP", "ScrollTrigger", "Lenis", "Three.js", "Tailwind CSS"],
-    /* A capture of this site, live, which is the one piece of work in this
-       entry a reader can already see for themselves. Taken from the
-       deployed build rather than a local dev server, so it is the real
-       thing at the real address and not a staged approximation. */
+    stack: ["Angular", "React", "Next.js", "Vite", "GSAP", "ScrollTrigger", "Lenis", "Three.js", "Tailwind CSS"],
+    /* Two captures, both of running builds rather than mock-ups.
+
+       FreeVoices leads, because a product someone signs into is a harder
+       thing to have built than a portfolio and a more honest first
+       impression of the work. It is its own entry under software
+       engineering as well; the overlap is deliberate, since it is
+       simultaneously a product and one of the sites in this list.
+
+       The capture is the sign-in page because that is the app's public
+       face \u2014 everything past it is behind an account, and a screenshot of
+       someone's real invoices is not a thing to put in a portfolio. */
     media: [
+      {
+        kind: "image",
+        src: "/media/projects/websites/freevoices-hero-lg.webp",
+        alt: "FreeVoices running: a dark split layout reading \"Invoicing for Africa \u2014 Professional invoicing free\" over a short feature list, with a sign-in panel on the right.",
+        ratio: "16 / 10",
+      },
       {
         kind: "image",
         src: "/media/projects/websites/portfolio-hero-lg.webp",
@@ -410,6 +807,10 @@ export const projects: Project[] = [
       {
         heading: "How they are built",
         body: "GSAP with ScrollTrigger for the choreography, Lenis for the scroll itself, and Three.js where a scene adds something a flat image cannot. This site goes furthest: one persistent WebGL canvas for the whole page, a single animation clock driving both the scroll and the scene, and semantic DOM underneath all of it so the content survives with the canvas switched off.",
+      },
+      {
+        heading: "When the brief is not editorial",
+        body: "FreeVoices is the counterexample, and it is in this list for that reason. Nobody wants a scroll-driven narrative while they are issuing an invoice: it is an Angular application with routes for invoices, quotes, customers, products and reports, and the design work there went into making a dense, repetitive task quick rather than into making a page feel cinematic. Knowing which of the two a brief is asking for is most of the job.",
       },
     ],
     placeholder: false,
