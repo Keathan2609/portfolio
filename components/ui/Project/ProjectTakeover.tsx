@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useLenis } from "lenis/react";
 import type { Project } from "@/lib/data/types";
@@ -33,13 +33,29 @@ import styles from "./takeover.module.css";
  * clipped out of sight. Portalling to <body> takes it out of that
  * containing block entirely.
  *
+ * TWO LEVELS, when the project carries `entries`. ORBITAL is one project
+ * made of four subjects; "Identity systems" is one project made of four
+ * identities. Both were flattening into a single row of pictures with no
+ * indication of which image belonged to what. A project with entries
+ * therefore renders a CATALOGUE — a grid of tiles — and opening a tile
+ * replaces the content region with that entry alone.
+ *
+ * The dialog's label does NOT follow the selection: it stays the project
+ * title, because the reader is still inside ORBITAL while looking at the
+ * reactor. The entry announces itself as a heading within that dialog, and
+ * a back control returns to the grid.
+ *
  * Accessibility contract:
  *  - `role="dialog"` + `aria-modal`, labelled by the project title.
  *  - The panel itself is focusable (`tabIndex={-1}`) so the trap always has
  *    a known anchor, even after a click on non-interactive content.
  *  - The rest of the page is marked `inert` while it is open.
  *  - Focus moves in on open and returns to the trigger on close.
- *  - Tab is trapped inside; Escape closes.
+ *  - Tab is trapped inside; Escape closes. Escape inside an entry goes back
+ *    to the catalogue first rather than discarding the whole dialog, which
+ *    is what a reader one level deep actually means by it.
+ *  - Opening an entry moves focus to its back control and resets the panel's
+ *    scroll; returning puts focus back on the tile that was opened.
  *  - Lenis is stopped while it is open, so the page behind cannot scroll —
  *    and started again on close, even if the component unmounts abruptly.
  */
@@ -59,7 +75,22 @@ export function ProjectTakeover({
   returnFocusTo?: RefObject<HTMLElement | null>;
 }) {
   const panel = useRef<HTMLDivElement>(null);
+  const content = useRef<HTMLDivElement>(null);
+  const scrim = useRef<HTMLDivElement>(null);
   const lenis = useLenis();
+
+  /**
+   * Which catalogue entry is open, or null for the catalogue itself.
+   *
+   * Mirrored into a ref because the Escape handler is installed once, in an
+   * effect whose dependencies deliberately exclude this: re-running that
+   * effect would stop and restart Lenis and steal focus back to the close
+   * button every time the reader opened a tile.
+   */
+  const [openEntryId, setOpenEntryId] = useState<string | null>(null);
+  const openEntryIdRef = useRef<string | null>(null);
+  /** The tile to restore focus to when the reader comes back up a level. */
+  const lastOpenedId = useRef<string | null>(null);
   const reduced = useReducedMotion();
   const returnFocus = useRef<HTMLElement | null>(null);
 
@@ -88,6 +119,12 @@ export function ProjectTakeover({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
+        // One level at a time. A reader inside "The reactor" who presses
+        // Escape means "out of the reactor", not "out of ORBITAL".
+        if (openEntryIdRef.current !== null) {
+          setOpenEntryId(null);
+          return;
+        }
         onClose();
         return;
       }
@@ -132,6 +169,44 @@ export function ProjectTakeover({
     };
   }, [lenis, onClose, returnFocusTo]);
 
+  /**
+   * Moving between levels.
+   *
+   * Going DOWN into an entry: the scroller is reset, so the reader starts at
+   * the top of the entry rather than halfway down a page they have not seen,
+   * and focus lands on the back control.
+   *
+   * Coming back UP: the reset still runs, but focusing the tile the reader
+   * opened scrolls it into view again straight afterwards — so they are
+   * returned to their place in the catalogue rather than to its top. That
+   * ordering is the intended behaviour, not an accident of it.
+   *
+   * The scroller is the SCRIM, not the panel and not the content — see
+   * takeover.module.css, where overflow-y lives on the outer layer.
+   */
+  useEffect(() => {
+    // Synced here rather than during render: writing a ref while rendering
+    // is a lint error and a real hazard under concurrent rendering. The
+    // Escape handler only reads it from an event, which is always after
+    // this has run.
+    openEntryIdRef.current = openEntryId;
+
+    const node = content.current;
+    if (!node) return;
+
+    scrim.current?.scrollTo({ top: 0 });
+
+    if (openEntryId !== null) {
+      node.querySelector<HTMLElement>("[data-entry-back]")?.focus();
+    } else if (lastOpenedId.current !== null) {
+      node
+        .querySelector<HTMLElement>(
+          `[data-entry-tile="${lastOpenedId.current}"]`,
+        )
+        ?.focus();
+    }
+  }, [openEntryId]);
+
   useGSAP(
     () => {
       if (reduced) return;
@@ -149,6 +224,16 @@ export function ProjectTakeover({
 
   const titleId = `takeover-${project.slug}`;
   const [hero, ...gallery] = project.media;
+
+  const entries = project.entries ?? [];
+  const openEntry =
+    openEntryId === null
+      ? null
+      : (entries.find((entry) => entry.id === openEntryId) ?? null);
+  // A collection shows its entries instead of a flat gallery: those assets
+  // live on the entries now, and rendering both would print every image
+  // twice.
+  const showFlatGallery = entries.length === 0 && gallery.length > 0;
 
   // Assembled rather than hardcoded, so the metadata row simply shrinks
   // when a project has less to say about itself.
@@ -171,7 +256,7 @@ export function ProjectTakeover({
   ].filter(Boolean) as Array<{ label: string; href: string }>;
 
   return createPortal(
-    <div className={styles.scrim} onClick={onClose}>
+    <div ref={scrim} className={styles.scrim} onClick={onClose}>
       <div
         ref={panel}
         className={styles.panel}
@@ -203,84 +288,188 @@ export function ProjectTakeover({
           </button>
         </header>
 
-        <div className={styles.content}>
-          {hero && (
-            <Media
-              asset={hero}
-              ratio={hero.ratio ?? "21 / 9"}
-              sizes="(max-width: 72rem) 100vw, 72rem"
-              placeholderLabel={`${project.title} — visual pending`}
-            />
-          )}
+        <div ref={content} className={styles.content}>
+          {openEntry ? (
+            <>
+            <nav className={styles.crumb}>
+              <button
+                type="button"
+                className={styles.crumbBack}
+                data-entry-back
+                data-cursor="BACK"
+                onClick={() => setOpenEntryId(null)}
+              >
+                <span aria-hidden="true">&#8592;</span> Back to {project.title}
+              </button>
+            </nav>
 
-          {meta.length > 0 && (
-            <dl className={styles.meta}>
-              {meta.map((entry) => (
-                <div key={entry.key}>
-                  <dt>{entry.key}</dt>
-                  <dd>{entry.value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
+            <h3 className={styles.entryTitle}>{openEntry.title}</h3>
+            <p className={styles.summary}>{openEntry.summary}</p>
 
-          <p className={styles.summary}>{project.summary}</p>
+            {openEntry.media[0] && (
+              <Media
+                asset={openEntry.media[0]}
+                ratio={openEntry.media[0].ratio ?? "16 / 9"}
+                sizes="(max-width: 72rem) 100vw, 72rem"
+                placeholderLabel={`${openEntry.title} — visual pending`}
+              />
+            )}
 
-          {project.caseStudy?.map((section) => (
-            <section key={section.heading} className={styles.section}>
-              <h3>{section.heading}</h3>
-              <p>{section.body}</p>
-            </section>
-          ))}
+            {openEntry.body && (
+              <section className={styles.section}>
+                <p>{openEntry.body}</p>
+              </section>
+            )}
 
-          {project.outcome && (
-            <section className={styles.section}>
-              <h3>Outcome</h3>
-              <p>{project.outcome}</p>
-            </section>
-          )}
-
-          {project.technicalDetails && project.technicalDetails.length > 0 && (
-            <section className={styles.section}>
-              <h3>Technical</h3>
+            {openEntry.details && openEntry.details.length > 0 && (
               <ul className={styles.technical}>
-                {project.technicalDetails.map((detail) => (
+                {openEntry.details.map((detail) => (
                   <li key={detail}>{detail}</li>
                 ))}
               </ul>
-            </section>
-          )}
+            )}
 
-          {gallery.length > 0 && (
-            <ul className={styles.gallery}>
-              {gallery.map((asset, i) => (
-                <li key={asset.src || i}>
-                  <Media
-                    asset={asset}
-                    ratio={asset.ratio ?? "4 / 3"}
-                    sizes="(max-width: 48rem) 100vw, 36rem"
-                    placeholderLabel="Gallery visual pending"
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
+            {openEntry.media.length > 1 && (
+              <ul className={styles.gallery}>
+                {openEntry.media.slice(1).map((asset, i) => (
+                  <li key={asset.src || i}>
+                    <Media
+                      asset={asset}
+                      ratio={asset.ratio ?? "4 / 3"}
+                      sizes="(max-width: 48rem) 100vw, 36rem"
+                      placeholderLabel="Board pending"
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+            </>
+          ) : (
+            <>
+            {hero && (
+              <Media
+                asset={hero}
+                ratio={hero.ratio ?? "21 / 9"}
+                sizes="(max-width: 72rem) 100vw, 72rem"
+                placeholderLabel={`${project.title} — visual pending`}
+              />
+            )}
 
-          {links.length > 0 && (
-            <ul className={styles.links}>
-              {links.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    data-cursor="OPEN"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {meta.length > 0 && (
+              <dl className={styles.meta}>
+                {meta.map((entry) => (
+                  <div key={entry.key}>
+                    <dt>{entry.key}</dt>
+                    <dd>{entry.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <p className={styles.summary}>{project.summary}</p>
+
+            {project.caseStudy?.map((section) => (
+              <section key={section.heading} className={styles.section}>
+                <h3>{section.heading}</h3>
+                <p>{section.body}</p>
+              </section>
+            ))}
+
+            {project.outcome && (
+              <section className={styles.section}>
+                <h3>Outcome</h3>
+                <p>{project.outcome}</p>
+              </section>
+            )}
+
+            {project.technicalDetails && project.technicalDetails.length > 0 && (
+              <section className={styles.section}>
+                <h3>Technical</h3>
+                <ul className={styles.technical}>
+                  {project.technicalDetails.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {showFlatGallery && (
+              <ul className={styles.gallery}>
+                {gallery.map((asset, i) => (
+                  <li key={asset.src || i}>
+                    <Media
+                      asset={asset}
+                      ratio={asset.ratio ?? "4 / 3"}
+                      sizes="(max-width: 48rem) 100vw, 36rem"
+                      placeholderLabel="Gallery visual pending"
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {entries.length > 0 && (
+              <section className={styles.collection}>
+                <h3>{project.entriesLabel ?? "In this collection"}</h3>
+
+                <ul className={styles.catalogue}>
+                  {entries.map((entry) => (
+                    <li key={entry.id} className={styles.tile}>
+                      {entry.media[0] && (
+                        <Media
+                          asset={entry.media[0]}
+                          ratio={entry.media[0].ratio ?? "16 / 9"}
+                          sizes="(max-width: 48rem) 100vw, 22rem"
+                          placeholderLabel={`${entry.title} — visual pending`}
+                          className={styles.tileMedia}
+                        />
+                      )}
+
+                      <div className={styles.tileBody}>
+                        <h4 className={styles.tileTitle}>{entry.title}</h4>
+                        <p className={styles.tileSummary}>{entry.summary}</p>
+
+                        {/* Same stretched-control pattern as ProjectCard, and
+                            for the same reason: <button> takes phrasing
+                            content only, so the tile cannot BE the button
+                            without dissolving its heading. */}
+                        <button
+                          type="button"
+                          className={styles.tileTrigger}
+                          data-entry-tile={entry.id}
+                          data-cursor="VIEW"
+                          onClick={() => {
+                            lastOpenedId.current = entry.id;
+                            setOpenEntryId(entry.id);
+                          }}
+                        >
+                          View
+                          <span className="sr-only"> {entry.title}</span>
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {links.length > 0 && (
+              <ul className={styles.links}>
+                {links.map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      data-cursor="OPEN"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            </>
           )}
         </div>
       </div>

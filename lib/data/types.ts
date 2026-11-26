@@ -101,6 +101,30 @@ export interface CaseStudySection {
  * labels, no "N/A", no placeholder rows. A project with a title, a summary
  * and one image is a complete, well-formed project.
  */
+/**
+ * One entry in a COLLECTION project.
+ *
+ * Deliberately a subset of Project rather than a Project itself. A catalogue
+ * entry is a title, a line, and its boards: it has no discipline, no stack,
+ * no card in a rail and no takeover of its own, because it is never reached
+ * except from inside its parent. Modelling it as a full Project would have
+ * put four identities into the creative rail as peers of "Websites", which is
+ * exactly the flattening this type exists to avoid.
+ */
+export interface ProjectEntry {
+  /** Stable key, also used as the DOM id for the detail heading. */
+  id: string;
+  title: string;
+  /** One line, shown under the title on the tile and in the detail header. */
+  summary: string;
+  /** `media[0]` is the tile cover AND the detail hero. The rest are boards. */
+  media: MediaAsset[];
+  /** Optional narrative for the detail view. */
+  body?: string;
+  /** Optional notes, one per line, below the narrative. */
+  details?: string[];
+}
+
 export interface Project {
   slug: string;
   title: string;
@@ -142,6 +166,22 @@ export interface Project {
   outcome?: string;
   /** Architecture and implementation notes, one per line. */
   technicalDetails?: string[];
+  /**
+   * Catalogue entries. Presence of this array is what turns the takeover
+   * from a single flat case study into a two-level one: the reader gets a
+   * grid of entries and opens the one they want.
+   *
+   * Only read when presentation === "expanded". When it is present the flat
+   * `media` gallery is NOT rendered, because the entries already carry those
+   * assets and showing both duplicates every image.
+   */
+  entries?: ProjectEntry[];
+  /**
+   * Heading above the catalogue grid. Defaults to "In this collection",
+   * which is accurate but anonymous — a project usually has a better word
+   * for what its entries are ("The kit, piece by piece").
+   */
+  entriesLabel?: string;
 }
 
 /* ------------------------------------------------------------------ */
