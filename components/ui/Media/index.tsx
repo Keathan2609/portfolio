@@ -194,8 +194,20 @@ export function Media({
         fill
         sizes={sizes}
         quality={82}
-        priority={priority}
-        loading={priority ? undefined : "lazy"}
+        /* NOT `priority`. Next 16 deprecated it in favour of `preload`,
+           and its own docs say to prefer `loading="eager"` or
+           `fetchPriority="high"` over either — `preload` is specifically
+           the wrong choice here, because it is documented as not for the
+           case where several images could be the LCP depending on the
+           viewport, which is exactly a slideshow.
+
+           The old call passed `priority` AND a `loading` that was
+           undefined when priority was set, which left the first slide
+           eager but with no fetchPriority, so Next went on warning that
+           its LCP image was not prioritised. These two attributes say the
+           same thing without the deprecated prop. */
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
       />
     </div>
   );
