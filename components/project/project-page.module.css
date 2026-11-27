@@ -33,10 +33,23 @@
   /* Clears the fixed header. Without the --header-h term the breadcrumb
      sits underneath "Keathan Naidoo" and the motion toggle, which is
      exactly where it landed at 375px. */
-  padding: calc(var(--header-h) + var(--s-6)) var(--gutter) var(--s-10);
+  padding: calc(var(--header-h) + var(--s-4)) var(--gutter) var(--s-9);
   display: flex;
   flex-direction: column;
-  gap: var(--s-8);
+
+  /* THE BASE GAP, deliberately smaller than the blocks it separates.
+     This was --s-8, which put an identical 64px between every pair of
+     blocks on the page: breadcrumb to title, title to slideshow,
+     slideshow to details, between case-study groups, and before the
+     links. Six identical gaps is not a rhythm, it is an absence of one —
+     nothing grouped with anything, and the page read as a column of
+     items floating in air.
+
+     The blocks that genuinely need to be set apart now say so
+     themselves: .details and .links have a rule and their own padding,
+     so they get separation that means something. Everything else sits
+     closer. */
+  gap: var(--s-7);
 }
 
 /* ------------------------------------------------------------------ */
@@ -130,7 +143,10 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: var(--s-5);
-  padding-block: var(--s-5);
+  /* The rule above and below already does the separating; the base gap
+     sits outside that again. At --s-5 the two stacked and the row had
+     88px of clear air on each side of three short lines of text. */
+  padding-block: var(--s-4);
   border-block: 1px solid var(--c-line);
 }
 
@@ -155,14 +171,21 @@
 .study {
   display: flex;
   flex-direction: column;
-  gap: var(--s-7);
+  gap: 2.5rem;
 }
 
-/* The heading column is fixed rather than fractional so headings of
-   different lengths still line up with each other down the page. */
+/* The heading column is a fixed width, not a fraction, so headings of
+   different lengths still line up with each other down the page.
+
+   11rem, not the 14rem this started at. These headings are two or three
+   words of 11px uppercase mono; at 14rem the column was 224px holding
+   one short line, so every case-study row opened with a large empty
+   rectangle and pushed its own text a quarter of the way across the
+   page. The longest heading on the site, "Three layers that do not
+   depend on each other", still sets in three lines here. */
 .row {
   display: grid;
-  grid-template-columns: 14rem minmax(0, 1fr);
+  grid-template-columns: 11rem minmax(0, 1fr);
   gap: var(--s-5) var(--s-6);
   align-items: start;
 }
@@ -179,11 +202,17 @@
   top: var(--s-8);
 }
 
+/* A touch wider than the global --measure (62ch).
+   --measure is set for prose that owns the full column width. These
+   paragraphs sit in the second column of a two-column row, so 62ch left
+   a dead strip down the right of every one of them while the heading
+   column sat empty on the left. 68ch is still inside the readable band
+   and it squares the row off. */
 .rowBody {
   font-size: var(--t-body);
   line-height: var(--lh-body);
   color: var(--c-text-muted);
-  max-width: var(--measure);
+  max-width: 68ch;
 }
 
 /* Technical notes — a list, not prose, because that is how implementation
@@ -192,7 +221,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
-  max-width: var(--measure);
+  /* Matches .rowBody — it occupies the same column. */
+  max-width: 68ch;
 }
 
 .technical li {
@@ -243,11 +273,23 @@
   color: var(--c-accent);
 }
 
-/* A wider minimum than a plain gallery's: a tile carries a title and a line
-   of copy beneath its cover, and at 18rem those wrapped to four lines. */
+/* TWO COLUMNS, fixed, not auto-fit.
+   auto-fit with a 20rem minimum resolved to three columns at desktop,
+   and both catalogues on the site hold four entries — so every one of
+   them ended on an orphan tile with two thirds of a row empty beside
+   it, which was the largest single piece of dead space on these pages.
+
+   Four entries over two columns is a filled 2x2. The tiles also gain
+   about 180px of width each, which these particular tiles want: they
+   carry renders, and a render is the point of the entry.
+
+   Fixed rather than auto-fit so the count cannot drift back: an
+   auto-fit minimum wide enough to force two columns here would collapse
+   to one at tablet widths. The single-column case is handled by the
+   narrow breakpoint below. */
 .catalogue {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--s-6) var(--s-5);
 }
 
@@ -362,7 +404,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-5);
-  padding-top: var(--s-5);
+  padding-top: var(--s-4);
   border-top: 1px solid var(--c-line);
 }
 
@@ -396,7 +438,7 @@
 }
 
 @media (max-width: 61.9375rem) {
-  /* Below this the two-column case-study row has no room for a 14rem
+  /* Below this the two-column case-study row has no room for an 11rem
      gutter, and a sticky heading in a single column just floats. */
   .row {
     grid-template-columns: 1fr;
@@ -410,8 +452,12 @@
 
 @media (max-width: 47.9375rem) {
   .page {
-    padding-top: calc(var(--header-h) + var(--s-4));
-    gap: var(--s-7);
+    padding-top: calc(var(--header-h) + var(--s-3));
+    padding-bottom: var(--s-8);
+    /* Tighter again than the desktop gap. A phone shows one block at a
+       time, so the space between them is scrolled through rather than
+       seen, and it is pure cost. */
+    gap: var(--s-6);
   }
 
   .catalogue {
