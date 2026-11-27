@@ -53,7 +53,7 @@ export function Intro() {
           <RevealText
             id="intro-title"
             as="h2"
-            text="Different disciplines. One builder."
+            text="I work across five disciplines"
             className={styles.title}
           />
         </div>

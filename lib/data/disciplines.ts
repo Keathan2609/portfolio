@@ -22,7 +22,7 @@ export const disciplines: Discipline[] = [
     accentVar: "--c-accent-software",
     accentHex: "#4f7cff",
     intro:
-      "I build products, systems and interfaces — from the screen back to the data.",
+      "I build products, systems and interfaces, working from the screen all the way back to the data.",
     /**
      * The best-evidenced world in the archive, and the reason this site
      * leads with it: Vantage, At Leisure and FreeVoices are substantial
@@ -64,7 +64,7 @@ export const disciplines: Discipline[] = [
     accentVar: "--c-accent-xr",
     accentHex: "#9d5cff",
     intro:
-      "I run the whole XR pipeline myself — concept, model, sculpt, texture, rig, animate, and into the engine.",
+      "The whole XR pipeline runs through me: concept, model, sculpt, texture, rig, animate, and into the engine.",
     /**
      * RAISED to "Advanced", on Keathan's own account of the work.
      *
@@ -100,7 +100,7 @@ export const disciplines: Discipline[] = [
     accentVar: "--c-accent-creative",
     accentHex: "#ff6b3d",
     intro:
-      "I design identities, interfaces and campaign work — then build the assets that carry them.",
+      "I design identities, interfaces and campaign work, then build the assets that carry them.",
     /**
      * Broad and sustained — four identity systems taken past the logo into
      * colour, type, applications and websites, plus campaign work judged on
@@ -174,7 +174,7 @@ export const disciplines: Discipline[] = [
     accentVar: "--c-accent-security",
     accentHex: "#5c86a8",
     intro:
-      "I build the security in — authentication, authorisation and sandboxing, designed before the feature rather than audited after it.",
+      "Authentication, authorisation and sandboxing are things I design into a feature while it is still being built.",
     /**
      * REFRAMED, and raised.
      *

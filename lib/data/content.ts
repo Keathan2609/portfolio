@@ -72,7 +72,7 @@ export const projects: Project[] = [
     title: "Vantage",
     discipline: "software",
     summary:
-      "A single-operator automated trading platform where every order passes a pure risk engine before it can reach a venue. Paper trading only — it has never been pointed at real money, and that constraint shaped the architecture rather than limiting it.",
+      "A single-operator automated trading platform where every order passes a pure risk engine before it can reach a venue. Paper trading only: it has never been pointed at real money, and the architecture is built around that constraint.",
     role: "Sole author — architecture, Go services, Python research layer, security pipeline",
     year: "2025 — 2026",
     stack: ["Go", "PostgreSQL", "Redis", "Python", "FastAPI", "pandas", "Prometheus"],
@@ -124,12 +124,12 @@ export const projects: Project[] = [
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "Context",
-        body: "Automated trading is a domain where a quiet bug spends real money. The system is built around one idea: make the dangerous part small, pure, and impossible to skip. Strategies generate orders, a consensus layer agrees them, and then — without exception — a risk engine judges them before anything leaves the building.",
+        heading: "The problem",
+        body: "Automated trading is a domain where a quiet bug spends real money. The system is built around one idea: make the dangerous part small, pure and impossible to skip. Strategies generate orders, a consensus layer agrees them, and a risk engine then judges them, without exception, before anything leaves the building.",
       },
       {
-        heading: "Approach",
-        body: "The risk engine is a single pure function. It evaluates every check on every order instead of short-circuiting on the first failure, so a refusal arrives as a complete account of everything wrong rather than the first thing noticed. Twenty named checks sit behind it, with a separate five-check trading-authority ceiling layer above them. Money is never a float: it is decimal end to end. The order pipeline is an explicit state machine rather than a scatter of booleans.",
+        heading: "The risk engine",
+        body: "The risk engine is a single pure function. It evaluates every check on every order instead of stopping at the first failure, so a refusal comes back as a complete account of what is wrong with the order. Twenty named checks sit behind it, with a separate five-check trading-authority ceiling layer above them. Money is never a float: it is decimal end to end. The order pipeline is an explicit state machine, not a scatter of booleans.",
       },
       {
         heading: "Proving it",
@@ -137,9 +137,9 @@ export const projects: Project[] = [
       },
     ],
     technicalDetails: [
-      "Risk engine is one pure function evaluating all checks per order, so a refusal reports every violation rather than only the first.",
+      "Risk engine is one pure function evaluating all checks per order, so a refusal reports every violation, not only the first.",
       "20 named risk checks, plus a separate five-check trading-authority ceiling layer.",
-      "Decimal money throughout — no floating point anywhere in the ledger.",
+      "Decimal money throughout: no floating point anywhere in the ledger.",
       "Forward-only numbered Postgres migrations, embedded in the binary.",
       "Deterministic replay and venue reconciliation for post-hoc debugging.",
       "Ten-job security pipeline: Semgrep, Gitleaks, govulncheck, OSV-Scanner, Trivy and OWASP ZAP.",
@@ -152,7 +152,7 @@ export const projects: Project[] = [
     title: "At Leisure",
     discipline: "software",
     summary:
-      "An offline-first reader for books you already own — PDF, EPUB and plain text — that holds your position to the character and can turn a photographed page into clean, restylable text without the image ever leaving your device.",
+      "An offline-first reader for books you already own (PDF, EPUB and plain text) that holds your position to the character and can turn a photographed page into clean, restylable text without the image ever leaving your device.",
     role: "Sole author — product, engineering, deployment, Android build",
     year: "2026",
     stack: ["TypeScript", "React", "Vite", "Supabase", "IndexedDB", "tesseract.js", "Cloudflare Pages"],
@@ -161,20 +161,20 @@ export const projects: Project[] = [
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "Context",
-        body: "Reading apps tend to assume a connection and a shop. This one assumes neither: it opens files you already have, works with the network off, and keeps your place precisely rather than approximately. The interesting problem was never the reader — it was everything needed to make a photograph of a page readable.",
+        heading: "What it assumes",
+        body: "Reading apps tend to assume a connection and a shop. This one assumes neither: it opens files you already have, works with the network off, and keeps your place to the character. Most of the work, though, went somewhere less obvious: making a photograph of a page readable.",
       },
       {
         heading: "The OCR pipeline",
-        body: "Recognition is the easy half. A photographed page arrives with uneven lighting, a curved gutter, sometimes two columns, and words broken across lines. The pipeline estimates paper brightness across a coarse grid and smooths it to correct the lighting, detects the gutter so a spread becomes two pages, separates columns, strips running heads, and rejoins hyphenated words before a single character is shown. All of it runs on the device.",
+        body: "Recognition itself is the easy half of this. A photographed page arrives with uneven lighting, a curved gutter, sometimes two columns, and words broken across lines. The pipeline estimates paper brightness across a coarse grid and smooths it to correct the lighting, detects the gutter so a spread becomes two pages, separates columns, strips running heads, and rejoins hyphenated words before a single character is shown. All of it runs on the device.",
       },
       {
         heading: "Shipping it",
-        body: "It installs as a PWA, and there is a signed Android build wrapped as a Trusted Web Activity, distributed from the site itself rather than through a store. The release script reads the signing password from a file rather than the command line, and re-patches a manifest flag the generator insists on resetting on every build.",
+        body: "It installs as a PWA, and there is a signed Android build wrapped as a Trusted Web Activity, distributed from the site itself instead of through a store. The release script reads the signing password from a file, never the command line, and re-patches a manifest flag the generator insists on resetting on every build.",
       },
     ],
     technicalDetails: [
-      "OCR runs entirely on-device — no server ever sees the page.",
+      "OCR runs entirely on-device: no server ever sees the page.",
       "Hand-written illumination flattening: per-cell paper-brightness estimation on a coarse grid, then smoothing passes.",
       "Gutter and column detection for two-page spreads; running-head removal and de-hyphenation during reassembly.",
       "Postgres Row Level Security for sync, so a row is unreadable to anyone but its owner.",
@@ -209,7 +209,7 @@ export const projects: Project[] = [
       {
         kind: "image",
         src: "/media/projects/software/nexus-architecture-lg.webp",
-        alt: "A diagram of how NEXUS hands out work: three workers all pointing at a single Postgres jobs table that holds the claim statement, an UPDATE over a FOR UPDATE SKIP LOCKED subquery taking a lease rather than an assignment. A note explains that a dead worker is simply a lease that stops being renewed. Below, the deployment states run DEPLOYING to VERIFYING to HEALTHY, gated on three consecutive probes.",
+        alt: "A diagram of how NEXUS hands out work: three workers all pointing at a single Postgres jobs table that holds the claim statement, an UPDATE over a FOR UPDATE SKIP LOCKED subquery taking a lease and not an assignment. A note explains that a dead worker is simply a lease that stops being renewed. Below, the deployment states run DEPLOYING to VERIFYING to HEALTHY, gated on three consecutive probes.",
         ratio: "16 / 9",
         caption:
           "Diagram — how work is taken, and what a release has to do before it may be called healthy.",
@@ -225,7 +225,7 @@ export const projects: Project[] = [
       {
         kind: "image",
         src: "/media/projects/software/nexus-outbox-lg.webp",
-        alt: "A diagram of the NEXUS outbox: one transaction holding both the state change and the outbox row, the row written by a function that takes a transaction rather than a connection pool; a relay then reads the outbox and publishes to NATS.",
+        alt: "A diagram of the NEXUS outbox: one transaction holding both the state change and the outbox row, the row written by a function that takes a transaction and not a connection pool; a relay then reads the outbox and publishes to NATS.",
         ratio: "16 / 9",
         caption:
           "Diagram — the outbox, where a type signature does the work a written convention would have done badly.",
@@ -234,27 +234,27 @@ export const projects: Project[] = [
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "Context",
-        body: "Delivery tooling is a pile of scripts until something dies halfway through. The question this is built around is not how fast a pipeline runs but what is true afterwards if the process running it is killed at the worst possible moment \u2014 which is the moment it will eventually be killed at.",
+        heading: "The question behind it",
+        body: "Delivery tooling is a pile of scripts until something dies halfway through. The question this is built around is what remains true afterwards, if the process running a pipeline is killed at the worst possible moment. Given enough runs, that is the moment it will be killed at.",
       },
       {
         heading: "Claimed, never assigned",
-        body: "There is no scheduler handing work out, because a scheduler is a thing that can itself go down and take the map of who-has-what with it. Workers compete for the same table: one UPDATE whose subquery selects FOR UPDATE SKIP LOCKED and takes a lease. No leader election, no worker registry, no partition map to keep in agreement with reality. A worker that dies holds a lease that stops being renewed, and that is the whole of the recovery story.",
+        body: "There is no scheduler handing work out, because a scheduler is a thing that can itself go down and take the map of who-has-what with it. Workers compete for the same table: one UPDATE whose subquery selects FOR UPDATE SKIP LOCKED and takes a lease. That removes the leader election, the worker registry and the partition map that would otherwise all have to be kept in agreement with reality. A worker that dies holds a lease that stops being renewed, and that is the whole of the recovery story.",
       },
       {
         heading: "Earning the word healthy",
-        body: "The deployment state table has no edge from DEPLOYING to HEALTHY. A release has to pass through VERIFYING and is accepted only after three consecutive successful probes against the running application, with one failure resetting the count to zero \u2014 so a release cannot be marked good because it started, only because it kept answering.",
+        body: "The deployment state table has no edge from DEPLOYING to HEALTHY. A release has to pass through VERIFYING and is accepted only after three consecutive successful probes against the running application, with one failure resetting the count to zero. It is not enough for a release to start; it has to keep answering.",
       },
     ],
     technicalDetails: [
-      "Workers claim jobs with one UPDATE over a FOR UPDATE SKIP LOCKED subquery, taking a lease rather than an assignment.",
+      "Workers claim jobs with one UPDATE over a FOR UPDATE SKIP LOCKED subquery, taking a lease, not an assignment.",
       "Heartbeat and completion both carry AND worker_id = $2, so a worker whose lease was already reclaimed cannot resume ownership of work someone else is now running.",
-      "Events reach NATS only through an outbox whose write function takes a transaction rather than a pool, so an event cannot be emitted outside the transaction that caused it.",
+      "Events reach NATS only through an outbox whose write function takes a transaction and not a pool, so an event cannot be emitted outside the transaction that caused it.",
       "One live deployment per environment is a partial unique index, and promotion supersedes the previous release inside the same transaction that marks the new one healthy, so the index is never momentarily violated.",
       "GitHub webhooks are verified with HMAC-SHA256 and de-duplicated by a unique index on provider and delivery id, so a redelivery loses the race instead of starting a second build of the same commit.",
-      "The Kubernetes path drives kubectl directly \u2014 apply, rollout status, and reading pod events when a rollout stalls \u2014 against a local kind cluster.",
+      "The Kubernetes path drives kubectl directly (apply, rollout status, and reading pod events when a rollout stalls) against a local kind cluster.",
       "Reconciliation is one ticker over nine independent steps, each failure logged and stepped past, so drift detection going wrong cannot stop leases being reclaimed.",
-      "152 Go test functions across 16 files. Nine need live Postgres and NATS behind a build tag, so a clean checkout exercises the planner, state transitions and RBAC but not the deployment path \u2014 which is the half that matters most and the gap worth naming.",
+      "152 Go test functions across 16 files. Nine need live Postgres and NATS behind a build tag, so a clean checkout exercises the planner, state transitions and RBAC but not the deployment path, which is the half that matters most and the gap worth naming.",
     ],
     placeholder: false,
   },
@@ -264,7 +264,7 @@ export const projects: Project[] = [
     title: "FreeVoices",
     discipline: "software",
     summary:
-      "An invoicing and quoting system for small businesses \u2014 customers, products, quotes, invoices, payments and a client portal \u2014 written once in Angular and shipped as both a website and an Android app, with a single Express service and a thirteen-table schema behind it.",
+      "An invoicing and quoting system for small businesses, covering customers, products, quotes, invoices, payments and a client portal. It is written once in Angular and shipped as both a website and an Android app, with a single Express service and a thirteen-table schema behind it.",
     role: "Sole author \u2014 product, Angular client, Express API, schema, release",
     year: "2026",
     stack: ["Angular", "Ionic", "Capacitor", "TypeScript", "Express", "MySQL", "PDFKit", "Chart.js"],
@@ -287,16 +287,16 @@ export const projects: Project[] = [
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "Context",
-        body: "Invoicing software is either expensive or it is a spreadsheet. The gap is a small business that needs to raise a quote, turn it into an invoice, send it, chase it when it goes unpaid, and keep a record that still balances afterwards \u2014 without paying per seat for the privilege. FreeVoices is that, as one codebase that runs in a browser and installs as an Android app.",
+        heading: "The gap",
+        body: "Invoicing software is either expensive or it is a spreadsheet. The gap is a small business that needs to raise a quote, turn it into an invoice, send it, chase it when it goes unpaid, and keep a record that still balances afterwards, all without paying per seat for the privilege. FreeVoices is that, as one codebase that runs in a browser and installs as an Android app.",
       },
       {
         heading: "One document, several states",
-        body: "A quote and an invoice are the same record at different points in its life, so they share one documents table rather than two near-identical ones. Each document carries its line items, its tracking history and its payments separately, which keeps what was changed and what has actually been paid as two different facts instead of one hopeful status field.",
+        body: "A quote and an invoice are the same record at different points in its life, so they share one documents table instead of two near-identical ones. Each document carries its line items, its tracking history and its payments separately, which keeps what was changed and what has actually been paid as two different facts, where one hopeful status field would have blurred them together.",
       },
       {
         heading: "The parts that run without you",
-        body: "Three jobs run every night: one raises the invoices due to recur, one marks overdue invoices overdue, and one anonymises accounts that asked to be deleted. That last job is why the sign-in path has to handle a user whose password hash is deliberately null \u2014 a deleted account has to stay deleted without taking its invoice history with it, because the books still have to balance after someone leaves.",
+        body: "Three jobs run every night: one raises the invoices due to recur, one marks overdue invoices overdue, and one anonymises accounts that asked to be deleted. That last job is why the sign-in path has to handle a user whose password hash is deliberately null. A deleted account has to stay deleted without taking its invoice history with it, because the books still have to balance after someone leaves.",
       },
     ],
     technicalDetails: [
@@ -306,7 +306,7 @@ export const projects: Project[] = [
       "Google sign-in alongside local accounts, including the case where an account has no password hash at all.",
       "Server-side PDF invoices; logo uploads capped at 5 MB, restricted to JPEG and PNG, stored under unguessable filenames.",
       "Nightly jobs for recurring invoices, overdue marking and account anonymisation.",
-      "Privacy policy, terms and an account-deletion route shipped as part of the product rather than bolted on for a store listing.",
+      "Privacy policy, terms and an account-deletion route shipped as part of the product, not bolted on for a store listing.",
     ],
     placeholder: false,
   },
@@ -316,7 +316,7 @@ export const projects: Project[] = [
     title: "Atlas",
     discipline: "software",
     summary:
-      "A multi-tenant team workspace \u2014 organisations, workspaces, projects, work items, members, API keys and an audit log \u2014 built around a single problem: making it structurally impossible for one tenant to read another\u2019s data, rather than something every query has to remember. It runs locally from a Docker stack and has never been deployed.",
+      "A multi-tenant team workspace covering organisations, workspaces, projects, work items, members, API keys and an audit log, built around a single problem: making it structurally impossible for one tenant to read another\u2019s data, so that it stops being something every query has to remember. It runs locally from a Docker stack and has never been deployed.",
     role: "Sole author \u2014 schema, isolation model, API, web client, tests",
     year: "2026",
     stack: ["TypeScript", "NestJS", "Prisma", "PostgreSQL", "Redis", "Next.js", "Turborepo", "Playwright"],
@@ -362,20 +362,20 @@ export const projects: Project[] = [
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "Context",
-        body: "In a multi-tenant product the worst bug is not a crash, it is a query that quietly returns somebody else\u2019s rows. The usual defence is discipline \u2014 remember the tenant filter, every time, forever, including the developer who joins next year. Discipline is not a control. The whole design here is an attempt to make the mistake unavailable rather than merely discouraged.",
+        heading: "The worst bug",
+        body: "The worst bug in a multi-tenant product is a query that quietly returns somebody else\u2019s rows. The usual defence against it is discipline: remember the tenant filter, every time, forever, including the developer who joins next year. Discipline wears off, so the whole design here is an attempt to make the mistake unavailable in the first place.",
       },
       {
         heading: "Three layers that do not depend on each other",
-        body: "Composite foreign keys carry the organisation id, so a cross-tenant reference is refused by Postgres whatever the application believes. A Prisma client extension intercepts every operation and injects the tenant filter \u2014 an extension rather than a repository wrapper, because a wrapper only protects the people who remember to use it, while a scoped client cannot issue an unscoped query at all. Above both, HTTP guards resolve the tenant before any service runs.",
+        body: "Composite foreign keys carry the organisation id, so a cross-tenant reference is refused by Postgres whatever the application believes. A Prisma client extension intercepts every operation and injects the tenant filter. It is an extension and not a repository wrapper, because a wrapper only protects the people who remember to use it, while a scoped client cannot issue an unscoped query at all. Above both, HTTP guards resolve the tenant before any service runs.",
       },
       {
         heading: "Making the rule impossible to forget",
-        body: "A boot-time assertion reads Prisma\u2019s runtime data model and refuses to start the API if any model is registered neither as tenant-owned nor as deliberately excluded, each exclusion carrying its reason in code. So adding a table without deciding what it belongs to is not an oversight that ships \u2014 it is a server that will not boot.",
+        body: "A boot-time assertion reads Prisma\u2019s runtime data model and refuses to start the API if any model is registered neither as tenant-owned nor as deliberately excluded, each exclusion carrying its reason in code. Adding a table without deciding what it belongs to therefore never ships as an oversight; it shows up immediately as a server that will not boot.",
       },
     ],
     technicalDetails: [
-      "Seven relations reference [organizationId, id] rather than id alone, so cross-tenant references are rejected by the database itself.",
+      "Seven relations reference [organizationId, id] and not id alone, so cross-tenant references are rejected by the database itself.",
       "Tenant scoping is a Prisma client extension intercepting $allOperations, not a repository wrapper that developers must remember to use.",
       "A boot-time assertion fails API startup if any model is registered as neither tenant-owned nor deliberately excluded.",
       "A hand-written ESLint AST selector bans unscoped findUnique and findFirst on tenant-owned models, and bans $queryRawUnsafe outright.",
@@ -441,8 +441,8 @@ export const projects: Project[] = [
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "Context",
-        body: "A single hero model is a portfolio piece. A kit is a tool. ORBITAL was built as the second thing \u2014 enough modular geometry to assemble an entire station, under the constraints that make modular work genuinely modular rather than merely repetitive.",
+        heading: "Why a kit",
+        body: "It is easy enough to model one hero object and call it a portfolio piece. ORBITAL was built to be a tool instead: enough modular geometry to assemble an entire station, under the constraints that separate genuinely modular work from work that is merely repetitive.",
       },
       {
         heading: "The grid is the discipline",
@@ -596,16 +596,16 @@ export const projects: Project[] = [
     presentation: "expanded",
     caseStudy: [
       {
-        heading: "Context",
-        body: "Four identities, self-directed, in four unrelated sectors \u2014 a specialty coffee roastery, a sports nutrition line, a skincare brand and a property developer. Self-directed is the point rather than an apology: a brief invented in-house can be held to a standard a client brief rarely allows, and nothing here had to survive a committee.",
+        heading: "Four briefs, no client",
+        body: "Four self-directed identities in four unrelated sectors: a specialty coffee roastery, a sports nutrition line, a skincare brand and a property developer. Self-directed is the point here and not an apology for it. A brief invented in-house can be held to a standard a client brief rarely allows, and nothing here had to survive a committee.",
       },
       {
         heading: "Past the logo",
         body: "A mark on a white page proves very little. Each of these is built out as a system \u2014 a palette with usage ratios, a type scale, applications, a website and a social kit \u2014 and then assembled into a final board showing all of it at once. That board is the test: an identity either holds together across a business card, a shopfront, a phone screen and a paper bag, or it quietly falls apart on one of them.",
       },
       {
-        heading: "Why four",
-        body: "One identity demonstrates taste. Four in unrelated sectors demonstrate range, and more usefully they demonstrate that the method is portable \u2014 the same sequence of brief, research, moodboard, sketches, concepts and final system produced a warm roastery and a clinical skincare brand without either of them ending up looking like the other.",
+        heading: "What four proves",
+        body: "One identity demonstrates taste. Four in unrelated sectors demonstrate range, and more usefully they demonstrate that the method is portable. The same sequence of brief, research, moodboard, sketches, concepts and final system produced a warm roastery and a clinical skincare brand without either of them ending up looking like the other.",
       },
     ],
     entriesLabel: "The four identities",
@@ -841,7 +841,7 @@ export const projects: Project[] = [
     title: "Websites",
     discipline: "creative",
     summary:
-      "Sites built rather than themed \u2014 FreeVoices, an invoicing product for South African businesses, M Legacy, an editorial piece comparing two generations of BMW M3, and the site you are reading now.",
+      "Sites that were built from scratch and not themed: FreeVoices, an invoicing product for South African businesses, M Legacy, an editorial piece comparing two generations of BMW M3, and the site you are reading now.",
     role: "Design and build",
     year: "2025 \u2014 2026",
     stack: ["Angular", "React", "Next.js", "Vite", "GSAP", "ScrollTrigger", "Lenis", "Three.js", "Tailwind CSS"],
@@ -874,7 +874,7 @@ export const projects: Project[] = [
     caseStudy: [
       {
         heading: "The recurring brief",
-        body: "Make a page that moves with the reader rather than at them. In practice that means the scroll position drives the composition \u2014 type, imagery and, where it earns its place, a WebGL layer \u2014 instead of elements animating on a timer the reader has no control over.",
+        body: "Make a page that moves with the reader instead of at them. In practice that means the scroll position drives the composition: type, imagery and, where it earns its place, a WebGL layer. The alternative is elements animating on a timer the reader has no control over.",
       },
       {
         heading: "How they are built",
@@ -882,7 +882,7 @@ export const projects: Project[] = [
       },
       {
         heading: "When the brief is not editorial",
-        body: "FreeVoices is the counterexample, and it is in this list for that reason. Nobody wants a scroll-driven narrative while they are issuing an invoice: it is an Angular application with routes for invoices, quotes, customers, products and reports, and the design work there went into making a dense, repetitive task quick rather than into making a page feel cinematic. Knowing which of the two a brief is asking for is most of the job.",
+        body: "FreeVoices is the counterexample, and it is in this list for that reason. Nobody wants a scroll-driven narrative while they are issuing an invoice: it is an Angular application with routes for invoices, quotes, customers, products and reports, and the design work there went into making a dense, repetitive task quick. Nothing about it is cinematic. Knowing which of the two a brief is asking for is most of the job.",
       },
     ],
     placeholder: false,
@@ -893,7 +893,7 @@ export const projects: Project[] = [
     title: "Further creative work",
     discipline: "creative",
     summary:
-      "More identity, 3D and campaign work is finished but not yet written up for this site. It will appear here with its own imagery rather than as a description of imagery.",
+      "More identity, 3D and campaign work is finished but not yet written up for this site. It will appear here once there is imagery to show with it.",
     stack: [],
     media: [{ kind: "image", src: "", alt: "", pending: true }],
     presentation: "compact",
@@ -909,7 +909,7 @@ export const projects: Project[] = [
     title: "Data platform work",
     discipline: "ai",
     summary:
-      "Ingestion, preparation, modelling and dashboards brought into one workflow for technical and non-technical users. In development; it will be written up here once it is finished rather than described while it moves.",
+      "Ingestion, preparation, modelling and dashboards brought into one workflow for technical and non-technical users. Still in development, so the write-up waits until it has settled.",
     stack: [],
     media: [{ kind: "image", src: "", alt: "", pending: true }],
     presentation: "compact",
@@ -937,7 +937,7 @@ export const projects: Project[] = [
     title: "Local Execution Gateway",
     discipline: "security",
     summary:
-      "A service that lets a cloud-hosted AI assistant run commands on your own machine — which is a security problem first and a feature second, and is built in that order.",
+      "A service that lets a cloud-hosted AI assistant run commands on your own machine, which is a security problem first and a feature second, and is built in that order.",
     role: "Sole author",
     year: "2026",
     stack: ["Python", "FastAPI", "Server-Sent Events", "Windows Job Objects"],
@@ -950,11 +950,11 @@ export const projects: Project[] = [
       },
       {
         heading: "The controls",
-        body: "Commands execute as argument arrays and never as a shell string, which removes an entire class of injection rather than filtering for it. Execution is confined to allowed roots with denied executables, timeouts and output caps, and is wrapped in an operating-system job object so a spawned process tree can be killed as a unit. A three-mode policy decides whether each command runs, asks, or is refused outright; in ask mode it requires a one-time token minted only after a human clicks Approve. Outbound fetching is off by default, read-only when enabled, and blocks private address ranges.",
+        body: "Commands execute as argument arrays and never as a shell string, which removes an entire class of injection instead of filtering for it. Execution is confined to allowed roots with denied executables, timeouts and output caps, and is wrapped in an operating-system job object so a spawned process tree can be killed as a unit. A three-mode policy decides whether each command runs, asks, or is refused outright; in ask mode it requires a one-time token minted only after a human clicks Approve. Outbound fetching is off by default, read-only when enabled, and blocks private address ranges.",
       },
     ],
     technicalDetails: [
-      "argv-only execution — no shell string is ever constructed, which removes shell injection as a category.",
+      "argv-only execution: no shell string is ever constructed, which removes shell injection as a category.",
       "Allowed roots, denied executables, timeouts and output caps enforced before launch.",
       "An OS job object contains the whole spawned process tree so it can be terminated as one.",
       "Three-mode policy (ask / always allow / never) with one-time approval tokens in ask mode.",
@@ -1264,7 +1264,7 @@ export const professionalDevelopment: ProfessionalDevelopmentEntry[] = [
     label: "XR Development",
     level: "Advanced",
     weight: 0.92,
-    note: "The whole pipeline, single-handed — model, sculpt, texture, animate, and into the engine.",
+    note: "The whole pipeline, single-handed: model, sculpt, texture, animate, and into the engine.",
   },
   {
     discipline: "creative",
@@ -1380,7 +1380,7 @@ export const timeline: TimelineEntry[] = [
     period: "2022 — Present",
     title: "XR, 3D and real-time",
     detail:
-      "Modelling, sculpting, texturing, animation and engine work — the full pipeline, plus XR training delivery.",
+      "Modelling, sculpting, texturing, animation and engine work, plus XR training delivery.",
     discipline: "xr",
     placeholder: false,
   },
@@ -1452,7 +1452,7 @@ export const currentlyBuilding: CurrentlyBuilding[] = [
     title: "3D — finishing and rendering",
     discipline: "creative",
     status: "building",
-    note: "Taking the modelled interior and prop sets through lighting and render, so the work can be seen rather than described.",
+    note: "Taking the modelled interior and prop sets through lighting and render, so there is something to look at and not just a description of it.",
     placeholder: false,
   },
 ];

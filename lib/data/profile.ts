@@ -36,9 +36,9 @@ export const profile: Profile = {
    * paragraphs.
    */
   intro: [
-    "I am a builder. The label changes depending on the room — engineer, designer, analyst — but the work underneath is the same: take something that exists only as an idea, and make it real enough to use.",
-    "Most of what I build is software, and most of it is the unglamorous half: the risk engine that refuses the order, the policy that makes an agent stop and ask, the database rule that makes a permission true rather than merely displayed. I like the parts that have to be right.",
-    "The rest of it — the 3D, the design, the security — is not a separate set of hobbies. A forecast nobody opens is not a forecast. A spatial experience needs someone who can model it and someone who can ship it. A system is not finished until somebody has tried to break it. Five entrances, one practice.",
+    "I am a builder. Depending on who is asking I get called an engineer, a designer or an analyst, but the job underneath is always the same one: take something that exists only as an idea and make it real enough to use.",
+    "Most of what I build is software, and most of that is the unglamorous half: risk engines that refuse an order, policies that make an agent stop and ask for approval, database rules that make a permission actually true and not just displayed. I like the parts that have to be right.",
+    "The 3D, the design and the security work aren't side interests I keep separate from that. A forecast only counts once somebody opens it, a spatial experience needs both someone to model it and someone to ship it, and nothing I build is finished until somebody has tried to break it.",
   ],
 
   /**
